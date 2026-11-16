@@ -1,0 +1,64 @@
+# Maintainer: FrazzledTurtle
+# Arch's libinput 1.32.0-1 (heftig, andyrtr) built against Lua 5.5 instead of 5.4.
+#
+# Hyprland 0.57 links Lua 5.5 for its config and stock libinput links Lua 5.4.
+# Both export the same unversioned lua_* symbols, so once any libinput Lua
+# plugin is installed libinput's plugin code runs on Hyprland's Lua and
+# Hyprland crashes at login. midhat-pen-hold-guard enables the pen-hold plugin
+# only while Hyprland loads a single Lua, which this build gives it.
+#
+# Only the library is built: stock libinput-tools works with it. pkgrel 1.1
+# sorts above Arch's 1.32.0-1, and any newer Arch libinput replaces it, which
+# turns the pen-hold plugin off until this is rebuilt.
+
+pkgname=libinput
+pkgver=1.32.0
+pkgrel=1.1
+pkgdesc="Input device management and event handling library (built against Lua 5.5)"
+url="https://wayland.freedesktop.org/libinput/doc/latest/"
+arch=(aarch64)
+license=(MIT)
+depends=(
+  glibc
+  libevdev
+  libgcc
+  libwacom
+  lua
+  mtdev
+  systemd-libs
+)
+makedepends=(
+  git
+  meson
+)
+optdepends=('libinput-tools: debug utilities')
+provides=(libinput.so)
+source=(
+  "git+https://gitlab.freedesktop.org/libinput/libinput.git?signed#tag=$pkgver"
+)
+b2sums=('0282e8b3c5b1cd1ac68c0b5d9dba67f60c69e747d28bef5eb911e60687238b0beb7ceb2dac6cad80ad511f8eb8ee461cc58964cbbd529c57b28872ed7666dd71')
+validpgpkeys=(
+  3C2C43D9447D5938EF4551EBE23B7E70B467F0BF # Peter Hutterer (Who-T) <office@who-t.net>
+)
+
+prepare() {
+  sed -i "s/dependency('lua-5.4', 'lua5.4', 'lua',/dependency('lua-5.5', 'lua5.5', 'lua',/" libinput/meson.build
+  grep -q "dependency('lua-5.5'" libinput/meson.build
+}
+
+build() {
+  arch-meson libinput build \
+    -D documentation=false \
+    -D debug-gui=false \
+    -D tests=false
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+
+  # The same split as Arch's libinput / libinput-tools; the tools are dropped.
+  rm -rf "$pkgdir/usr/bin" "$pkgdir/usr/lib/libinput" "$pkgdir/usr/share/man" "$pkgdir/usr/share/zsh"
+
+  install -Dm644 libinput/COPYING -t "$pkgdir/usr/share/licenses/$pkgname"
+}

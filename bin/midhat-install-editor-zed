@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# midhat:summary=Install Zed Editor and configure it with the current Mid’hat theme
+
+echo "Installing Zed Editor..."
+midhat-pkg-add zed omazed
+
+# Apply Mid’hat theme to Zed
+omazed setup
+
+setsid uwsm-app -- gtk-launch dev.zed.Zed >/dev/null 2>&1 &

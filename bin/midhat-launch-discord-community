@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# midhat:summary=Open the Mid’hat Discord community in the Discord app or a browser.
+
+invite="https://discord.gg/tXFUdasqhY"
+
+if midhat-cmd-present discord; then
+  exec setsid uwsm-app -- discord --url -- "discord://-/invite/${invite##*/}"
+else
+  exec midhat-launch-webapp "$invite"
+fi

@@ -1,0 +1,15 @@
+
+# Python bytecode (orchestrator)
+__pycache__/
+*.pyc
+out/
+pkgbuilds/*/src/
+pkgbuilds/*/pkg/
+pkgbuilds/*/*.pkg.tar.*
+pkgbuilds/*/*.deb
+pkgbuilds/*/*.log
+pkgbuilds/libinput/libinput/
+
+# Editor leftovers
+*.swp
+*~

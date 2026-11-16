@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# midhat:summary=Check if a toggle is enabled (flag file exists)
+# midhat:args=<flag-name>
+
+[[ -f "$HOME/.local/state/midhat/toggles/$1" ]]

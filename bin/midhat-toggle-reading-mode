@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# midhat:summary=Toggle reading mode: grey screen, warm light, no animations, notifications silenced, power saving
+# midhat:group=toggle
+# midhat:args=[toggle|on|off|sync|status]
+
+# Applies everything live (hyprctl eval, no reload, so a turned tablet stays
+# turned). The Hyprland flag keeps the grey screen across reloads and logins;
+# sync, run at login, puts back the warm light and power saving. Off restores
+# what was set before.
+
+FLAG="$HOME/.local/state/midhat/toggles/hypr/reading-mode.lua"
+SAVED="$HOME/.local/state/midhat/reading-mode-saved"
+WARM_TEMP=4500
+OFF_TEMP=6500
+
+temperature() {
+  local output
+
+  output=$(hyprctl hyprsunset temperature 2>/dev/null) || return
+  grep -oE '^[0-9]+' <<<"$output" | head -n1
+}
+
+set_temperature() {
+  if ! pgrep -x hyprsunset >/dev/null; then
+    setsid uwsm-app -- hyprsunset >/dev/null 2>&1 &
+  fi
+
+  # A freshly started hyprsunset applies its default at the end of its boot.
+  for _ in {1..10}; do
+    hyprctl hyprsunset temperature "$1" >/dev/null 2>&1
+    sleep 0.2
+    [[ $(temperature) == "$1" ]] && break
+  done
+}
+
+refresh_shell() {
+  midhat-shell -q nightlight refresh
+  midhat-shell -q midhat.reading-mode refresh
+}
+
+apply() {
+  hyprctl eval "dofile(\"$FLAG\")" >/dev/null
+  set_temperature "$WARM_TEMP"
+  midhat-shell -q notifications setDnd on
+  if midhat-powerprofiles-list | grep -qx power-saver; then
+    powerprofilesctl set power-saver
+  fi
+  refresh_shell
+}
+
+on() {
+  if [[ ! -f $FLAG ]]; then
+    mkdir -p "${FLAG%/*}" "${SAVED%/*}"
+    {
+      echo "temperature=$(temperature)"
+      echo "dnd=$(midhat-shell notifications dndState 2>/dev/null)"
+      echo "profile=$(powerprofilesctl get 2>/dev/null)"
+      echo "animations=$(hyprctl getoption animations:enabled -j | jq -r .bool)"
+    } >"$SAVED"
+    cp "$MIDHAT_PATH/default/hypr/toggles/reading-mode.lua" "$FLAG"
+  fi
+  apply
+}
+
+off() {
+  local key value temperature="" dnd=off profile="" animations=true
+
+  [[ -f $FLAG ]] || return 0
+
+  if [[ -f $SAVED ]]; then
+    while IFS='=' read -r key value; do
+      case $key in
+        temperature) [[ $value =~ ^[0-9]+$ ]] && temperature=$value ;;
+        dnd) [[ $value == "on" ]] && dnd=on ;;
+        profile) profile=$value ;;
+        animations) [[ $value == "false" ]] && animations=false ;;
+      esac
+    done <"$SAVED"
+  fi
+
+  rm -f "$FLAG" "$SAVED"
+  hyprctl eval "hl.config({ decoration = { screen_shader = \"[[EMPTY]]\" }, animations = { enabled = $animations } })" >/dev/null
+  set_temperature "${temperature:-$OFF_TEMP}"
+  midhat-shell -q notifications setDnd "$dnd"
+  if [[ -n $profile ]]; then
+    powerprofilesctl set "$profile"
+  fi
+  refresh_shell
+}
+
+case ${1:-toggle} in
+  toggle)
+    if [[ -f $FLAG ]]; then off; else on; fi
+    ;;
+  on) on ;;
+  off) off ;;
+  sync)
+    if [[ -f $FLAG ]]; then apply; fi
+    ;;
+  status)
+    if [[ -f $FLAG ]]; then echo on; else echo off; exit 1; fi
+    ;;
+  *)
+    echo "Usage: midhat-toggle-reading-mode [toggle|on|off|sync|status]" >&2
+    exit 1
+    ;;
+esac

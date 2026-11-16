@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# The fyde-vdtb tablet-mode switch ignores USB changes during sleep and does not
+# look again on wake, so a cover taken off while asleep left laptop mode on.
+# Write what is attached now; an unchanged value sends no event.
+
+[[ $1 == "post" ]] || exit 0
+[[ -w /dev/vdtb ]] || exit 0
+(
+  sleep 2
+  mode=1
+  for intf in /sys/bus/usb/devices/*:*; do
+    if [[ $(<"$intf/bInterfaceClass") == "03" && $(<"$intf/bInterfaceSubClass") == "01" && $(<"$intf/bInterfaceProtocol") == "01" ]]; then
+      mode=0
+      break
+    fi
+  done 2>/dev/null
+  printf '%s' "$mode" >/dev/vdtb
+) &>/dev/null &
+exit 0

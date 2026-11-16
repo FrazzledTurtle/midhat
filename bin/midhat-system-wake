@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# midhat:summary=Wake displays and restore brightness after idle
+# midhat:group=system
+# midhat:name=wake
+# midhat:examples=midhat system wake
+
+midhat-brightness-display on
+midhat-brightness-keyboard restore
+midhat-hyprland-monitor-clamshell >/dev/null 2>&1 || true

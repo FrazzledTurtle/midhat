@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# midhat:summary=Overwrite all the user Hyprland Lua configs in ~/.config/hypr with the Mid’hat defaults.
+
+midhat-refresh-config hypr/.luarc.json
+midhat-refresh-config hypr/autostart.lua
+midhat-refresh-config hypr/bindings.lua
+midhat-refresh-config hypr/input.lua
+midhat-refresh-config hypr/looknfeel.lua
+midhat-refresh-config hypr/hyprland.lua
+midhat-refresh-config hypr/monitors.lua
+
+mkdir -p ~/.local/state/midhat/toggles/hypr
+cp "$MIDHAT_PATH/default/hypr/toggles/flags.lua" ~/.local/state/midhat/toggles/hypr/

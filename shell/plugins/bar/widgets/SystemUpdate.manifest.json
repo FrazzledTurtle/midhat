@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.system-update",
+  "name": "Mid’hat update",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Indicates available Mid’hat updates",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "SystemUpdate.qml"
+  },
+  "barWidget": {
+    "displayName": "Mid’hat update",
+    "description": "Indicates available Mid’hat updates",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# midhat:summary=Restore the default Mid’hat Plymouth boot theme and SDDM login screen
+# midhat:requires-sudo=true
+
+set -euo pipefail
+
+"$MIDHAT_PATH/bin/midhat-refresh-plymouth"
+"$MIDHAT_PATH/bin/midhat-refresh-sddm"

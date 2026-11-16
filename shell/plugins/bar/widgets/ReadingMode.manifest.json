@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.reading-mode",
+  "name": "Reading Mode",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Grey screen, warm light, no animations or notifications",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "ReadingMode.qml"
+  },
+  "barWidget": {
+    "displayName": "Reading Mode",
+    "description": "Grey screen, warm light, no animations or notifications",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# midhat:summary=Compatibility wrapper for midhat-migrate-notify.
+# midhat:hidden=true
+
+exec midhat-migrate-notify "$@"

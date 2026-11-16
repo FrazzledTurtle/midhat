@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# midhat:summary=Reload opencode configuration (used by the Mid’hat theme switching).
+
+if pgrep -x opencode >/dev/null; then
+  killall -SIGUSR2 opencode
+fi

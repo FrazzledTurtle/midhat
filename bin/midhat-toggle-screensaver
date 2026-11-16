@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# midhat:summary=Toggle screensaver availability
+
+midhat-toggle screensaver-off
+
+if midhat-toggle-enabled screensaver-off; then
+  midhat-notification-send -g 󱄄 "Screensaver disabled"
+else
+  midhat-notification-send -g 󱄄 "Screensaver enabled"
+fi

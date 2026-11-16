@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Show the current battery status notification
+
+midhat-notification-send -g 󰁹 -u low "$(midhat-battery-status)"

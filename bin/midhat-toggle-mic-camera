@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# midhat:summary=Turn the microphones and cameras off or on, together or one kind at a time
+# midhat:group=toggle
+# midhat:args=[toggle|on|off|status] [mic|camera]
+# midhat:examples=midhat toggle mic camera off | midhat toggle mic camera status camera
+
+# Mic off mutes every audio source. Camera off deauthorizes the USB camera, so
+# it disappears from the system until it is turned on again; 91-midhat-camera.rules
+# lets the video group do that. Both are turned on again at every login.
+
+ACTION=${1:-toggle}
+WHAT=${2:-both}
+
+usage() {
+  echo "Usage: midhat-toggle-mic-camera [toggle|on|off|status] [mic|camera]" >&2
+  exit 1
+}
+
+sources() {
+  pw-dump 2>/dev/null | jq -r '.[] | select(.type == "PipeWire:Interface:Node")
+    | select((.info.props["media.class"] // "") | test("^Audio/Source")) | .id'
+}
+
+mic_state() {
+  local id state=none
+
+  for id in $(sources); do
+    if ! wpctl get-volume "$id" | grep -q MUTED; then
+      echo on
+      return
+    fi
+    state=off
+  done
+  echo "$state"
+}
+
+mic_set() {
+  local id
+
+  for id in $(sources); do
+    wpctl set-mute "$id" "$1"
+  done
+}
+
+cameras() {
+  local file
+
+  for file in /sys/bus/usb/devices/*/authorized; do
+    [[ $(stat -c %G "$file") == "video" ]] && echo "${file%/authorized}"
+  done
+}
+
+camera_state() {
+  local device state=none
+
+  for device in $(cameras); do
+    if [[ $(<"$device/authorized") == "1" ]]; then
+      echo on
+      return
+    fi
+    state=off
+  done
+  echo "$state"
+}
+
+camera_set() {
+  local device
+
+  for device in $(cameras); do
+    echo "$1" >"$device/authorized"
+  done
+}
+
+case $WHAT in
+  both) kinds=(mic camera) ;;
+  mic | camera) kinds=("$WHAT") ;;
+  *) usage ;;
+esac
+
+state() {
+  case $1 in
+    mic) mic_state ;;
+    camera) camera_state ;;
+  esac
+}
+
+case $ACTION in
+  toggle)
+    target=on
+    for kind in "${kinds[@]}"; do
+      [[ $(state "$kind") == "on" ]] && target=off
+    done
+    ;;
+  on | off)
+    target=$ACTION
+    ;;
+  status)
+    all_on=true
+    for kind in "${kinds[@]}"; do
+      current=$(state "$kind")
+      if [[ $WHAT == "both" ]]; then echo "$kind $current"; else echo "$current"; fi
+      [[ $current == "off" ]] && all_on=false
+    done
+    $all_on
+    exit
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+for kind in "${kinds[@]}"; do
+  case $kind/$target in
+    mic/on) mic_set 0 ;;
+    mic/off) mic_set 1 ;;
+    camera/on) camera_set 1 ;;
+    camera/off) camera_set 0 ;;
+  esac
+done
+
+midhat-shell -q midhat.microphone refresh

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# midhat:summary=Toggle the rotation lock, which keeps the screen as it is while the cover is off
+# midhat:group=toggle
+# midhat:args=[toggle|on|off|status]
+
+STATE_FILE="$HOME/.local/state/midhat/indicators/rotation-lock"
+
+case ${1:-toggle} in
+  toggle)
+    if [[ -f $STATE_FILE ]]; then "$0" off; else "$0" on; fi
+    ;;
+  on)
+    mkdir -p "${STATE_FILE%/*}"
+    touch "$STATE_FILE"
+    pkill -f "midhat-hyprland-monitor-rotate follow"
+    midhat-notification-send "Rotation locked" -g 󰑸 -t 2000
+    ;;
+  off)
+    rm -f "$STATE_FILE"
+    midhat-tablet-mode sync
+    midhat-notification-send "Rotation unlocked" -g 󰑵 -t 2000
+    ;;
+  status)
+    if [[ -f $STATE_FILE ]]; then echo on; else echo off; fi
+    ;;
+  *)
+    echo "Usage: midhat-toggle-rotation-lock [toggle|on|off|status]" >&2
+    exit 1
+    ;;
+esac

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# midhat:summary=Install Spotify.
+# midhat:requires-sudo=true
+
+set -e
+
+echo "Installing Spotify..."
+midhat-pkg-add spotify
+
+echo "Opening Spotify..."
+setsid uwsm-app -- /usr/bin/spotify >/dev/null 2>&1 &
+
+echo ""
+echo "Spotify has been installed."

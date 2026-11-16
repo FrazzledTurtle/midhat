@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# midhat:summary=Cycle to the next media source and transfer playback when the current source is playing
+# midhat:args=[next|previous]
+# midhat:examples=midhat audio source switch | midhat-audio-source-switch previous
+
+direction="${1:-next}"
+
+case "$direction" in
+  next)
+    midhat-shell media sourceSwitch
+    ;;
+  previous)
+    midhat-shell media sourceSwitchPrevious
+    ;;
+  *)
+    echo "Usage: midhat-audio-source-switch [next|previous]" >&2
+    exit 1
+    ;;
+esac

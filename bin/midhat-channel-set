@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# midhat:summary=Explain that Mid’hat has a single package channel.
+# midhat:hidden=true
+
+echo "Mid’hat has one channel: the [midhat] package repo, updated with 'midhat update'." >&2
+echo "To run Mid’hat from a source checkout instead, use 'midhat dev link <path>'." >&2
+exit 1

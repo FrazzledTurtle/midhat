@@ -1,0 +1,36 @@
+# Maintainer: FrazzledTurtle
+# KOReader's official arm64 build, repacked from its Debian package as the AUR's
+# koreader-bin does (Serhii Kovalyov, zaoqi). Two changes:
+#  - SDL_APP_ID is rocks.koreader.KOReader, so the window matches its desktop
+#    file (it was "luajit") and gets the right icon and window rules
+#  - the desktop file claims ebook and comic formats plus PDF (for Open With);
+#    upstream also claims plain text, images, HTML, XML, Word files and ZIP
+
+pkgname=koreader
+pkgver=2026.07.1
+pkgrel=1
+pkgdesc="Ebook reader for EPUB, PDF, DjVu, FB2, MOBI and comics, made for e-ink and touch"
+arch=(aarch64)
+url="https://koreader.rocks"
+license=(AGPL-3.0-or-later)
+depends=(sdl3 noto-fonts ttf-droid)
+provides=(koreader-bin)
+conflicts=(koreader-bin)
+options=('!strip' '!debug')
+source=("https://github.com/koreader/koreader/releases/download/v${pkgver}/koreader_${pkgver}-1_arm64.deb")
+noextract=("koreader_${pkgver}-1_arm64.deb")
+sha256sums=('b30c0d726aae3239cedf5a453642996ea53c2b1ed1b70ab679b4f5d972bccaf4')
+
+_mimetypes='application/epub+zip;application/fb2;application/fb3;application/x-fb2;application/x-fb3;application/vnd.amazon.mobi8-ebook;application/x-mobipocket-ebook;application/vnd.palm;application/tcr;application/vnd.comicbook+zip;application/vnd.comicbook+tar;application/x-cbz;application/x-chm;application/vnd.ms-htmlhelp;image/vnd.djvu;image/djvu;image/x-djvu;application/oxps;application/pdf;'
+
+package() {
+  bsdtar -xOf "koreader_${pkgver}-1_arm64.deb" 'data.tar.*' | bsdtar -xf - -C "$pkgdir"
+
+  sed -i 's|^export KO_MULTIUSER=1$|&\nexport SDL_APP_ID="${SDL_APP_ID:-rocks.koreader.KOReader}"|' \
+    "$pkgdir/usr/lib/koreader/koreader.sh"
+  grep -q '^export SDL_APP_ID=' "$pkgdir/usr/lib/koreader/koreader.sh"
+
+  local desktop="$pkgdir/usr/share/applications/rocks.koreader.KOReader.desktop"
+  sed -i "s|^MimeType=.*|MimeType=$_mimetypes|; s|^Categories=.*|Categories=Office;Viewer;|" "$desktop"
+  grep -q "^MimeType=$_mimetypes\$" "$desktop"
+}

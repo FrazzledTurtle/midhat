@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = midhat-settings
+Target = midhat-settings-dev
+
+[Action]
+Description = Pausing Hyprland config auto-reload for Mid’hat settings update...
+When = PreTransaction
+Depends = midhat
+Exec = /usr/bin/midhat-hyprland-reload-guard pause

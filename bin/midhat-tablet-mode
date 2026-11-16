@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# midhat:summary=Follow the keyboard cover: tablet mode while it is off
+# midhat:args=[on|off|sync|status]
+# midhat:hidden=true
+
+# The kernel's fyde-vdtb switch is on while no USB keyboard is attached, and the
+# cover is a USB keyboard. Hyprland runs `on`/`off` when the switch changes and
+# `sync` at login; `status` reads the same rule from sysfs.
+
+ROTATE="midhat-hyprland-monitor-rotate follow"
+
+usb_keyboard_attached() {
+  local intf
+  for intf in /sys/bus/usb/devices/*:*; do
+    [[ $(<"$intf/bInterfaceClass") == "03" && $(<"$intf/bInterfaceSubClass") == "01" && $(<"$intf/bInterfaceProtocol") == "01" ]] && return 0
+  done 2>/dev/null
+  return 1
+}
+
+status() {
+  if usb_keyboard_attached; then echo off; else echo on; fi
+}
+
+case ${1:-status} in
+  on)
+    [[ -f ~/.local/state/midhat/indicators/rotation-lock ]] || pgrep -f "$ROTATE" >/dev/null || setsid -f $ROTATE &>/dev/null
+    midhat-hook tablet-mode on
+    ;;
+  off)
+    pkill -f "$ROTATE"
+    midhat-hyprland-monitor-rotate 3
+    midhat-hook tablet-mode off
+    ;;
+  sync) "$0" "$(status)" ;;
+  status) status ;;
+  *)
+    echo "Usage: midhat-tablet-mode [on|off|sync|status]" >&2
+    exit 1
+    ;;
+esac

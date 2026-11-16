@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# midhat:summary=Keep the Arch Linux and Arch Linux ARM keyrings current
+# midhat:requires-sudo=true
+
+# Mid’hat signs nothing with Omarchy's key, so only the distribution keyrings
+# are refreshed. --needed installs only a newer keyring: new or revoked keys
+# reach the repos as a new package version.
+echo -e "\e[32m\nUpdate Arch signing keys\e[0m"
+keyrings=(archlinux-keyring)
+pacman -Si archlinuxarm-keyring &>/dev/null && keyrings+=(archlinuxarm-keyring)
+sudo pacman -Sy --needed --noconfirm "${keyrings[@]}" >/dev/null 2> >(grep -vE '^warning: archlinux(arm)?-keyring-[^ ]+ is up to date -- skipping$' >&2)
+echo "Keys are correct"

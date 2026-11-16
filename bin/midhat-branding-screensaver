@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# midhat:summary=Edit, set, or reset screensaver branding
+# midhat:group=branding
+# midhat:name=screensaver
+# midhat:args=<image|text|reset>
+# midhat:examples=midhat branding screensaver image | midhat branding screensaver text | midhat branding screensaver reset
+
+set -euo pipefail
+
+case "${1:-}" in
+image)
+  image=$(midhat-file-select --title "Pick PNG or SVG for screensaver" --extensions "png svg")
+  if midhat-transcode-ascii "$image" ~/.config/midhat/branding/screensaver.txt; then
+    midhat-launch-screensaver force >/dev/null 2>&1
+  fi
+  ;;
+text)
+  midhat-launch-editor ~/.config/midhat/branding/screensaver.txt >/dev/null 2>&1 && midhat-launch-screensaver force >/dev/null 2>&1
+  ;;
+reset)
+  cp "$MIDHAT_PATH/logo.txt" ~/.config/midhat/branding/screensaver.txt && midhat-launch-screensaver force >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: midhat-branding-screensaver <image|text|reset>" >&2
+  exit 1
+  ;;
+esac

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# midhat:summary=Enable, disable, or toggle the touchpad
+# midhat:args=[on|off|toggle]
+
+exec midhat-toggle-input-device touchpad "${1:-toggle}"

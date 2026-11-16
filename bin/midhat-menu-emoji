@@ -1,0 +1,6 @@
+#!/bin/bash
+# midhat:summary=Launch emojis
+# midhat:group=menu
+# midhat:examples=midhat menu emoji
+
+midhat-shell shell toggle midhat.emojis

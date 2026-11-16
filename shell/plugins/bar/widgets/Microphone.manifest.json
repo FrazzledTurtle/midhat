@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.microphone",
+  "name": "Mic & Camera",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Turns the microphone and camera off or on together",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Microphone.qml"
+  },
+  "barWidget": {
+    "displayName": "Mic & Camera",
+    "description": "Turns the microphone and camera off or on together",
+    "category": "Audio",
+    "allowMultiple": false
+  }
+}

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# midhat:summary=Reset shell.json to Mid’hat defaults
+# midhat:examples=midhat refresh shell
+
+set -euo pipefail
+
+midhat-refresh-config midhat/shell.json
+midhat-bar defaults
+
+midhat-restart-shell

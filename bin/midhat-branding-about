@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# midhat:summary=Edit, set, or reset About branding
+# midhat:group=branding
+# midhat:name=about
+# midhat:args=<image|text|reset>
+# midhat:examples=midhat branding about image | midhat branding about text | midhat branding about reset
+
+set -euo pipefail
+
+case "${1:-}" in
+image)
+  image=$(midhat-file-select --title "Pick PNG or SVG for About" --extensions "png svg")
+  if midhat-transcode-ascii "$image" ~/.config/midhat/branding/about.txt --width 54 --height 26; then
+    midhat-launch-about >/dev/null 2>&1
+  fi
+  ;;
+text)
+  midhat-launch-editor ~/.config/midhat/branding/about.txt >/dev/null 2>&1 && midhat-launch-about >/dev/null 2>&1
+  ;;
+reset)
+  cp "$MIDHAT_PATH/icon.txt" ~/.config/midhat/branding/about.txt && midhat-launch-about >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: midhat-branding-about <image|text|reset>" >&2
+  exit 1
+  ;;
+esac

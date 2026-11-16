@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# midhat:summary=Make sure /etc/pacman.conf lists the [midhat] repo, then refresh all package databases and update.
+# midhat:requires-sudo=true
+
+# Unlike Omarchy, this never replaces /etc/pacman.conf: the tablet's Arch Linux
+# ARM, [fyde] and AUR repos must stay. It only adds the [midhat] section when
+# it is missing, in front of the other repos so its packages win.
+
+set -e
+
+sudo cp -f /etc/pacman.conf /etc/pacman.conf.bak
+
+if ! grep -q '^\[midhat\]' /etc/pacman.conf; then
+  echo "Adding the [midhat] repo to /etc/pacman.conf"
+  section=$(<"$MIDHAT_PATH/default/pacman/midhat-repo.conf")
+  sudo awk -v section="$section" '
+    !done && /^\[/ && $0 != "[options]" { print section; print ""; done = 1 }
+    { print }
+    END { if (!done) { print ""; print section } }
+  ' /etc/pacman.conf | sudo tee /etc/pacman.conf.new >/dev/null
+  sudo mv /etc/pacman.conf.new /etc/pacman.conf
+fi
+
+# Allow user customization of /etc/pacman.conf before the upgrade runs
+midhat-hook pre-refresh-pacman
+
+# Reset all package DBs and then update
+sudo env MIDHAT_UPDATE_PACMAN=1 pacman -Syyuu --noconfirm

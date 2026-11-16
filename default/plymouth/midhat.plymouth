@@ -1,0 +1,11 @@
+[Plymouth Theme]
+Name=Midhat
+Description=Midhat splash screen.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/midhat
+ScriptFile=/usr/share/plymouth/themes/midhat/midhat.script
+ConsoleLogBackgroundColor=0x1a1b26
+MonospaceFont=Cantarell 11
+Font=Cantarell 11

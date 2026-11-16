@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# midhat:summary=Enable the pen-hold plugin only while Hyprland and libinput share one Lua
+# midhat:hidden=true
+# midhat:requires-sudo=true
+
+# Links the pen-hold libinput plugin in while Hyprland loads exactly one Lua
+# library, and takes it out otherwise. With two (Hyprland's Lua 5.5 and stock
+# libinput's 5.4) libinput's plugin code calls the wrong Lua and Hyprland
+# crashes at login; Mid’hat's libinput build links 5.5 and avoids that.
+# Runs before SDDM starts and after pacman changes libinput, Hyprland or Lua.
+
+plugin=/usr/share/midhat/default/libinput/midhat-pen-hold.lua
+link=/etc/libinput/plugins/midhat-pen-hold.lua
+
+luas=$(ldd /usr/bin/Hyprland 2>/dev/null | grep -o 'liblua[^ ]*' | sort -u)
+
+if [[ -f $plugin ]] && (( $(grep -c . <<<"$luas") == 1 )); then
+  if [[ $(readlink "$link") != "$plugin" ]]; then
+    mkdir -p "${link%/*}"
+    ln -sfn "$plugin" "$link"
+    echo "midhat-pen-hold: on"
+  fi
+elif [[ -e $link || -L $link ]]; then
+  rm -f "$link"
+  echo "midhat-pen-hold: off, Hyprland loads Lua: ${luas//$'\n'/ }"
+fi
+exit 0

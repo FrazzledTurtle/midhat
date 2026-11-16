@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# midhat:summary=Open Voxtype AI model setup
+
+set -e
+
+midhat-launch-floating-terminal-with-presentation "voxtype setup model"
+midhat-restart-shell

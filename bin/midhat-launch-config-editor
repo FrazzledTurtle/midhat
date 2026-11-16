@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# midhat:summary=Open a config file in the user's editor and surface a toast
+# midhat:args=<path>
+# midhat:examples=midhat launch config-editor ~/.config/hypr/hyprland.lua
+
+path="${1-}"
+
+if [[ -z $path ]]; then
+  echo "Usage: midhat-launch-config-editor <path>" >&2
+  exit 1
+fi
+
+midhat-notification-send -u low "Editing config file" "$path"
+exec midhat-launch-editor "$path"

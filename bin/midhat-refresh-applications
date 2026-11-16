@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# midhat:summary=Ensure default application launchers and mise wrappers are installed.
+
+# Copy .desktop declarations
+mkdir -p ~/.local/share/applications
+cp "$MIDHAT_PATH"/applications/*.desktop ~/.local/share/applications/
+
+if midhat-cmd-present alacritty; then
+  cp "$MIDHAT_PATH/default/alacritty/Alacritty.desktop" ~/.local/share/applications/
+fi
+
+if [[ -f "$MIDHAT_PATH/install/user/mise.sh" ]]; then
+  bash "$MIDHAT_PATH/install/user/mise.sh"
+fi
+
+update-desktop-database ~/.local/share/applications

@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = *
+
+[Action]
+Description = Checking Mid’hat update entrypoint...
+When = PreTransaction
+Depends = midhat
+Exec = /usr/bin/midhat-update-pacman-guard
+AbortOnFail

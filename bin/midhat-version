@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# midhat:summary=Print the installed Mid’hat version
+
+midhat_path=${MIDHAT_PATH:-/usr/share/midhat}
+midhat_path=${midhat_path%/}
+
+if [[ $midhat_path != "/usr/share/midhat" ]]; then
+  hash=$(git -C "$midhat_path" rev-parse --short HEAD 2>/dev/null || true)
+
+  if [[ -n $hash ]]; then
+    echo "dev ($hash)"
+  else
+    echo "dev"
+  fi
+
+  exit 0
+fi
+
+# The edge channel installs midhat-dev instead of midhat, so check both.
+for package in midhat-dev midhat; do
+  version=$(pacman -Q "$package" 2>/dev/null | awk '{ print $2 }')
+  [[ -n $version ]] && break
+done
+
+[[ -n $version ]] || exit 1
+
+echo "$version"

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# midhat:summary=Reinstall all default Mid’hat packages from the stable channel
+# midhat:requires-sudo=true
+
+set -e
+
+# Reinstall all default Mid’hat packages from the stable channel and downgrade any packages that are too new.
+
+# Set the package repository to the stable mirrors
+midhat-refresh-pacman
+
+# Downgrade any packages to the stable setup
+sudo env MIDHAT_UPDATE_PACMAN=1 pacman -Suu --noconfirm
+
+# Ensure all packages are installed
+mapfile -t packages < <(grep -v '^#' "$MIDHAT_PATH/install/midhat-base.packages" | grep -v '^$')
+sudo env MIDHAT_UPDATE_PACMAN=1 pacman -Syu --noconfirm --needed "${packages[@]}"

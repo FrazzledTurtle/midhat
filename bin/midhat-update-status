@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# midhat:summary=Refresh the shell update status
+# midhat:hidden=true
+
+set -e
+
+if midhat-update-available >/dev/null; then
+  midhat-shell -q midhat.system-update refresh
+else
+  midhat-shell -q midhat.system-update clear
+fi

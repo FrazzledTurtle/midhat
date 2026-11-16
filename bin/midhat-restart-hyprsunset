@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Restart the hyprsunset service (used for blue light filtering/night light).
+
+midhat-restart-app hyprsunset

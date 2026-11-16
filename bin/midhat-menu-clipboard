@@ -1,0 +1,6 @@
+#!/bin/bash
+# midhat:summary=Launch the clipboard manager
+# midhat:group=menu
+# midhat:examples=midhat menu clipboard
+
+midhat-shell shell toggle midhat.clipboard

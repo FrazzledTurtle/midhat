@@ -1,0 +1,59 @@
+# Maintainer: FrazzledTurtle
+# Mid'hat's LazyVim setup: a renamed repack of omarchy-nvim 2026.8.13-1 (MIT),
+# the build the FydeTab already runs. The plugin cache is taken as built;
+# only Mid'hat's own files (commands, config, theme link) are renamed.
+pkgname=midhat-nvim
+_upstream=omarchy-nvim
+_upver=2026.8.13
+_uprel=1
+pkgver=${_upver}
+pkgrel=1
+pkgdesc="Mid'hat's pre-built LazyVim configuration with cached plugins"
+arch=('any')
+url='https://github.com/FrazzledTurtle/midhat'
+license=('MIT')
+depends=('neovim>=0.9.0' 'git')
+conflicts=('omarchy-nvim' 'omarchy-lazyvim')
+replaces=('omarchy-nvim')
+options=('!debug' '!strip')
+source=("https://github.com/Linux-for-Fydetab-Duo/imagebuild/releases/download/repo/${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst")
+noextract=("${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst")
+sha256sums=('dd5d552c1f331cc65f56eaae780690658356918a01c4b7e42ca7bec3fd6e7985')
+
+prepare() {
+  rm -rf "$srcdir/upstream"
+  mkdir -p "$srcdir/upstream"
+  bsdtar -xpf "$srcdir/${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst" -C "$srcdir/upstream" --exclude .PKGINFO --exclude .MTREE --exclude .BUILDINFO --exclude .INSTALL
+}
+
+_rename_text() {
+  local file
+  while IFS= read -r -d '' file; do
+    grep -Iq . "$file" || continue
+    sed -i 's/omarchy/midhat/g; s/OMARCHY/MIDHAT/g; s/Omarchy/Midhat/g' "$file"
+  done < <(find "$@" -type f -print0)
+}
+
+package() {
+  cp -a "$srcdir/upstream/." "$pkgdir/"
+  cd "$pkgdir"
+
+  mv usr/share/omarchy-nvim usr/share/midhat-nvim
+  mv usr/bin/omarchy-nvim-setup usr/bin/midhat-nvim-setup
+  rm -f usr/bin/omarchy-nvim-refresh
+  ln -s midhat-nvim-setup usr/bin/midhat-nvim-refresh
+
+  local dir
+  for dir in etc/skel/.config/nvim usr/share/midhat-nvim/config; do
+    mv "$dir/lua/plugins/omarchy-theme-hotreload.lua" "$dir/lua/plugins/midhat-theme-hotreload.lua"
+    if [[ -L $dir/lua/plugins/theme.lua ]]; then
+      ln -snf "$(readlink "$dir/lua/plugins/theme.lua" | sed 's/omarchy/midhat/g')" "$dir/lua/plugins/theme.lua"
+    fi
+  done
+  _rename_text usr/bin usr/share/midhat-nvim/config etc/skel/.config/nvim
+
+  if grep -rIl -i omarchy usr/bin usr/share/midhat-nvim/config etc/skel/.config/nvim; then
+    echo "omarchy is still named in the files above" >&2
+    return 1
+  fi
+}

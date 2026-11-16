@@ -1,0 +1,32 @@
+@define-color accent_color #1d1d1b;
+@define-color accent_bg_color #1d1d1b;
+@define-color accent_fg_color #e6e4dd;
+@define-color destructive_color #1d1d1b;
+@define-color destructive_bg_color #1d1d1b;
+@define-color destructive_fg_color #e6e4dd;
+@define-color success_color #1d1d1b;
+@define-color warning_color #1d1d1b;
+@define-color error_color #1d1d1b;
+@define-color window_bg_color #e6e4dd;
+@define-color window_fg_color #1d1d1b;
+@define-color view_bg_color #eeece6;
+@define-color view_fg_color #1d1d1b;
+@define-color headerbar_bg_color #dcdad3;
+@define-color headerbar_fg_color #1d1d1b;
+@define-color headerbar_border_color #9a9893;
+@define-color sidebar_bg_color #dcdad3;
+@define-color sidebar_fg_color #1d1d1b;
+@define-color card_bg_color #eeece6;
+@define-color card_fg_color #1d1d1b;
+@define-color dialog_bg_color #e6e4dd;
+@define-color dialog_fg_color #1d1d1b;
+@define-color popover_bg_color #eeece6;
+@define-color popover_fg_color #1d1d1b;
+:root {
+  --accent-color: #1d1d1b; --accent-bg-color: #1d1d1b; --accent-fg-color: #e6e4dd;
+  --window-bg-color: #e6e4dd; --window-fg-color: #1d1d1b;
+  --view-bg-color: #eeece6; --view-fg-color: #1d1d1b;
+  --headerbar-bg-color: #dcdad3; --headerbar-fg-color: #1d1d1b;
+  --sidebar-bg-color: #dcdad3; --sidebar-fg-color: #1d1d1b;
+  --card-bg-color: #eeece6; --popover-bg-color: #eeece6; --dialog-bg-color: #e6e4dd;
+}

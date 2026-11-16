@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# midhat:summary=Enable, disable, or toggle the touch functionality of the screen
+# midhat:args=[on|off|toggle]
+
+exec midhat-toggle-input-device touchscreen "${1:-toggle}"

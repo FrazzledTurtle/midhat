@@ -1,0 +1,15 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = libinput
+Target = hyprland
+Target = aquamarine
+Target = lua
+Target = lua54
+Target = midhat-settings
+
+[Action]
+Description = Checking the pen-hold plugin against Hyprland's Lua...
+When = PostTransaction
+Exec = /usr/bin/midhat-pen-hold-guard

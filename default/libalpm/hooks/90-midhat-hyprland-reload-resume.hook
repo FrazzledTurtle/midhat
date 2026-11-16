@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = midhat-settings
+Target = midhat-settings-dev
+
+[Action]
+Description = Reloading Hyprland after Mid’hat settings update...
+When = PostTransaction
+Depends = midhat
+Exec = /usr/bin/midhat-hyprland-reload-guard resume

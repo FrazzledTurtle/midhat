@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# midhat:summary=Toggle bar visibility without killing the Mid’hat shell
+# midhat:args=[toggle|on|off]
+# midhat:examples=midhat toggle bar | midhat toggle bar off | midhat toggle bar on
+
+midhat-toggle bar-off "${1:-toggle}"
+
+# The shell's watch on the toggles directory can miss flag changes that land in
+# quick succession, stranding the bar off screen until the shell restarts.
+# Nudge the bar to re-read the flag; quiet best-effort so the toggle still
+# works when the shell is not up.
+midhat-shell -q midhat.bar syncHidden

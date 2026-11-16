@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# midhat:summary=Remove the Xbox Cloud Gaming web app.
+
+set -e
+
+midhat-webapp-remove "Xbox Cloud Gaming"

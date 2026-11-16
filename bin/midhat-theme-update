@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# midhat:summary=Update user-installed git themes
+
+mapfile -t themes < <(midhat-theme-extras)
+
+for theme in "${themes[@]}"; do
+  echo "Updating: $(basename "$theme")"
+  git -C "$theme" pull
+done

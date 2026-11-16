@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# midhat:summary=Open the Mid’hat background switcher
+# midhat:group=theme
+# midhat:name=bg-switcher
+# midhat:aliases=midhat background
+
+theme_name=$(cat "$HOME/.local/state/midhat/current/theme.name" 2>/dev/null)
+current_background=$(readlink -f "$HOME/.local/state/midhat/current/background" 2>/dev/null)
+
+midhat-menu-images \
+  --selected "$current_background" \
+  "$HOME/.local/state/midhat/current/theme/backgrounds" \
+  "$HOME/.config/midhat/backgrounds/$theme_name"

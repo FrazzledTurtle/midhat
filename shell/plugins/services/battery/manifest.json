@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.battery",
+  "name": "Battery line",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "The charge as a line along the outside of the bar's edge, a low battery warning, and the power profile for battery or AC",
+  "kinds": [
+    "service"
+  ],
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}

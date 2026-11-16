@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "idle": {
+    "screensaver": 150,
+    "lock": 300
+  },
+  "bar": {
+    "position": "top",
+    "transparent": false,
+    "centerAnchor": "midhat.clock",
+    "layout": {
+      "left": [
+        {
+          "id": "midhat.menu"
+        },
+        {
+          "id": "midhat.workspaces"
+        }
+      ],
+      "center": [
+        {
+          "id": "midhat.indicators"
+        },
+        {
+          "id": "midhat.reading-mode"
+        },
+        {
+          "id": "midhat.clock",
+          "format": "dddd HH:mm",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "verticalFormat": "HH\n\u2014\nmm"
+        },
+        {
+          "id": "midhat.keyboard-layout"
+        },
+        {
+          "id": "midhat.weather"
+        },
+        {
+          "id": "midhat.system-update"
+        }
+      ],
+      "right": [
+        {
+          "id": "midhat.tray"
+        },
+        {
+          "id": "midhat.agents"
+        },
+        {
+          "id": "midhat.bluetooth"
+        },
+        {
+          "id": "midhat.network"
+        },
+        {
+          "id": "midhat.audio"
+        },
+        {
+          "id": "midhat.monitor"
+        },
+        {
+          "id": "midhat.power"
+        }
+      ]
+    }
+  },
+  "plugins": []
+}

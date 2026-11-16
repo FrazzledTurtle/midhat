@@ -1,0 +1,112 @@
+# Maintainer: FrazzledTurtle
+# Mid'hat desktop: commands, Quickshell shell, themes, migrations.
+# Built from this repository's committed HEAD (git archive), so a release is
+# always a commit. Set MIDHAT_SRC=/path/to/tree to build a working tree instead.
+pkgname='midhat'
+pkgver=0.1.11
+pkgrel=1
+pkgdesc="Mid'hat, a calm pen-and-touch tablet desktop (split off from Omarchy 4.0.5)"
+arch=('aarch64')
+url='https://github.com/FrazzledTurtle/midhat'
+license=('MIT')
+options=('!debug' '!strip')
+conflicts=('omarchy' 'omarchy-dev')
+replaces=('omarchy')
+depends=(
+  "midhat-settings=${pkgver}"
+
+  # Wayland / Hyprland core
+  'hyprland'
+  'quickshell'
+  'uwsm'
+  'sddm'
+  'xdg-desktop-portal-hyprland'
+
+  # Audio / auth / portal essentials
+  'wireplumber'
+  'pipewire'
+  'gnome-keyring'
+
+  # Required by midhat-* scripts and the shell
+  'gum'
+  'jq'
+  'git'
+  'perl'
+
+  # Update availability checks (checkupdates from pacman-contrib uses fakeroot)
+  'fakeroot'
+  'pacman-contrib'
+
+  # System font (UI assumes it)
+  'ttf-jetbrains-mono-nerd-basic'
+
+  # Wi-Fi and pre-update snapshots on the tablet
+  'networkmanager'
+  'snapper'
+)
+makedepends=('git')
+source=()
+sha256sums=()
+
+_root=$(cd "$startdir/../.." && pwd)
+
+prepare() {
+  rm -rf "$srcdir/midhat"
+  mkdir -p "$srcdir/midhat"
+  if [[ -n ${MIDHAT_SRC:-} ]]; then
+    cp -a "$MIDHAT_SRC/." "$srcdir/midhat/"
+  else
+    git -C "$_root" archive HEAD | tar -x -C "$srcdir/midhat"
+  fi
+  local version
+  version=$(<"$srcdir/midhat/version")
+  if [[ $version != "$pkgver" ]]; then
+    echo "version file says $version but pkgver is $pkgver" >&2
+    return 1
+  fi
+}
+
+build() {
+  cd "$srcdir/midhat"
+  cc $CFLAGS $LDFLAGS -shared -fPIC -o libmidhat-pen-click.so lib/pen-click.c
+}
+
+package() {
+  cd "$srcdir/midhat"
+
+  # Runtime binaries, except the system helpers that ship from midhat-settings.
+  install -d "$pkgdir/usr/bin" "$pkgdir/usr/share/midhat/bin"
+  for bin in bin/*; do
+    [[ -f $bin ]] || continue
+    local base
+    base=$(basename "$bin")
+    case "$base" in
+      midhat-debug|midhat-debug-idle|midhat-upload-log|midhat-pen-hold-guard)
+        continue
+        ;;
+    esac
+    install -Dm755 "$bin" "$pkgdir/usr/bin/$base"
+    ln -s "/usr/bin/$base" "$pkgdir/usr/share/midhat/bin/$base"
+  done
+
+  install -Dm644 default/libalpm/hooks/00-midhat-update-guard.hook "$pkgdir/usr/share/libalpm/hooks/00-midhat-update-guard.hook"
+  install -Dm644 default/libalpm/hooks/10-midhat-hyprland-reload-pause.hook "$pkgdir/usr/share/libalpm/hooks/10-midhat-hyprland-reload-pause.hook"
+  install -Dm644 default/libalpm/hooks/90-midhat-hyprland-reload-resume.hook "$pkgdir/usr/share/libalpm/hooks/90-midhat-hyprland-reload-resume.hook"
+
+  cp -a install "$pkgdir/usr/share/midhat/"
+  cp -a themes "$pkgdir/usr/share/midhat/"
+  cp -a migrations "$pkgdir/usr/share/midhat/"
+
+  # New users start on the package layout, so their migrations are done.
+  if compgen -G 'migrations/*.sh' >/dev/null; then
+    install -d "$pkgdir/etc/skel/.local/state/midhat/migrations"
+    for migration in migrations/*.sh; do
+      touch "$pkgdir/etc/skel/.local/state/midhat/migrations/$(basename "$migration")"
+    done
+  fi
+
+  cp -a shell "$pkgdir/usr/share/midhat/"
+  install -Dm755 libmidhat-pen-click.so "$pkgdir/usr/lib/midhat/libmidhat-pen-click.so"
+  install -Dm644 version "$pkgdir/usr/share/midhat/version"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

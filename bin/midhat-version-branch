@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# midhat:summary=Print the active Mid’hat dev-link git branch
+# midhat:hidden=true
+
+midhat_path=${MIDHAT_PATH:-/usr/share/midhat}
+midhat_path=${midhat_path%/}
+
+[[ $midhat_path != "/usr/share/midhat" ]] || exit 1
+
+branch=$(git -C "$midhat_path" branch --show-current 2>/dev/null || true)
+if [[ -z $branch ]]; then
+  hash=$(git -C "$midhat_path" rev-parse --short HEAD 2>/dev/null || true)
+  [[ -n $hash ]] || exit 1
+  branch="detached@$hash"
+fi
+
+echo "$branch"

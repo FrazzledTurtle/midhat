@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# midhat:summary=Send the low battery warning notification and run battery-low hooks.
+# midhat:args=<percentage>
+# midhat:hidden=true
+
+set -euo pipefail
+
+if (($# != 1)); then
+  echo "Usage: midhat-battery-low <percentage>" >&2
+  exit 1
+fi
+
+level=$1
+
+midhat-notification-send -g 󱐋 -u critical "Time to recharge!" "Battery is down to ${level}%" -i battery-caution -t 30000
+midhat-hook battery-low "$level"

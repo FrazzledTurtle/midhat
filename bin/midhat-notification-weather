@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Toggle the current weather panel
+
+midhat-shell shell toggle midhat.weather

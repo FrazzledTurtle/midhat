@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.menu",
+  "name": "Mid’hat menu",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Quickshell-powered Mid’hat command menu",
+  "kinds": [
+    "menu",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "menu": "Menu.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Mid’hat menu",
+    "description": "Launches the Mid’hat menu",
+    "category": "Compositor",
+    "allowMultiple": false
+  }
+}

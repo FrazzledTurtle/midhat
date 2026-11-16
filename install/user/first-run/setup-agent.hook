@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+# Mid’hat ships no default agent, so invite once rather than picking one. An
+# agent already chosen means the invitation has nothing to offer.
+if [[ -z $(midhat-default-agent) ]] && midhat-done ensure agent-setup-invitation; then
+  midhat-notification-send -u critical -g 󰚩 "Set your default agent" \
+    "Let your favorite agent help with Mid’hat." \
+    --exec midhat menu summon setup.default.agent
+fi

@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# midhat:summary=Update Mid’hat and system packages
+# midhat:args=[-y]
+# midhat:examples=midhat update | midhat update -y
+# midhat:requires-sudo=true
+
+set -e
+
+if [[ -z ${MIDHAT_UPDATE_LOGGED:-} ]]; then
+  script_command=$(printf '%q ' "$0" "$@")
+  exec env MIDHAT_UPDATE_LOGGED=1 script -qefc "$script_command" "/tmp/midhat-update.log"
+fi
+
+if ! midhat-update-lock held; then
+  exec midhat-update-lock run "$0" "$@"
+fi
+
+trap 'echo ""; echo -e "\033[0;31mSomething went wrong during the update!\n\nPlease review the output above carefully, correct the error, and retry the update.\n\nIf you need assistance, report it at https://github.com/FrazzledTurtle/midhat/issues\033[0m"' ERR
+trap 'midhat-update-stay-awake stop' EXIT
+
+midhat-update-requires-free-space
+
+# -y is a promise not to ask anything. Steps that would need an answer report
+# and move on instead of waiting on a prompt nobody is here to give.
+[[ ${1:-} != "-y" ]] || export MIDHAT_UPDATE_UNATTENDED=1
+
+if [[ ${1:-} == "-y" ]] || midhat-update-confirm; then
+  # Before the snapshot: the cache is on the snapshotted subvolume, so pruning
+  # after it frees nothing until that snapshot ages out.
+  midhat-update-pkg-prune
+
+  # 127 means Snapper is deliberately absent. Any other failure already said
+  # what went wrong, and a missing snapshot is not worth blocking an update
+  # over, but it must not pass for one either.
+  midhat-snapshot create || (($? == 127)) ||
+    echo -e "\e[33mContinuing the update without a snapshot.\e[0m" >&2
+
+  midhat-update-stay-awake start
+
+  midhat-update-dev
+  midhat-update-keyring
+
+  # Migrations ship with the packages installed here and are written against
+  # them, so everything below waits on this finishing. An upgrade that stopped
+  # takes the update with it rather than migrating against what is still on disk.
+  midhat-update-system-pkgs
+  midhat-migrate
+  midhat-hook post-update
+  midhat-update-aur-pkgs
+  midhat-update-mise
+  midhat-update-orphan-pkgs
+
+  midhat-update-analyze-logs
+  midhat-update-status
+
+  # Release update-owned inhibitors before offering a reboot. A confirmed
+  # reboot can terminate this process before its EXIT trap gets a chance to
+  # remove the persistent Stay Awake marker.
+  midhat-update-stay-awake stop
+  trap - EXIT
+
+  midhat-update-restart
+fi

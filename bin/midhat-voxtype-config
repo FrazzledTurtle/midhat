@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# midhat:summary=Open Voxtype configuration
+
+set -e
+
+midhat-launch-floating-terminal-with-presentation "voxtype configure"
+midhat-restart-shell

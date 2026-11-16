@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Reload btop configuration (used by the Mid’hat theme switching).
+
+pkill -SIGUSR2 btop

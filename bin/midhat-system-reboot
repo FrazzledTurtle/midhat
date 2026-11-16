@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# midhat:summary=Reboot after closing application windows
+# midhat:examples=midhat reboot | midhat system reboot
+# midhat:aliases=midhat reboot
+
+# Schedule the reboot in the user manager so closing the terminal's systemd
+# scope cannot terminate it before it runs.
+systemd-run --user --collect --quiet --on-active="2s" --timer-property=AccuracySec=100ms systemctl reboot --no-wall || exit 1
+
+midhat-osd -i reboot -m "Rebooting" -d 5000
+
+midhat-state clear re*-required
+
+# Now close all windows
+midhat-hyprland-window-close-all
+sleep 1 # Allow apps like Chrome to shutdown correctly

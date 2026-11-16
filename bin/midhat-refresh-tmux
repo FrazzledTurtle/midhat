@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# midhat:summary=Overwrite the user tmux config with the Mid’hat default and reload tmux.
+
+midhat-refresh-config tmux/tmux.conf
+midhat-restart-tmux

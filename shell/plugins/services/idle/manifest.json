@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.idle",
+  "name": "Idle",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Quickshell-based idle detection for screensaver, lock, and display wake.",
+  "kinds": [
+    "service"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}

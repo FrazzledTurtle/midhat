@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Launch or attach to the persistent herdr session in a terminal
+
+exec midhat-launch-terminal herdr

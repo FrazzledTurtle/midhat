@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.dev-gallery",
+  "name": "Dev gallery",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Visual reference for midhat-shell common UI components. Summon with: midhat-shell shell summon midhat.dev-gallery '{}' (or run: midhat dev ui-preview).",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "GalleryPanel.qml"
+  }
+}

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Set the correct power profile on boot based on current AC/battery state.
+
+exec midhat-powerprofiles-set autodetect

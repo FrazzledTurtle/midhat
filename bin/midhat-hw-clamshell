@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# midhat:summary=Returns true when clamshell mode is active
+# midhat:hidden=true
+
+# Clamshell = lid closed while driving one or more external monitors.
+midhat-hw-laptop-closed && midhat-hw-external-monitors

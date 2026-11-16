@@ -1,0 +1,8 @@
+# The Himax digitizer reports touch and pen as two input devices of one I2C chip, which has no
+# "phys" for libinput's device-group rule. One shared group makes libinput pair the pen with
+# this touchscreen (not the keyboard cover's touchpad), so it ignores the palm near the pen.
+ACTION=="remove", GOTO="midhat_pen_touch_end"
+SUBSYSTEM!="input", GOTO="midhat_pen_touch_end"
+KERNEL!="event[0-9]*", GOTO="midhat_pen_touch_end"
+ATTRS{name}=="himax-touchscreen|himax-stylus", ENV{LIBINPUT_DEVICE_GROUP}="18/0/0:himax-touch-pen"
+LABEL="midhat_pen_touch_end"

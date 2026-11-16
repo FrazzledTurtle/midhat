@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# midhat:summary=Turn the built-in display, touch and pen together
+# midhat:args=[follow|reapply|0|1|2|3]
+# midhat:hidden=true
+
+# follow: turn with the accelerometer until stopped. 0-3: set that transform
+# (3 = landscape with the cover on, as in monitors.lua). reapply: set the last
+# one again, after a config reload put monitors.lua's landscape back.
+
+STATE="$XDG_RUNTIME_DIR/midhat/rotation"
+
+set_transform() {
+  local t=$1 monitor name scale
+  mkdir -p "${STATE%/*}"
+  echo "$t" >"$STATE"
+  monitor=$(hyprctl monitors -j | jq -c --argjson t "$t" 'first(.[] | select(.name | startswith("DSI"))) | select(.transform != $t)')
+  [[ -n $monitor ]] || return 0
+  name=$(jq -r .name <<<"$monitor")
+  scale=$(jq -r .scale <<<"$monitor")
+  hyprctl eval "hl.monitor({ output = \"$name\", mode = \"preferred\", position = \"auto\", scale = $scale, transform = $t }) hl.config({ input = { touchdevice = { transform = $t }, tablet = { transform = $t } } })" >/dev/null
+}
+
+transform_for() {
+  case $1 in
+    normal) echo 0 ;;
+    left-up) echo 1 ;;
+    bottom-up) echo 2 ;;
+    right-up) echo 3 ;;
+  esac
+}
+
+follow() {
+  local re='orientation(:| changed:) ([a-z-]+)' line t
+  coproc SENSOR { exec stdbuf -oL monitor-sensor --accel; }
+  trap 'kill $SENSOR_PID 2>/dev/null' EXIT
+  trap 'exit 0' TERM INT
+  while read -r line <&"${SENSOR[0]}"; do
+    [[ $line =~ $re ]] || continue
+    t=$(transform_for "${BASH_REMATCH[2]}")
+    [[ -n $t ]] && set_transform "$t"
+  done
+}
+
+case $1 in
+  follow) follow ;;
+  reapply) [[ -f $STATE ]] && set_transform "$(<"$STATE")" ;;
+  0 | 1 | 2 | 3) set_transform "$1" ;;
+  *)
+    echo "Usage: midhat-hyprland-monitor-rotate [follow|reapply|0|1|2|3]" >&2
+    exit 1
+    ;;
+esac

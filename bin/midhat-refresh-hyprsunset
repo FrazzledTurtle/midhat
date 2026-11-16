@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# midhat:summary=Overwrite the user config for hyprsunset with the Mid’hat default and restart the service.
+
+midhat-refresh-config hypr/hyprsunset.conf
+midhat-restart-hyprsunset

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# midhat:summary=Detect ASUS ExpertBook B9406 series laptops on Intel Panther Lake.
+
+midhat-hw-match "B9406" && midhat-hw-intel-ptl
