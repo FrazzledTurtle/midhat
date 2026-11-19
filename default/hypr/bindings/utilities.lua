@@ -94,6 +94,7 @@ o.bind("SUPER + CTRL + ALT + T", "Show time", "midhat-notification-time")
 o.bind("SUPER + CTRL + ALT + B", "Show battery remaining", "midhat-notification-battery")
 o.bind("SUPER + CTRL + ALT + W", "Toggle weather", "midhat-notification-weather")
 
+o.bind("SUPER + SHIFT + A", "Agent card", "midhat-agent-card")
 o.bind("SUPER + SHIFT + CTRL + A", "Agent", "midhat-agent --pick")
 o.bind("SUPER + CTRL + A", "Audio", "midhat-shell shell toggle midhat.audio")
 o.bind("SUPER + CTRL + B", "Bluetooth", "midhat-shell shell toggle midhat.bluetooth")

@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# midhat:summary=Open, shrink or close the floating Claude card
+
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/midhat-agent-card.lock"
+flock -n 9 || exit 0
+
+card() {
+  hyprctl clients -j | jq -r 'first(.[] | select(.class == "org.midhat.agent") | [.address, .workspace.name, .size[1], .title] | @tsv) // empty'
+}
+
+dsp() {
+  hyprctl dispatch "$1" >/dev/null
+}
+
+place() {
+  dsp "hl.dsp.window.resize({ window = \"$win\", x = $1, y = $2 })"
+  dsp "hl.dsp.window.move({ window = \"$win\", x = $((mx + mw - $1 - 12)), y = $((my + mh - $2 - 12)) })"
+}
+
+IFS=$'\t' read -r addr ws h title <<<"$(card)"
+
+if [[ -z $addr ]]; then
+  cd "$HOME" && setsid -f midhat-agent --pick 9>&-
+  for _ in $(seq 1 50); do
+    [[ -n $(card) ]] && break
+    sleep 0.1
+  done
+  exit 0
+fi
+
+win="address:$addr"
+
+if [[ $title == "✳ Claude Code" || $title == "Claude Code" ]]; then
+  dsp "hl.dsp.window.close({ window = \"$win\" })"
+  exit 0
+fi
+
+read -r mx my mw mh <<<"$(hyprctl monitors -j | jq -r '.[] | select(.focused) | . as $m
+  | (if $m.transform % 2 == 1 then [$m.height, $m.width] else [$m.width, $m.height] end)
+  | map(. / $m.scale | round) | "\($m.x) \($m.y) \(.[0]) \(.[1])"')"
+
+full_w=$(((mw * 42 + 50) / 100)) full_h=$(((mh * 80 + 50) / 100))
+mini_w=$(((mw * 32 + 50) / 100)) mini_h=140
+
+if [[ $ws == special:agent ]]; then
+  active=$(hyprctl activeworkspace -j | jq -r .id)
+  dsp "hl.dsp.window.move({ window = \"$win\", workspace = \"$active\" })"
+  dsp "hl.dsp.window.pin({ window = \"$win\", action = \"on\" })"
+  h=0
+fi
+
+if ((h < full_h / 2)); then
+  place "$full_w" "$full_h"
+  dsp "hl.dsp.focus({ window = \"$win\" })"
+else
+  place "$mini_w" "$mini_h"
+fi
