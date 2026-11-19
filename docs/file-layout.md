@@ -18,8 +18,8 @@ Two Arch packages are built from this one repo (PKGBUILDs live in
   plymouth theme, sddm theme, branding, plus the limine/snapper configs
   (mkinitcpio hooks, limine-entry-tool drop-ins, snapper template, the
   `default/limine/` and `default/snapper/` trees, and the boot/snapshot
-  story end-to-end). Also ships the three debug binaries
-  (`midhat-debug`, `midhat-debug-idle`, `midhat-upload-log`) needed by
+  story end-to-end). Also ships the two debug binaries
+  (`midhat-debug`, `midhat-debug-idle`) needed by
   the live ISO env.
 
 Two other packages live in `midhat-pkgs/` but stand alone:
@@ -56,8 +56,7 @@ midhat/                            built into          installed at
 bin/midhat-*                  ──►  midhat             /usr/bin/midhat-*
                                                         (and symlinks in /usr/share/midhat/bin/)
 bin/midhat-debug,
-bin/midhat-debug-idle,
-bin/midhat-upload-log         ──►  midhat-settings    /usr/bin/  (needed before midhat is installed)
+bin/midhat-debug-idle          ──►  midhat-settings    /usr/bin/  (needed before midhat is installed)
 
 default/libalpm/hooks/*.hook
                                 ──►  midhat             /usr/share/libalpm/hooks/*.hook

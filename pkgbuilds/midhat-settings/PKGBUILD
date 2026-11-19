@@ -30,7 +30,6 @@ makedepends=('git')
 optdepends=(
   "midhat: Full Mid'hat desktop"
   'inxi: System information for midhat-debug'
-  'fastfetch: System information for midhat-upload-log'
   'zram-generator: Compressed swap from the shipped zram-generator drop-in'
 )
 backup=(
@@ -216,7 +215,6 @@ EOF
   install -Dm644 default/nautilus-python/extensions/transcode.py "$pkgdir/etc/skel/.local/share/nautilus-python/extensions/transcode.py"
   install -Dm644 default/midhat-annotate/state.toml "$pkgdir/etc/skel/.local/state/midhat-annotate/state.toml"
 
-  install -Dm755 bin/midhat-upload-log "$pkgdir/usr/bin/midhat-upload-log"
   install -Dm755 bin/midhat-debug "$pkgdir/usr/bin/midhat-debug"
   install -Dm755 bin/midhat-debug-idle "$pkgdir/usr/bin/midhat-debug-idle"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
