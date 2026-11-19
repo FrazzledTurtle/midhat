@@ -14,6 +14,14 @@
         "Value": true,
         "Status": "default"
       },
+      "ui.dragThresholdX": {
+        "Value": 32,
+        "Status": "default"
+      },
+      "ui.dragThresholdY": {
+        "Value": 32,
+        "Status": "default"
+      },
       "widget.disable-swipe-tracker": {
         "Value": false,
         "Status": "default"
