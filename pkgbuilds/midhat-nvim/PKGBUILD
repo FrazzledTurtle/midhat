@@ -7,7 +7,7 @@ _upstream=omarchy-nvim
 _upver=2026.8.13
 _uprel=1
 pkgver=${_upver}
-pkgrel=1
+pkgrel=2
 pkgdesc="Mid'hat's pre-built LazyVim configuration with cached plugins"
 arch=('any')
 url='https://github.com/FrazzledTurtle/midhat'
@@ -16,9 +16,11 @@ depends=('neovim>=0.9.0' 'git')
 conflicts=('omarchy-nvim' 'omarchy-lazyvim')
 replaces=('omarchy-nvim')
 options=('!debug' '!strip')
-source=("https://github.com/Linux-for-Fydetab-Duo/imagebuild/releases/download/repo/${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst")
+source=("https://github.com/Linux-for-Fydetab-Duo/imagebuild/releases/download/repo/${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst"
+        "midhat-theme-watch.lua")
 noextract=("${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst")
-sha256sums=('dd5d552c1f331cc65f56eaae780690658356918a01c4b7e42ca7bec3fd6e7985')
+sha256sums=('dd5d552c1f331cc65f56eaae780690658356918a01c4b7e42ca7bec3fd6e7985'
+            '940aed15835b7f29187ab471d7cb3afa5063c5b823ba477fc424cb6c70f6bb12')
 
 prepare() {
   rm -rf "$srcdir/upstream"
@@ -46,6 +48,7 @@ package() {
   local dir
   for dir in etc/skel/.config/nvim usr/share/midhat-nvim/config; do
     mv "$dir/lua/plugins/omarchy-theme-hotreload.lua" "$dir/lua/plugins/midhat-theme-hotreload.lua"
+    install -m644 "$srcdir/midhat-theme-watch.lua" "$dir/lua/plugins/midhat-theme-watch.lua"
     if [[ -L $dir/lua/plugins/theme.lua ]]; then
       ln -snf "$(readlink "$dir/lua/plugins/theme.lua" | sed 's/omarchy/midhat/g')" "$dir/lua/plugins/theme.lua"
     fi
