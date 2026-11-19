@@ -131,12 +131,11 @@ assert_output_contains "restart group includes inferred commands" "$output" "mid
 assert_output_contains "restart group includes all restart commands" "$output" "midhat restart wifi"
 
 output=$("$CLI" hw --help)
-assert_output_contains "hardware group help renders" "$output" "midhat hw asus rog"
+assert_output_contains "hardware group help renders" "$output" "midhat hw touchscreen"
 assert_output_contains "hardware group includes touchpad" "$output" "midhat hw touchpad"
 
-output=$("$CLI" hw asus)
-assert_output_contains "partial hardware prefix renders matching commands" "$output" "midhat hw asus rog"
-assert_output_contains "partial hardware prefix includes nested match" "$output" "midhat hw asus zenbook ux5406aa"
+output=$("$CLI" hw recover)
+assert_output_contains "partial hardware prefix renders matching commands" "$output" "midhat hw recover internal monitor"
 
 output=$("$CLI" menu --help)
 assert_output_contains "menu group includes share fallback route" "$output" "midhat menu share"
@@ -436,12 +435,6 @@ assert_output_contains "theme preview shows selected text sample" "$preview_outp
 assert_output_contains "theme preview shows practical terminal samples" "$preview_output" "Terminal/UI samples"
 assert_output_contains "theme preview shows ANSI palette strips" "$preview_output" "ANSI palette strips"
 
-tokyo_fg=$(awk -F'"' '/^foreground =/ { print $2; exit }' "$ROOT/themes/tokyo-night/colors.toml")
-tokyo_light_fg=$(awk -F'"' '/^light_foreground =/ { print $2; exit }' "$ROOT/themes/tokyo-night/colors.toml")
-tokyo_bright_fg=$(awk -F'"' '/^bright_foreground =/ { print $2; exit }' "$ROOT/themes/tokyo-night/colors.toml")
-[[ $tokyo_fg == "#a9b1d6" && $tokyo_light_fg == "#b4bee6" && $tokyo_bright_fg == "#c0caf5" ]] || fail "tokyo night foreground ramp stays ordered"
-pass "tokyo night foreground ramp stays ordered"
-
 if rg -q '^cursor\s*=' "$ROOT/themes" -g'colors.toml'; then
   fail "built-in colors.toml files omit cursor token"
 fi
@@ -494,7 +487,7 @@ HOME="$PI_TMPDIR" "$ROOT/bin/midhat-theme-set-pi" --activate
 jq -e '.theme == "midhat-system" and .model == "keep-me"' "$PI_TMPDIR/.pi/agent/settings.json" >/dev/null
 pass "pi theme activation preserves existing settings"
 
-jq -e '.name == "Midhat" and .base == "light" and .overrides.text == "#ffffff"' "$NEXT_THEME/claude.json" >/dev/null
+jq -e '.name == "Mid’hat" and .base == "light" and .overrides.text == "#ffffff"' "$NEXT_THEME/claude.json" >/dev/null
 pass "claude theme template is generated from standard themed templates"
 cp "$NEXT_THEME/claude.json" "$CURRENT_THEME/claude.json"
 
@@ -511,9 +504,9 @@ jq -e '.theme == "custom:midhat" and .model == "keep-me"' "$CLAUDE_TEST_CONFIG/s
 pass "claude theme activation preserves configured settings"
 
 make_tmpdir THEME_TMPDIR
-MIDHAT_PATH="$ROOT" HOME="$THEME_TMPDIR" MIDHAT_THEME_HEADLESS=1 "$ROOT/bin/midhat-theme-set" "Tokyo Night"
+MIDHAT_PATH="$ROOT" HOME="$THEME_TMPDIR" MIDHAT_THEME_HEADLESS=1 "$ROOT/bin/midhat-theme-set" "E Ink Mono"
 background_path=$(readlink -f "$THEME_TMPDIR/.local/state/midhat/current/background" 2>/dev/null || true)
-expected_background="$THEME_TMPDIR/.local/state/midhat/current/theme/backgrounds/0-winding-road.jpg"
+expected_background="$THEME_TMPDIR/.local/state/midhat/current/theme/backgrounds/01-kamara-bridge.jpg"
 [[ $background_path == "$expected_background" ]] || fail "headless theme set creates current background symlink"
 [[ -f $background_path ]] || fail "headless theme background target exists"
 [[ ! -e $THEME_TMPDIR/.config/midhat/current ]] || fail "headless theme set avoids config current state"
