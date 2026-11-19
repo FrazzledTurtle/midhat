@@ -10,10 +10,15 @@ commands, shell and update machinery, and goes its own way from there:
 
 - **One device first.** Only what works on the FydeTab is offered; the menu has
   no x86, Limine, Plymouth or Chromium web-app entries.
+- **Pen and touch.** Taking the keyboard cover off switches to tablet mode with
+  auto-rotate; palm rejection, the OSKar on-screen keyboard, a swipe off the bar
+  for the menu, and holding the pen still to right-click.
 - **The E Ink look.** Paper and ink themes (E Ink, E Ink Mono) with Edward
   Lear's 1848 drawings of Albania, a black-and-white screensaver, and the
   qeleshe, the white felt cap of northern Albania, as the mark.
-- **One agent.** Claude, built in.
+- **Reading.** KOReader for books, zathura for PDFs, Xournal++ to write on
+  them, and Reading mode (SUPER+CTRL+G) to grey the screen and hold notifications.
+- **One agent.** Claude, built in, with a floating agent card (SUPER+SHIFT+A).
 - **Its own updates.** Packages come from the `[midhat]` repo, published from
   this repository; nothing changes unless it is built here.
 
@@ -29,11 +34,15 @@ page), then the Notebook app (handwriting, text and live maths on one page).
 | `config/`, `default/`, `etc/` | user defaults, system defaults, /etc drop-ins |
 | `themes/` | E Ink and E Ink Mono |
 | `migrations/` | one-time steps `midhat update` runs on existing installs |
+| `install/` | setup steps and the package list `midhat reinstall` uses |
 | `pkgbuilds/` | `midhat`, `midhat-settings`, `midhat-nvim`, `midhat-annotate`, `oskar`, `libinput` built against Lua 5.5, and `koreader` |
 | `tools/rename/` | the script that turned Omarchy 4.0.5 into this tree |
 | `tools/brand/` | draws the qeleshe into the logo files, greeter and icon font |
 | `tools/repo/` | build the packages, publish the `[midhat]` repo |
 | `tools/migrate/` | switch a running Omarchy FydeTab to Mid’hat, and back |
+| `test/` | CLI and shell tests |
+| `docs/` | how parts of Mid’hat work, and [how it is released](docs/release.md) |
+| `manual/` | the user manual, still mostly Omarchy's text |
 
 The tree is Omarchy 4.0.5 renamed by `tools/rename`, plus Mid’hat's own changes
 on top of it.
@@ -79,7 +88,11 @@ The repo is a GitHub release tagged `repo` holding the packages and
 ./test/shell
 ```
 
-Shell tests that render QML or run JavaScript need `node`.
+Shell tests that render QML or run JavaScript need `node`. Known failures as of
+0.1.12: `menu`, `plymouth-set` and `release-ai-port` still expect Omarchy menu
+entries Mid’hat removed; `browser-handoff` calls a missing `skip` helper;
+`bar-icon-geometry` finds the bluetooth icon 0.9 px off centre; and
+`screenshot-sanity` depends on what is on screen.
 
 ## Name
 
