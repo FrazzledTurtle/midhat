@@ -16,7 +16,7 @@ depends=('neovim>=0.9.0' 'git')
 conflicts=('omarchy-nvim' 'omarchy-lazyvim')
 replaces=('omarchy-nvim')
 options=('!debug' '!strip')
-source=("https://github.com/Linux-for-Fydetab-Duo/imagebuild/releases/download/repo/${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst"
+source=("https://github.com/FrazzledTurtle/midhat/releases/download/sources/${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst"
         "midhat-theme-watch.lua")
 noextract=("${_upstream}-${_upver}-${_uprel}-any.pkg.tar.zst")
 sha256sums=('dd5d552c1f331cc65f56eaae780690658356918a01c4b7e42ca7bec3fd6e7985'
