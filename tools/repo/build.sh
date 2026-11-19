@@ -23,6 +23,9 @@ pkgs=("$@")
 (( ${#pkgs[@]} )) || pkgs=(midhat-settings midhat midhat-nvim midhat-annotate oskar libinput koreader)
 for name in "${pkgs[@]}"; do
   echo -e "\e[32m\nBuilding $name\e[0m"
+  for key in "$root/pkgbuilds/$name"/keys/pgp/*.asc; do
+    [[ -f $key ]] && gpg --quiet --import "$key"
+  done
   (cd "$root/pkgbuilds/$name" && PKGDEST="$out" makepkg --force --nodeps --cleanbuild --noconfirm)
 done
 
