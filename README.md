@@ -17,9 +17,8 @@ commands, shell and update machinery, and goes its own way from there:
 - **Its own updates.** Packages come from the `[midhat]` repo, published from
   this repository; nothing changes unless it is built here.
 
-Next: tablet input (tablet mode when the keyboard cover comes off, the
-on-screen keyboard by itself, auto-rotate, touch gestures), then the Notebook
-app (handwriting, text and live maths on one page).
+Next: Slate, the cover-off posture (a side rail, one window at a time, a Home
+page), then the Notebook app (handwriting, text and live maths on one page).
 
 ## Layout
 
@@ -30,7 +29,7 @@ app (handwriting, text and live maths on one page).
 | `config/`, `default/`, `etc/` | user defaults, system defaults, /etc drop-ins |
 | `themes/` | E Ink and E Ink Mono |
 | `migrations/` | one-time steps `midhat update` runs on existing installs |
-| `pkgbuilds/` | `midhat`, `midhat-settings`, `midhat-nvim`, `libinput` built against Lua 5.5, and `koreader` |
+| `pkgbuilds/` | `midhat`, `midhat-settings`, `midhat-nvim`, `midhat-annotate`, `oskar`, `libinput` built against Lua 5.5, and `koreader` |
 | `tools/rename/` | the script that turned Omarchy 4.0.5 into this tree |
 | `tools/brand/` | draws the qeleshe into the logo files, greeter and icon font |
 | `tools/repo/` | build the packages, publish the `[midhat]` repo |
@@ -39,22 +38,16 @@ app (handwriting, text and live maths on one page).
 The tree is Omarchy 4.0.5 renamed by `tools/rename`, plus Mid’hat's own changes
 on top of it.
 
-## Build
+## Build and release
 
 ```bash
-tools/repo/build.sh            # all three packages into out/
+tools/repo/build.sh            # every package into out/
 tools/repo/build.sh midhat     # just one
+tools/repo/publish.sh          # upload out/ as the [midhat] repo
 ```
 
-`midhat` and `midhat-settings` are built from the committed `HEAD`, so commit
-first. `midhat-nvim` repacks omarchy-nvim 2026.8.13 under Mid’hat's names.
-
-`libinput` is Arch's 1.32.0 linked against Lua 5.5, the Lua Hyprland uses, so
-libinput Lua plugins such as the pen hold don't crash Hyprland. It needs `meson`
-and isn't in the default set: `tools/repo/build.sh libinput`.
-
-`koreader` repacks KOReader's official arm64 build with a matching window app
-id and a desktop file that claims only ebook formats: `tools/repo/build.sh koreader`.
+What each package is built from, and the release steps, are in
+[docs/release.md](docs/release.md).
 
 ## Switch an Omarchy FydeTab to Mid’hat
 
@@ -73,12 +66,7 @@ follows. Reboot afterwards. To undo it:
 sudo bash tools/migrate/rollback.sh <time>   # the time switch.sh printed
 ```
 
-## Publish the `[midhat]` repo
-
-```bash
-gh repo create FrazzledTurtle/midhat --public --source . --push
-tools/repo/publish.sh
-```
+## The `[midhat]` repo
 
 The repo is a GitHub release tagged `repo` holding the packages and
 `midhat.db`. `midhat-refresh-pacman` adds it to `/etc/pacman.conf`
@@ -87,13 +75,11 @@ The repo is a GitHub release tagged `repo` holding the packages and
 ## Tests
 
 ```bash
+./test/cli
 ./test/shell
 ```
 
-Some tests need `node`. Against Omarchy 4.0.5 on the same tablet, the rename
-adds one known failure: `hyprland-default-config-test.sh` writes old Omarchy
-bindings inline and the migration recognises those by checksum, which the
-rename changes. That migration is for Omarchy 3 installs and long done here.
+Shell tests that render QML or run JavaScript need `node`.
 
 ## Name
 
@@ -104,5 +90,10 @@ paths use `midhat`.
 ## Licence
 
 MIT. Mid’hat keeps Omarchy's copyright notice (David Heinemeier Hansson) next
-to its own; see [LICENSE](LICENSE). The inherited manual in `manual/` still
-describes Omarchy's features and will be rewritten.
+to its own; see [LICENSE](LICENSE). The manual in `manual/` is still largely
+Omarchy's text.
+
+Third-party parts keep their own licences: Mid’hat Annotate is Tensaku by Jon
+Kinney (MPL-2.0, itself a fork of Satty by Matthias Gabriel), OSKar is by
+vladkarok (MIT), and the Calendar Clock in `shell/plugins/calendar-clock` is by
+Matteo De Venuto (MIT).
