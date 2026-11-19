@@ -20,7 +20,7 @@ if [[ ! -f $root/pkgbuilds/midhat-nvim/$nvim_src && -f /var/cache/pacman/pkg/$nv
 fi
 
 pkgs=("$@")
-(( ${#pkgs[@]} )) || pkgs=(midhat-settings midhat midhat-nvim)
+(( ${#pkgs[@]} )) || pkgs=(midhat-settings midhat midhat-nvim midhat-annotate libinput koreader)
 for name in "${pkgs[@]}"; do
   echo -e "\e[32m\nBuilding $name\e[0m"
   (cd "$root/pkgbuilds/$name" && PKGDEST="$out" makepkg --force --nodeps --cleanbuild --noconfirm)
