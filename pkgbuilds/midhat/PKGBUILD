@@ -3,7 +3,7 @@
 # Built from this repository's committed HEAD (git archive), so a release is
 # always a commit. Set MIDHAT_SRC=/path/to/tree to build a working tree instead.
 pkgname='midhat'
-pkgver=0.1.11
+pkgver=0.1.12
 pkgrel=1
 pkgdesc="Mid'hat, a calm pen-and-touch tablet desktop (split off from Omarchy 4.0.5)"
 arch=('aarch64')
