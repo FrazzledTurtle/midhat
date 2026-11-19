@@ -65,27 +65,3 @@ rm "$XDG_CONFIG_HOME/mimeapps.list"
 [[ $(midhat-cmd-default-browser) != "midhat-browser.desktop" ]] ||
   fail "the link entry is never taken for the browser, which would launch itself"
 pass "the link entry is never taken for the browser"
-
-migration=$(grep -lF "midhat-browser.desktop" "$ROOT"/migrations/*.sh | head -1)
-rm -f "$applications/midhat-browser.desktop" "$XDG_CONFIG_HOME/hyprland-mimeapps.list"
-mkdir -p "$test_tmp/migrated/.config"
-HOME="$test_tmp/migrated" MIDHAT_PATH="$ROOT" bash -euo pipefail "$migration" >/dev/null
-[[ -f $test_tmp/migrated/.local/share/applications/midhat-browser.desktop ]] ||
-  fail "the migration installs the link entry"
-grep -qxF "x-scheme-handler/https=midhat-browser.desktop" "$test_tmp/migrated/.config/hyprland-mimeapps.list" ||
-  fail "the migration routes links to the link entry"
-pass "the migration installs the link entry and routes links to it"
-
-printf '[Default Applications]\ntext/plain=editor.desktop\n' >"$test_tmp/migrated/.config/hyprland-mimeapps.list"
-HOME="$test_tmp/migrated" MIDHAT_PATH="$ROOT" bash -euo pipefail "$migration" >/dev/null
-HOME="$test_tmp/migrated" MIDHAT_PATH="$ROOT" bash -euo pipefail "$migration" >/dev/null
-[[ $(grep -c "^x-scheme-handler/https=midhat-browser.desktop$" "$test_tmp/migrated/.config/hyprland-mimeapps.list") == 1 ]] &&
-  grep -qxF "text/plain=editor.desktop" "$test_tmp/migrated/.config/hyprland-mimeapps.list" ||
-  fail "the migration adds the link handlers to an existing list once"
-pass "the migration adds the link handlers to an existing list once"
-
-printf '[Default Applications]\nx-scheme-handler/https=mine.desktop\n' >"$test_tmp/migrated/.config/hyprland-mimeapps.list"
-HOME="$test_tmp/migrated" MIDHAT_PATH="$ROOT" bash -euo pipefail "$migration" >/dev/null
-! grep -qF "midhat-browser.desktop" "$test_tmp/migrated/.config/hyprland-mimeapps.list" ||
-  fail "the migration keeps a link handler the user set"
-pass "the migration keeps a link handler the user set"

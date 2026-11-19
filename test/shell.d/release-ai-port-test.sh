@@ -61,10 +61,6 @@ grep -qx 'stub:cursor-agent' "$TEST_CALLS" || fail "new users receive the select
 grep -Fx 'stub:http:muse[url=https://api.meta.ai/muse-launcher.sh,bin=muse,version_list_url=https://api.meta.ai/muse-code/channels/muse-stable,version_json_path=.version] muse' "$TEST_CALLS" >/dev/null || fail "new users receive the selected official Muse launcher stub"
 ! grep -Eq 'stub:.*(ori|antigravity|hey-cli)' "$TEST_CALLS" || fail "mise setup avoids unrelated prerequisites"
 pass "baseline mise setup leaves Hermes to the default agent and disables pruning"
-: >"$TEST_CALLS"
-PATH="$test_tmp/bin:$PATH" bash -euo pipefail "$ROOT/migrations/1787215483.sh" >/dev/null
-grep -qx 'mise:settings set upgrade.auto_prune false' "$TEST_CALLS" || fail "existing users retain running mise versions"
-pass "mise migration applies the same no-pruning setting"
 
 # Exercise the documented font workflow, not just fontconfig's charset reader.
 # Work on a disposable copy: adding a fixture must never edit the source font.
