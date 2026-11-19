@@ -15,7 +15,7 @@ midhat theme install <url>     # Install from git repo
 ## Making a New Theme
 
 1. Create a directory under `~/.config/midhat/themes`.
-2. See how an existing theme is done via `/usr/share/midhat/themes/catppuccin`.
+2. See how an existing theme is done via `/usr/share/midhat/themes/e-ink-mono`.
 3. Download a matching background (or several) from the internet and put them in `~/.config/midhat/themes/<name-of-new-theme>/backgrounds/`.
 4. When done with the theme, run `midhat theme set "Name of new theme"`.
 
@@ -55,19 +55,19 @@ the SAME slug containing only the files you want to change. When the theme is
 applied, the stock theme is copied first and your files win on top:
 
 ```bash
-mkdir -p ~/.config/midhat/themes/catppuccin
-cp /usr/share/midhat/themes/catppuccin/colors.toml ~/.config/midhat/themes/catppuccin/
+mkdir -p ~/.config/midhat/themes/e-ink-mono
+cp /usr/share/midhat/themes/e-ink-mono/colors.toml ~/.config/midhat/themes/e-ink-mono/
 # Edit the copied colors.toml, then re-apply:
-midhat theme set catppuccin
+midhat theme set e-ink-mono
 ```
 
 **Fork:** copy the whole stock theme under a new name for a fully independent
 variant:
 
 ```bash
-cp -r /usr/share/midhat/themes/catppuccin ~/.config/midhat/themes/catppuccin-custom
-# Edit ~/.config/midhat/themes/catppuccin-custom/, then:
-midhat theme set catppuccin-custom
+cp -r /usr/share/midhat/themes/e-ink-mono ~/.config/midhat/themes/e-ink-mono-custom
+# Edit ~/.config/midhat/themes/e-ink-mono-custom/, then:
+midhat theme set e-ink-mono-custom
 ```
 
 ## Fonts

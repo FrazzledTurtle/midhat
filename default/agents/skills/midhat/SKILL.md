@@ -13,7 +13,16 @@ description: >
 
 # Mid’hat Skill
 
-Manage [Mid’hat](https://omarchy.org/) Linux systems - a beautiful, modern, opinionated Arch Linux distribution with Hyprland.
+Manage [Mid’hat](https://github.com/FrazzledTurtle/midhat) systems: a calm pen-and-touch OS for the FydeTab Duo tablet, built on Arch Linux ARM, Hyprland and a Quickshell desktop. It split off from Omarchy 4.0.5 for good.
+
+## This Device
+
+- **Hardware:** FydeTab Duo (RK3588S, ARM64). There are no x86, NVIDIA, Limine or Plymouth paths; boot is U-Boot.
+- **Input:** pen and touch first. Taking the keyboard cover off switches tablet mode (auto-rotate, rotation lock in the menu). Holding the pen tip still for 0.6 s right-clicks (a libinput Lua plugin linked in by `midhat-pen-hold-guard`). OSKar is the on-screen keyboard.
+- **Look:** only the E Ink and E Ink Mono themes, with Yaru-Mono icons built by `midhat-theme-icons-mono`. Reading mode (SUPER+CTRL+G) greys the screen, warms the light and silences notifications.
+- **Claude:** the only agent. `midhat-agent-card` (SUPER+SHIFT+A) opens, shrinks or closes the floating Claude card.
+- **Reading:** KOReader for books, zathura for PDFs, Xournal++ to write on PDFs.
+- **Updates:** packages come from the `[midhat]` repo (a GitHub release). There are no update channels.
 
 This skill is for end-user customization on installed systems.
 It is not for contributing to Mid’hat source code.
@@ -46,7 +55,7 @@ matching guide before starting:
 - [`theming.md`](theming.md) - themes, backgrounds, and fonts
 - [`hooks.md`](hooks.md) - automation hooks that run on system events
 - [`capture.md`](capture.md) - screenshots, screen recordings, OCR text capture, and file sharing
-- [`contributing.md`](contributing.md) - reporting Mid’hat bugs and submitting fixes upstream
+- [`contributing.md`](contributing.md) - reporting Mid’hat bugs and submitting fixes
 
 ## Critical Safety Rules
 
@@ -277,7 +286,7 @@ This skill intentionally does not cover Mid’hat source development. Do not use
 
 ## Example Requests
 
-- "Change my theme to catppuccin" -> `midhat theme set catppuccin`
+- "Switch to the other E Ink theme" -> `midhat theme set "E Ink"`
 - "Add a keybinding for Super+E to open file manager" -> Check existing bindings first, call `hl.unbind` if needed, then `o.bind` in `~/.config/hypr/bindings.lua`
 - "Configure my external monitor" -> Edit `~/.config/hypr/monitors.lua`
 - "Make the window gaps smaller" -> Edit `~/.config/hypr/looknfeel.lua`
@@ -285,7 +294,7 @@ This skill intentionally does not cover Mid’hat source development. Do not use
 - "Set a reminder to pickup jack in 15 minutes" -> `midhat reminder 15 "Pickup Jack"`
 - "Show my reminders" -> `midhat reminder show`
 - "Clear all reminders" -> `midhat reminder clear`
-- "Customize the catppuccin theme colors" -> Overlay: put an edited `colors.toml` in `~/.config/midhat/themes/catppuccin/`, then re-apply the theme (see `theming.md`)
+- "Customize the E Ink Mono colors" -> Overlay: put an edited `colors.toml` in `~/.config/midhat/themes/e-ink-mono/`, then re-apply the theme (see `theming.md`)
 - "Run a script every time I change themes" -> Install it with `midhat hook install theme-set <script>`
 - "Change how workspace labels are rendered" -> Clone `midhat.workspaces`, which switches the bar to `<username>.workspaces`, then edit the clone
 - "Lock after ten minutes" -> Set `idle.lock` to `600` in `~/.config/midhat/shell.json`
