@@ -1,0 +1,36 @@
+# Maintainer: FrazzledTurtle
+# OSKar 0.2.5 by vladkarok (MIT), the on-screen keyboard Mid'hat uses in Slate.
+# midhat.patch is upstream's Omarchy names renamed to Mid'hat, nothing else.
+pkgname=oskar
+pkgver=0.2.5
+pkgrel=1
+pkgdesc="OSKar, the on-screen keyboard for Mid'hat (Hyprland + Quickshell)"
+arch=('aarch64')
+url='https://github.com/Vladkarok/oskar'
+license=('MIT')
+depends=('midhat' 'hyprland' 'quickshell' 'qt6-declarative' 'jq' 'wl-clipboard'
+  'libxkbcommon' 'gcc-libs' 'glibc' 'qt6-multimedia' 'ffmpeg')
+makedepends=('rust')
+conflicts=('oskar-git')
+install=oskar.install
+source=("oskar-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz"
+        'midhat.patch')
+sha256sums=('c41b5ac1b7f65864e43d74e9bf52a5cb166449adace06e0a059b8950646a4631'
+            '47b512401dbcf6365610f1a6dc4e1e7768a660e83f237bf40dfaabffecc86afe')
+
+_repo=oskar-$pkgver
+
+prepare() {
+  cd "$_repo"
+  patch -Np1 -i "$srcdir/midhat.patch"
+}
+
+build() {
+  export RUSTUP_TOOLCHAIN=stable
+  make -C "$_repo" build
+}
+
+package() {
+  make -C "$_repo" stage DESTDIR="$pkgdir"
+  install -Dm644 "$_repo/README.md" "$pkgdir/usr/share/doc/oskar/README.md"
+}

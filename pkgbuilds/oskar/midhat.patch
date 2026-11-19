@@ -1,0 +1,3047 @@
+diff --git c/.SRCINFO i/.SRCINFO
+index be2b3b7..bd3346a 100644
+--- c/.SRCINFO
++++ i/.SRCINFO
+@@ -1,5 +1,5 @@
+ pkgbase = oskar
+-	pkgdesc = OSKar — mouse-driven on-screen keyboard for Omarchy (Hyprland + Quickshell)
++	pkgdesc = OSKar — mouse-driven on-screen keyboard for Midhat (Hyprland + Quickshell)
+ 	pkgver = 0.2.5
+ 	pkgrel = 1
+ 	url = https://github.com/Vladkarok/oskar
+@@ -7,7 +7,7 @@ pkgbase = oskar
+ 	arch = x86_64
+ 	license = MIT
+ 	makedepends = cargo
+-	depends = omarchy
++	depends = midhat
+ 	depends = hyprland
+ 	depends = quickshell
+ 	depends = qt6-declarative
+diff --git c/BarWidget.qml i/BarWidget.qml
+index d8d4eb9..b2cb6ab 100644
+--- c/BarWidget.qml
++++ i/BarWidget.qml
+@@ -23,7 +23,7 @@ BarWidget {
+         onPressed: function() {
+             if (!root.bar)
+                 return
+-            root.bar.run("omarchy-shell shell toggle io.github.vladkarok.oskar")
++            root.bar.run("midhat-shell shell toggle io.github.vladkarok.oskar")
+         }
+     }
+ }
+diff --git c/CHANGELOG.md i/CHANGELOG.md
+index 6a55c5d..d27d4bb 100644
+--- c/CHANGELOG.md
++++ i/CHANGELOG.md
+@@ -19,7 +19,7 @@ User-facing changes. The reasons behind them are in
+ 
+ ### Fixed
+ 
+-- The theme reads the shell palette as `Commons.Color`. qt6-declarative 6.12 ships a QtQuick `Color` type that shadows the Omarchy shell's palette singleton, so every palette colour resolved to undefined and the shell log said "Unable to assign [undefined] to QColor". Same fix as Omarchy's own plugins (basecamp/omarchy#14553).
++- The theme reads the shell palette as `Commons.Color`. qt6-declarative 6.12 ships a QtQuick `Color` type that shadows the Midhat shell's palette singleton, so every palette colour resolved to undefined and the shell log said "Unable to assign [undefined] to QColor". Same fix as Midhat's own plugins (basecamp/omarchy#14553).
+ 
+ ## 0.2.2
+ 
+@@ -48,7 +48,7 @@ User-facing changes. The reasons behind them are in
+   stayed on and applied to the next key after the emoji page closed.
+ - Clipboard text in the paste button's preview and in the emoji search is
+   shown as plain text, never read as formatting. Tooltips now use the
+-  Omarchy theme's own tooltip look instead of Qt's default.
++  Midhat theme's own tooltip look instead of Qt's default.
+ - A save that was waiting when `config.json` or the state file became
+   invalid no longer overwrites that file; the file is kept as you left it.
+ - Turning theme following back on in `config.json` while the keyboard is
+@@ -61,20 +61,20 @@ User-facing changes. The reasons behind them are in
+ 
+ ### Changed
+ 
+-- **Look: Omarchy theme or Custom.** The "Follow Omarchy theme" switch is
+-  now a choice at the top of Appearance. With "Omarchy theme" the theme
++- **Look: Midhat theme or Custom.** The "Follow Midhat theme" switch is
++  now a choice at the top of Appearance. With "Midhat theme" the theme
+   sets every appearance setting: both radii, all colours and the border.
+   With "Custom" your own values apply, and the settings you have not
+   changed keep the theme as it was.
+ - **If you set colours or radii before:** with `follow_theme: true` in
+   `config.json` (the default) they are kept in the file but no longer
+   applied. Choose "Custom" to get them back.
+-- The settings were redrawn with Omarchy's own controls, in four sections:
++- The settings were redrawn with Midhat's own controls, in four sections:
+   General, Emoji page, Dwell, Appearance. The reset mark shows only where
+   a reset would change something. A colour row is a square and a hex
+   field; the square opens the colour editor, which now holds the theme's
+   suggested colours. Enter applies a typed hex.
+-- The settings and the colour editor always use the Omarchy theme for
++- The settings and the colour editor always use the Midhat theme for
+   their own look. Custom colours apply to the keyboard.
+ - A custom text colour also reaches the header buttons and the key edges.
+   The menu of a held key takes the key background. Changing the panel
+@@ -87,7 +87,7 @@ User-facing changes. The reasons behind them are in
+ 
+ ### Added
+ 
+-- **Border** switch (`panel_border`). With "Omarchy theme" the panel has a
++- **Border** switch (`panel_border`). With "Midhat theme" the panel has a
+   border exactly when Hyprland draws window borders: `general:border_size`
+   0 means no border. OSKar reads that value with `hyprctl getoption` when
+   it loads, on each open and after a Hyprland config reload; it changes
+@@ -128,7 +128,7 @@ for other desks.
+ 
+ ### Install channels
+ 
+-- `omarchy plugin add https://github.com/Vladkarok/oskar --enable`, then the
++- `midhat plugin add https://github.com/Vladkarok/oskar --enable`, then the
+   plugin's `install.sh` for the helper. Until the helper is installed the
+   panel says `oskar.service is not installed` and its Copy button hands
+   over that command.
+@@ -155,7 +155,7 @@ for other desks.
+ - Settings: mode, size preset, interface language, input profile (mouse by default,
+   touch in beta, or auto; the mouse profile offers dwell-to-type), key-click
+   sound, and appearance (corner radius and colours, applied live).
+-- Colours and geometry follow the Omarchy theme.
++- Colours and geometry follow the Midhat theme.
+ - `oskar setup | upgrade | status | teardown` manage the helper service and
+   plugin registration.
+ 
+diff --git c/CONTEXT.md i/CONTEXT.md
+index 0c94d10..47d4f16 100644
+--- c/CONTEXT.md
++++ i/CONTEXT.md
+@@ -1,6 +1,6 @@
+ # oskar
+ 
+-A mouse-driven on-screen keyboard for Omarchy, where what is drawn on the
++A mouse-driven on-screen keyboard for Midhat, where what is drawn on the
+ keys is what the system will actually type. Most of the vocabulary below
+ exists because two concepts that sound alike turned out to be different,
+ and confusing them cost us a bug.
+diff --git c/Config.js i/Config.js
+index c25f5ce..1403e75 100644
+--- c/Config.js
++++ i/Config.js
+@@ -13,13 +13,13 @@ var MODE_DOCKED = "docked"
+ var MODE_FLOATING = "floating"
+ 
+ // The Super cap's mark: what the modifier cap draws.
+-// The word is the default; the others are one mark each — the Omarchy glyph
++// The word is the default; the others are one mark each — the Midhat glyph
+ // (U+E900 in the private font), two inline vectors and a supplied
+ // monochrome Tux SVG. `macos` draws the macOS command mark (⌘), which is what that key
+ // carries on an Apple keyboard — not an apple.
+ // One list here, so validation, the popover's segments and the tests cannot
+ // disagree about the value space.
+-var SUPER_MARKS = ["word", "omarchy", "windows", "macos", "penguin"]
++var SUPER_MARKS = ["word", "midhat", "windows", "macos", "penguin"]
+ var EMOJI_SKIN_TONES = ["", "🏻", "🏼", "🏽", "🏾", "🏿"]
+ // The UI's language. "auto" follows the active layout (the shipped
+ // searchPlaceholder mapping); en/ru/uk pin it, offered when the seat
+@@ -65,7 +65,7 @@ var CONFIG_FIELDS = [
+     { file: "panel_border", value: "panelBorder" }
+ ]
+ 
+-// The fields the Omarchy theme can answer. While following is on the theme
++// The fields the Midhat theme can answer. While following is on the theme
+ // answers every one of them and a stored override is dormant; setting one
+ // through the panel turns following off (withOverride).
+ var APPEARANCE_FIELDS = ["capCorner", "panelRadius", "keyBackground",
+@@ -84,7 +84,7 @@ function maintainerDefaults() {
+         // affordance. Sparse-store semantics mean this key never appears
+         // in the file unless the user turned the drag on.
+         emojiDrag: false,
+-        // The Super cap says what the key is: the Omarchy glyph is one
++        // The Super cap says what the key is: the Midhat glyph is one
+         // chosen mark among several, not the unconditional drawing.
+         // Sparse-store semantics mean this key never appears in the file
+         // unless the user picked something.
+diff --git c/HoverTooltip.qml i/HoverTooltip.qml
+index c391986..6ce5ab6 100644
+--- c/HoverTooltip.qml
++++ i/HoverTooltip.qml
+@@ -41,7 +41,7 @@ Item {
+     anchors.fill: parent
+ 
+     // The shell's own tooltip: its [tooltip] colours, its border, its
+-    // font, and a plain-text content item — the same popup every Omarchy
++    // font, and a plain-text content item — the same popup every Midhat
+     // panel shows. Only the delay is ours (zero: the wait is `opening`'s).
+     PanelToolTip {
+         id: tip
+diff --git c/Keyboard.qml i/Keyboard.qml
+index f6357fc..2963860 100644
+--- c/Keyboard.qml
++++ i/Keyboard.qml
+@@ -159,7 +159,7 @@ Item {
+     // Zero means unconstrained (nothing has measured yet).
+     property real availableWidth: 0
+ 
+-    // The panel's Theme facade over Omarchy's shared style tokens.
++    // The panel's Theme facade over Midhat's shared style tokens.
+     // Passed in rather than reading `Color`/`Style` here, so that
+     // `follow_theme` is decided in one place and the grid cannot end up
+     // half-frozen.
+@@ -265,7 +265,7 @@ Item {
+     // Super's mark: one arm of the
+     // settings choice draws. `superMark` is the effective setting the panel
+     // passes in; the pure choice in KeyboardLayout.js names the arm. The
+-    // Omarchy arm draws U+E900 / family `omarchy`, the same
++    // Midhat arm draws U+E900 / family `midhat`, the same
+     // request the bar menu launcher makes, only after the packaged TTF is
+     // present, because Qt.fontFamilies(), FontLoader, fontInfo.family and a
+     // zero-width paint miss or substitute this private family. A missing
+@@ -273,10 +273,10 @@ Item {
+     // the system cannot render is never a blank cap.
+     property string superMark: "word"
+     readonly property string superMarkArm: Layout.superMarkArm(
+-        root.superMark, root.omarchyFontPresent)
++        root.superMark, root.midhatFontPresent)
+     FileView {
+-        id: omarchyIconFontFile
+-        path: "/usr/share/fonts/omarchy/omarchy.ttf"
++        id: midhatIconFontFile
++        path: "/usr/share/fonts/midhat/midhat.ttf"
+         preload: true
+         blockLoading: true
+         printErrors: false
+@@ -286,7 +286,7 @@ Item {
+             present = error !== FileViewError.FileNotFound
+         }
+     }
+-    readonly property bool omarchyFontPresent: omarchyIconFontFile.present
++    readonly property bool midhatFontPresent: midhatIconFontFile.present
+     readonly property int superLogoSize: Math.max(root.capGlyphSize,
+         Math.round(root.capRowHeight * 0.5))
+ 
+@@ -731,7 +731,7 @@ Item {
+     // wedge the panel in a "cannot compile" loop. The probe is pointed at
+     // the remembered path and read once (blockLoading makes text() a
+     // synchronous loadSync, so the decision point stays atomic); the
+-    // idiom matches omarchyIconFontFile's.
++    // idiom matches midhatIconFontFile's.
+     FileView {
+         id: rememberedKeymapProbe
+         blockLoading: true
+@@ -1307,7 +1307,7 @@ Item {
+     // takes keyboard focus (`keyboardFocus: None` in Panel.qml), so the
+     // window being typed into keeps it and the helper's keystrokes land
+     // there. Nothing here spawns a process: the plugin runs inside the
+-    // long-lived shell, and the Omarchy guide asks plugins not to launch
++    // long-lived shell, and the Midhat guide asks plugins not to launch
+     // shell processes. The first version spawned `wtype` per keystroke, and
+     // could never have worked well even had it been allowed — a fresh
+     // `wtype` per key uploads a synthetic keymap that XWayland ignores, so
+@@ -2233,7 +2233,7 @@ Item {
+                             //: the cap's own state machine —
+                             // disabled dims, locked/on knocks out, otherwise
+                             // the plain glyph colour — tints the word, the
+-                            // Omarchy glyph and the drawn vectors alike.
++                            // Midhat glyph and the drawn vectors alike.
+                             readonly property color superInk: disabled ? root.textDim
+                                 : (locked || toggleOn) ? root.lockedText
+                                 : root.inkMain
+@@ -2262,21 +2262,21 @@ Item {
+ 
+                             Text {
+                                 id: superLogo
+-                                // The Omarchy arm: same request as the bar
++                                // The Midhat arm: same request as the bar
+                                 // launcher, and the font-present gate stays
+                                 // attached to this arm alone — superMarkArm returns
+-                                // "omarchy" only when the packaged TTF is
++                                // "midhat" only when the packaged TTF is
+                                 // present, so Qt cannot substitute another
+                                 // family's U+E900 and an absent font lands on
+                                 // the word arm instead of a blank cap.
+                                 visible: !capRect.stacked && capRect.isSuper
+-                                    && root.superMarkArm === "omarchy"
++                                    && root.superMarkArm === "midhat"
+                                 anchors { centerIn: parent }
+-                                text: root.omarchyFontPresent ? "\ue900" : ""
++                                text: root.midhatFontPresent ? "\ue900" : ""
+                                 textFormat: Text.PlainText
+                                 renderType: Text.NativeRendering
+                                 color: capRect.superInk
+-                                font.family: "omarchy"
++                                font.family: "midhat"
+                                 font.pixelSize: root.superLogoSize
+                                 Accessible.name: "Super"
+                             }
+diff --git c/KeyboardLayout.js i/KeyboardLayout.js
+index e291d99..65de53b 100644
+--- c/KeyboardLayout.js
++++ i/KeyboardLayout.js
+@@ -62,16 +62,16 @@ function fCaps(n) {
+ // ---- the Super cap's mark ----
+ //
+ // Which arm of the settings choice the Super cap draws. Pure so the host
+-// suite can drive it: `mark` is the setting string, `omarchyFontPresent` the
++// suite can drive it: `mark` is the setting string, `midhatFontPresent` the
+ // packaged-TTF gate, and the answer names the one arm Keyboard.qml shows.
+ //
+ // The word is the default and the landing place for everything undrawable:
+ // an unknown setting string (the store rejects them, but the QML treats one
+-// as the word anyway so nothing can ever draw a blank cap) and the Omarchy
++// as the word anyway so nothing can ever draw a blank cap) and the Midhat
+ // choice when the private font is absent (the gate stays attached to
+ // that arm alone — an absent file never requests U+E900).
+-function superMarkArm(mark, omarchyFontPresent) {
+-    if (mark === "omarchy") return omarchyFontPresent ? "omarchy" : "word"
++function superMarkArm(mark, midhatFontPresent) {
++    if (mark === "midhat") return midhatFontPresent ? "midhat" : "word"
+     if (mark === "windows" || mark === "macos" || mark === "penguin") return mark
+     return "word"
+ }
+@@ -90,7 +90,7 @@ function commandRow(pageLabel) {
+         // Super's cap draws this label by default: the word is
+         // the default arm of the mark setting, this label is the accessible
+         // name of every arm, and it is the missing-font fallback of the
+-        // Omarchy glyph arm.
++        // Midhat glyph arm.
+         { label: "Super", key: "logo" },
+         { label: "Alt", key: "alt" },
+         // The emoji cap: a fixed label for the cap that
+diff --git c/PKGBUILD i/PKGBUILD
+index df8d0bf..127584b 100644
+--- c/PKGBUILD
++++ i/PKGBUILD
+@@ -29,16 +29,16 @@
+ pkgname=oskar
+ pkgver=0.2.5
+ pkgrel=1
+-pkgdesc='OSKar — mouse-driven on-screen keyboard for Omarchy (Hyprland + Quickshell)'
++pkgdesc='OSKar — mouse-driven on-screen keyboard for Midhat (Hyprland + Quickshell)'
+ arch=(x86_64)
+ url='https://github.com/Vladkarok/oskar'
+ license=(MIT)
+-# The product is Omarchy-only by scope decision: `omarchy` is provided by
+-# Omarchy's own packages (omarchy/omarchy-dev). The panel host and the
++# The product is Midhat-only by scope decision: `midhat` is provided by
++# Midhat's own packages (midhat/midhat-dev). The panel host and the
+ # compositor it reads layouts from are hard requirements, as are the
+ # clipboard tools the paste chip and every emoji pick's transaction
+ # execute, and the library the helper links.
+-depends=(omarchy hyprland quickshell qt6-declarative jq wl-clipboard
++depends=(midhat hyprland quickshell qt6-declarative jq wl-clipboard
+   libxkbcommon gcc-libs glibc)
+ makedepends=(cargo)
+ optdepends=(
+diff --git c/Panel.qml i/Panel.qml
+index 0202a8c..cd62bb7 100644
+--- c/Panel.qml
++++ i/Panel.qml
+@@ -20,7 +20,7 @@ Item {
+ 
+     property var hostShell: null
+     property var panelManifest: null
+-    property bool opened: false  // Omarchy shell-IPC: isPluginOpen reads it
++    property bool opened: false  // Midhat shell-IPC: isPluginOpen reads it
+     // The surface maps only once the summon has chosen its output. The
+     // pointer's output arrives from an asynchronous probe, and a window
+     // mapped on `opened` alone draws one to three frames on whatever
+@@ -472,7 +472,7 @@ Item {
+         root.customEditorLabel = ""
+     }
+ 
+-    // The focus prime (Omarchy's own KeyboardPanel pattern, Ui/
++    // The focus prime (Midhat's own KeyboardPanel pattern, Ui/
+     // KeyboardPanel.qml): Hyprland focuses an OnDemand layer surface when it
+     // MAPS, but not when an already-mapped surface flips None -> OnDemand —
+     // which is exactly what beginHexEdit does to the popover or editor
+@@ -545,7 +545,7 @@ Item {
+     // default — the stated use case is watching a film, and the mouse already
+     // makes a click.
+     property bool sound: maintainedDefaults.sound
+-    // On, the Omarchy theme answers every appearance field and stored
++    // On, the Midhat theme answers every appearance field and stored
+     // appearance overrides are dormant; off, they apply (Theme.qml).
+     property bool followTheme: maintainedDefaults.followTheme
+     // Whether Hyprland draws window borders (Config.hyprBorderShown), read
+@@ -580,7 +580,7 @@ Item {
+         hyprBorderShown: root.hyprBorderShown
+     }
+ 
+-    // The settings surfaces' own chrome: the live Omarchy theme, always.
++    // The settings surfaces' own chrome: the live Midhat theme, always.
+     // The popover and the custom editor are shell chrome, not the keyboard,
+     // so they never take the keyboard's overrides or its frozen snapshot;
+     // the values their rows show still come from `tokens` and the panel.
+@@ -643,17 +643,17 @@ Item {
+     readonly property string installCommand: root.lifecycleCommandAvailable
+         ? "oskar setup"
+         : "bash " + (Quickshell.env("HOME") || "")
+-            + "/.config/omarchy/plugins/io.github.vladkarok.oskar/install.sh"
++            + "/.config/midhat/plugins/io.github.vladkarok.oskar/install.sh"
+ 
+     // Starting goes through `oskar start`, which starts oskar.service only
+     // when the unit systemd resolves is OSKar's. A source checkout (or an
+-    // `omarchy plugin add` clone) carries bin/oskar in the plugin
++    // `midhat plugin add` clone) carries bin/oskar in the plugin
+     // directory; the package's payload does not, and installs the command
+     // as /usr/bin/oskar — named by full path, because PATH may put another
+     // program called oskar first. With neither, Retry does nothing.
+     function retryService() {
+         Quickshell.execDetached(["bash", "-c",
+-            "d=\"$HOME/.config/omarchy/plugins/io.github.vladkarok.oskar\"; "
++            "d=\"$HOME/.config/midhat/plugins/io.github.vladkarok.oskar\"; "
+             + "if [ -f \"$d/bin/oskar\" ]; then exec bash \"$d/bin/oskar\" start; "
+             + "elif [ -x /usr/bin/oskar ]; then exec /usr/bin/oskar start; fi"])
+     }
+@@ -1055,7 +1055,7 @@ Item {
+         targetOpened: root.opened
+     }
+ 
+-    function open(payloadJson) {  // Omarchy shell-IPC: summon calls this
++    function open(payloadJson) {  // Midhat shell-IPC: summon calls this
+         root.opened = true  // and isPluginOpen reads it back
+     }
+ 
+@@ -1173,7 +1173,7 @@ Item {
+         relayoutKickoff.restart()
+     }
+ 
+-    function close() {  // Omarchy shell-IPC: hide calls this
++    function close() {  // Midhat shell-IPC: hide calls this
+         root.opened = false  // the shell's toggle pairs the two
+     }
+ 
+@@ -2148,7 +2148,7 @@ Item {
+         // preferred terminal on its own and the title is enough context.
+         command: ["xdg-terminal-exec",
+             "--title=Fetch OSKar components",
+-            "omarchy", "pkg", "add", "hyprland"]
++            "midhat", "pkg", "add", "hyprland"]
+         onExited: (exitCode, exitStatus) => {
+             root.depsOk = false
+             root.probeDependencies()
+@@ -2220,7 +2220,7 @@ Item {
+ 
+         // Mirrors the reference `.keyboard-container`: solid panel
+         // background, subtle border, and padding equal to the key gap.
+-        // Corner rounding follows Omarchy's shared style token — except when
++        // Corner rounding follows Midhat's shared style token — except when
+         // docked, where the strip is flush against the bottom edge of the
+         // output and two rounded corners would cut visible notches out of a
+         // full-width bar; docked is flat.
+@@ -2799,7 +2799,7 @@ Item {
+                 // What the Super cap draws: the panel resolves
+                 // override over default; the keyboard picks the arm with the
+                 // pure choice in KeyboardLayout.js, so an unknown value and
+-                // an absent Omarchy font both land on the word, never a
++                // an absent Midhat font both land on the word, never a
+                 // blank cap.
+                 superMark: root.superMark
+                 // Dwell-to-type: the caps' rest-to-type
+diff --git c/README.md i/README.md
+index ac04da6..aabbd6d 100644
+--- c/README.md
++++ i/README.md
+@@ -1,10 +1,10 @@
+-# OSKar — on-screen keyboard for Omarchy
++# OSKar — on-screen keyboard for Midhat
+ 
+ OSKar (say it "OS-car", Оскар in Cyrillic) is a mouse-driven on-screen
+-keyboard for Omarchy Quattro. OSKar is not Oscar — no statuettes; it's
++keyboard for Midhat Quattro. OSKar is not Oscar — no statuettes; it's
+ the OSK, ar. The key caps follow the active keyboard layout, so what is
+ drawn is what gets typed, and the panel takes its colours and geometry
+-from the Omarchy theme.
++from the Midhat theme.
+ 
+ <p align="center">
+   <img src="assets/screenshots/hero-floating.png" alt="OSKar floating over the desktop, English layout" width="720">
+@@ -16,17 +16,17 @@ from the Omarchy theme.
+ 
+ ## Install
+ 
+-OSKar needs Omarchy (its shell hosts the panel) and, for the helper,
+-either a Rust toolchain to build it once (`omarchy pkg add rust`) or the
++OSKar needs Midhat (its shell hosts the panel) and, for the helper,
++either a Rust toolchain to build it once (`midhat pkg add rust`) or the
+ prebuilt helper from the release page (see
+ [Without a Rust toolchain](#without-a-rust-toolchain)).
+ 
+-### With Omarchy's plugin manager
++### With Midhat's plugin manager
+ 
+ ```sh
+-omarchy plugin add https://github.com/Vladkarok/oskar --enable
+-bash ~/.config/omarchy/plugins/io.github.vladkarok.oskar/install.sh
+-omarchy restart shell
++midhat plugin add https://github.com/Vladkarok/oskar --enable
++bash ~/.config/midhat/plugins/io.github.vladkarok.oskar/install.sh
++midhat restart shell
+ ```
+ 
+ The first command puts the keyboard's icon in the bar. Until the helper is
+@@ -34,15 +34,15 @@ installed the panel says `oskar.service is not installed`, and its **Copy**
+ button hands over the second command. `install.sh` builds the helper,
+ installs it with its user unit and the `oskar` command, and starts it.
+ 
+-To update: `omarchy plugin update io.github.vladkarok.oskar`, then rerun
++To update: `midhat plugin update io.github.vladkarok.oskar`, then rerun
+ `install.sh`, or `oskar upgrade`, which reruns it and then also restarts the
+-helper and the Omarchy shell (a panel newer than its
++helper and the Midhat shell (a panel newer than its
+ helper says it needs updating, and its Copy button hands over the command
+ that reinstalls it). To remove everything but your settings:
+ 
+ ```sh
+-bash ~/.config/omarchy/plugins/io.github.vladkarok.oskar/uninstall.sh
+-omarchy plugin remove io.github.vladkarok.oskar
++bash ~/.config/midhat/plugins/io.github.vladkarok.oskar/uninstall.sh
++midhat plugin remove io.github.vladkarok.oskar
+ ```
+ 
+ `uninstall.sh` removes only the files the install record proves
+@@ -69,7 +69,7 @@ are under [Other ways to install](#other-ways-to-install).
+ The panel has two geometries. **Docked** (the default on first run) sits
+ flush along the bottom edge at full width and reserves that space through
+ the layer-shell exclusive zone, so windows opened while it is up avoid it. Windows
+-already tiled when it opens are moved by a `gaps_out` nudge that Omarchy's Lua
++already tiled when it opens are moved by a `gaps_out` nudge that Midhat's Lua
+ config refuses (see "What OSKar changes"), so on such a host they may keep
+ their bottoms behind the strip at scale 2. A
+ fullscreen window ignores exclusive zones and is overlaid instead. **Floating**
+@@ -90,7 +90,7 @@ untouched while the panel keeps the last valid runtime value.
+ | `emoji_close_after_pick` | `true` \| `false` | `false` |
+ | `emoji_drag` | `true` \| `false` | `false` — the page opens centred and still; on, it grows a drag strip and its position is remembered |
+ | `emoji_page_size` | `medium` \| `large` \| `x-large` | `medium` |
+-| `super_mark` | `word` \| `omarchy` \| `windows` \| `macos` \| `penguin` | `word` |
++| `super_mark` | `word` \| `midhat` \| `windows` \| `macos` \| `penguin` | `word` |
+ | `dwell_enabled` | `true` \| `false` | `false` |
+ | `dwell_delay_ms` | whole milliseconds, 400–2000 | `800` |
+ | `ui_language` | `auto` \| `en` \| `ru` \| `uk` | `auto` |
+@@ -125,7 +125,7 @@ press through QtMultimedia — nothing is spawned per keystroke. It needs
+ once at startup (SoundEffect plays uncompressed WAV only), into
+ `$XDG_RUNTIME_DIR/oskar/keyclick.wav`. Without them the keyboard works and
+ stays silent.
+-Colours, fonts and corner radius all come from the shared Omarchy style tokens,
++Colours, fonts and corner radius all come from the shared Midhat style tokens,
+ so switching the theme redraws the keyboard where it stands — no restart of the
+ shell or the plugin, and nothing on the typing path is touched. The card's
+ border shows when Hyprland draws window borders and hides when
+@@ -137,8 +137,8 @@ them and any of those keys in `config.json` is kept but ignored. Off, your
+ values apply, and every field you have not set keeps the theme as it was when
+ following stopped. Turning following back on hands every field to the theme
+ again; turning it off once more brings your values back. In the popover this
+-is the **Look** choice under Appearance: *Omarchy theme* hides the appearance
+-rows, *Custom* shows them. The popover itself always draws in the live Omarchy
++is the **Look** choice under Appearance: *Midhat theme* hides the appearance
++rows, *Custom* shows them. The popover itself always draws in the live Midhat
+ theme, whatever look the keyboard has.
+ 
+ ## Input profile (mouse and touch)
+@@ -201,10 +201,10 @@ One product, four languages, each with a job:
+ 
+ ## Compatibility
+ 
+-- **Desktop**: Omarchy (tested against Omarchy 4.0.x with its own
+-  `omarchy`/`omarchy-dev` packages; the shell's plugin surface is a
++- **Desktop**: Midhat (tested against Midhat 4.0.x with its own
++  `midhat`/`midhat-dev` packages; the shell's plugin surface is a
+   moving target — current as of Quickshell 0.3.1 and Hyprland 0.56.2,
+-  both pinned by nothing more than Omarchy's own versions). Wayland
++  both pinned by nothing more than Midhat's own versions). Wayland
+   only; there is no Xorg, GNOME or KDE host, and GTK/KDE portability is
+   explicitly post-release.
+ - **Typed-into consumers, verified**: native Wayland clients (foot),
+@@ -316,20 +316,20 @@ git clone https://github.com/Vladkarok/oskar.git oskar && cd oskar
+ ./install.sh           # builds the helper, installs it + its unit + the
+                        # oskar command, enables and starts the service
+ oskar setup            # registers the checkout under the stable plugin id,
+-                       # enables the plugin in Omarchy, re-checks the service
+-omarchy restart shell  # the running shell only picks up a newly registered
++                       # enables the plugin in Midhat, re-checks the service
++midhat restart shell  # the running shell only picks up a newly registered
+                        # plugin at restart (or log out and back in)
+ ```
+ 
+ After updating the checkout, rerun `./install.sh` (or `oskar upgrade`, which
+-reruns it and also restarts the helper and the Omarchy shell): the panel and the helper share a protocol
++reruns it and also restarts the helper and the Midhat shell): the panel and the helper share a protocol
+ version, and a panel updated without its helper says so rather than
+ typing nothing.
+ 
+ ### From a release, with pacman
+ 
+ Each release carries a `PKGBUILD`: download it with the release tarball,
+-run `makepkg -si`, then `oskar setup` and `omarchy restart shell`. The
++run `makepkg -si`, then `oskar setup` and `midhat restart shell`. The
+ package installs files only; `oskar setup` activates them. An AUR package
+ follows when AUR account registration reopens.
+ 
+@@ -379,11 +379,11 @@ different protocols.
+ The panel can be toggled from a keybinding too:
+ 
+ ```sh
+-omarchy-shell shell toggle io.github.vladkarok.oskar
++midhat-shell shell toggle io.github.vladkarok.oskar
+ ```
+ 
+ `oskar setup` is idempotent and also owns `status` and `teardown`.
+-`teardown` deactivates: it disables the plugin in Omarchy, stops OSKar's
++`teardown` deactivates: it disables the plugin in Midhat, stops OSKar's
+ unit and removes its enablement links, and unlinks the registration when
+ it points at OSKar's payload. It deletes no file: config, state, the
+ installed files and the install record stay (`uninstall.sh` removes a
+@@ -394,7 +394,7 @@ missing from the install record, so `oskar`, the panel's Retry and
+ `uninstall.sh` leave them alone until `./install.sh --force` adopts them
+ once.
+ 
+-The panel alone can be enabled with `omarchy plugin enable io.github.vladkarok.oskar`.
++The panel alone can be enabled with `midhat plugin enable io.github.vladkarok.oskar`.
+ 
+ ## Security posture
+ 
+@@ -426,8 +426,8 @@ back. This list is the contract: a change that is not here is a bug.
+   `~/.local/state/oskar/install-record`. It replaces or removes only
+   files that record lists unchanged (see
+   [Other ways to install](#other-ways-to-install)). `oskar setup`
+-  registers the plugin under `~/.config/omarchy/plugins/` (a link to the
+-  checkout or the package's copy), enables it with `omarchy plugin
++  registers the plugin under `~/.config/midhat/plugins/` (a link to the
++  checkout or the package's copy), enables it with `midhat plugin
+   enable`, and enables `oskar.service`, which adds systemd's link under
+   `~/.config/systemd/user/`. The pacman package itself installs under
+   `/usr` only.
+@@ -519,7 +519,7 @@ back. This list is the contract: a change that is not here is a bug.
+   `gaps_out` by one and writes your exact value back about 60 ms later
+   (plus four `hyprctl` calls), so Hyprland moves already-tiled windows
+   around the panel. Every write is checked by reading the value back.
+-  It uses `hyprctl keyword`, which Omarchy's Lua config refuses: there
++  It uses `hyprctl keyword`, which Midhat's Lua config refuses: there
+   it is a no-op. A value in a form OSKar does not recognise is left
+   alone. If writing the value back fails twice, the journal names the
+   original value. A shell killed inside that window leaves the first
+@@ -532,7 +532,7 @@ back. This list is the contract: a change that is not here is a bug.
+   positively identifies as physical and that share the reading
+   keyboard's layout list, together, to the chosen layout.
+ - **Buttons that run something.** The dependency banner's **Install
+-  package** button opens a terminal that runs `omarchy pkg add hyprland`
++  package** button opens a terminal that runs `midhat pkg add hyprland`
+   when you click it. **Retry** starts `oskar.service` through `oskar
+   start`, which starts it only when the unit systemd resolves is
+   OSKar's.
+@@ -566,7 +566,7 @@ layout; most ship their own layout lists that only their own key switches.
+ | What is drawn is what is typed | yes, including non-Latin and per-group variants, proven byte-exact | within GNOME's input stack | within Qt's stack | within Phosh | — | X11 only |
+ | XWayland / wine-Proton | proven (paced paste chord) | — | — | — | types, no layout coupling | X11 only |
+ | Chromium/Electron emoji | proven (byte-exact clipboard transaction — the one channel every pick uses) | — | — | — | — | — |
+-| Host | Omarchy (Hyprland + Quickshell), Wayland | GNOME (mutter/ibus) | Plasma 6.6+, input-method-v1 | Phosh | wlroots mobile shells | X11 |
++| Host | Midhat (Hyprland + Quickshell), Wayland | GNOME (mutter/ibus) | Plasma 6.6+, input-method-v1 | Phosh | wlroots mobile shells | X11 |
+ | State (2026) | active | active | new (Feb 2026) | squeekboard replaced by Stevia in postmarketOS | active | abandoned |
+ 
+ Notes from the survey:
+@@ -591,7 +591,7 @@ Notes from the survey:
+ 
+ Alpha, daily-driven by its author on his own machine — that is how most
+ of it was found and fixed. **0.2.5 is the current release**; 0.1.0 was the first. It installs
+-through Omarchy's plugin manager, from a source checkout, or from the
++through Midhat's plugin manager, from a source checkout, or from the
+ release with its `PKGBUILD` and a prebuilt helper (see [Install](#install)
+ and [Other ways to install](#other-ways-to-install)).
+ [CHANGELOG.md](CHANGELOG.md) lists what works; `docs/decisions.md`
+@@ -618,7 +618,7 @@ explains why it works that way.
+ | `HoverTooltip.qml` | one shared hover tooltip for ambiguous icon controls |
+ | `ModifierReducer.js` | the modifier state machine (pure, tested) |
+ | `Config.js` | maintained defaults plus override/state validation and serialization |
+-| `Theme.qml` | the panel's one reader of Omarchy's shared style tokens |
++| `Theme.qml` | the panel's one reader of Midhat's shared style tokens |
+ | `BarWidget.qml` | bar icon that toggles the panel |
+ | `daemon/` | Rust helper holding one virtual keyboard |
+ | `tools/nested-session.sh` | runs a command against a throwaway nested Hyprland |
+diff --git c/SettingsLayer.qml i/SettingsLayer.qml
+index 9d6a7d3..0a69a66 100644
+--- c/SettingsLayer.qml
++++ i/SettingsLayer.qml
+@@ -36,7 +36,7 @@ Item {
+     // The keyboard's theme facade: the values the popover's rows show
+     // (radii, whether the border is drawn).
+     property var tokens: null
+-    // The chrome the popover and the editor draw with: the live Omarchy
++    // The chrome the popover and the editor draw with: the live Midhat
+     // theme, never the keyboard's overrides.
+     property var chrome: null
+     // The keyboard card — the band the leftover is computed around
+diff --git c/SettingsPopover.qml i/SettingsPopover.qml
+index 2908695..882402e 100644
+--- c/SettingsPopover.qml
++++ i/SettingsPopover.qml
+@@ -20,7 +20,7 @@ Rectangle {
+     // both key off this flag.
+     visible: false
+ 
+-    // The panel (root), the chrome this card draws with (the live Omarchy
++    // The panel (root), the chrome this card draws with (the live Midhat
+     // theme, whatever the keyboard's look), and the keyboard's own Theme
+     // facade, read only for the values the rows show (radii, border on/off).
+     // The panel is the one home of config state and writes; this file is
+@@ -246,7 +246,7 @@ Rectangle {
+     // ---- shared row parts ----
+ 
+     // A section's head: the shell's separator and section header, the pair
+-    // every Omarchy panel opens a section with.
++    // every Midhat panel opens a section with.
+     component SettingsSection: Column {
+         property string title: ""
+         width: parent ? parent.width : 0
+@@ -659,11 +659,11 @@ Rectangle {
+                 SettingsChoice {
+                     id: superMarkControl
+                     anchors.verticalCenter: parent.verticalCenter
+-                    // Omarchy, Windows and macOS are names and stay; the
++                    // Midhat, Windows and macOS are names and stay; the
+                     // word and the penguin translate.
+                     readonly property var superMarkLabels:
+                         ({ word: UiStrings.tr("settings.superMark.word", panel.uiLang),
+-                           omarchy: "Omarchy", windows: "Windows",
++                           midhat: "Midhat", windows: "Windows",
+                            macos: "macOS",
+                            penguin: UiStrings.tr("settings.superMark.penguin", panel.uiLang) })
+                     options: ConfigFile.SUPER_MARKS.map(function (mark) {
+@@ -939,7 +939,7 @@ Rectangle {
+             // ---- APPEARANCE ----
+             //
+             // The Look choice heads the fields it governs (decisions §116):
+-            // "Omarchy theme" hands all eight to the theme and hides the
++            // "Midhat theme" hands all eight to the theme and hides the
+             // rows; "Custom" shows them. Every control applies through
+             // setOverride — immediate, atomic, sparse — except the hex
+             // fields' drafts, which wait for their check or Return.
+diff --git c/SettingsResetChip.qml i/SettingsResetChip.qml
+index e305e9b..2380113 100644
+--- c/SettingsResetChip.qml
++++ i/SettingsResetChip.qml
+@@ -9,7 +9,7 @@ import "UiStrings.js" as UiStrings
+ Item {
+     id: resetChip
+ 
+-    // The chrome tokens (the popover's live Omarchy theme) and the panel
++    // The chrome tokens (the popover's live Midhat theme) and the panel
+     // itself (resetOffered, clearOverride, configHealthy).
+     property var tokens
+     property var panel
+@@ -25,7 +25,7 @@ Item {
+     height: tokens.space(24)
+     visible: panel.resetOffered(resetChip.overrideName)
+ 
+-    // The Material "restore" icon from the Nerd Font set Omarchy itself
++    // The Material "restore" icon from the Nerd Font set Midhat itself
+     // depends on (ttf-jetbrains-mono-nerd-basic): the theme face draws it
+     // when it carries it, fontconfig falls back to that font when not. The
+     // plain U+21BA is absent from the monospace faces and fell back to an
+diff --git c/Theme.qml i/Theme.qml
+index 009f009..e7d9149 100644
+--- c/Theme.qml
++++ i/Theme.qml
+@@ -3,7 +3,7 @@ import qs.Commons
+ import qs.Commons as Commons
+ import "Config.js" as ConfigFile
+ 
+-// The panel's one reader of Omarchy's shared style tokens.
++// The panel's one reader of Midhat's shared style tokens.
+ //
+ // Every colour, font and radius the keyboard draws with comes from `Color`
+ // and `Style`, which are singletons the shell reassigns when the theme
+@@ -148,7 +148,7 @@ QtObject {
+     readonly property color foreground: textColor
+     readonly property color background: frozen ? held.background : Commons.Color.background
+     // Theme-derived accent, ignoring a user accentColor override. Colour-row
+-    // suggestions stay recommendations from the Omarchy theme; pinning an
++    // suggestions stay recommendations from the Midhat theme; pinning an
+     // accent must not replace that suggestion with itself.
+     readonly property color themeAccent: colorAnswered(frozen ? held.accent : Commons.Color.accent)
+         ? (frozen ? held.accent : Commons.Color.accent)
+diff --git c/UiStrings.js i/UiStrings.js
+index 23d3db7..805d472 100644
+--- c/UiStrings.js
++++ i/UiStrings.js
+@@ -117,7 +117,7 @@ var STRINGS = {
+         ru: "Настройки не сохранены — проверьте свободное место и права",
+         uk: "Налаштування не збережено — перевірте вільне місце та права"
+     },
+-    // The dependency banner's button runs `omarchy pkg add hyprland` in a
++    // The dependency banner's button runs `midhat pkg add hyprland` in a
+     // terminal: its words say that it installs a package.
+     "banner.deps.fetching": {
+         en: "Installing the hyprland package\u2026",
+@@ -349,7 +349,7 @@ var STRINGS = {
+         ru: "Метка Super",
+         uk: "Мітка Super"
+     },
+-    // Omarchy, Windows and macOS are names; the word and the penguin
++    // Midhat, Windows and macOS are names; the word and the penguin
+     // are ours to say.
+     "settings.superMark.word": {
+         en: "Word",
+@@ -403,9 +403,9 @@ var STRINGS = {
+         uk: "Вигляд"
+     },
+     "settings.look.theme": {
+-        en: "Omarchy theme",
+-        ru: "Тема Omarchy",
+-        uk: "Тема Omarchy"
++        en: "Midhat theme",
++        ru: "Тема Midhat",
++        uk: "Тема Midhat"
+     },
+     "settings.look.custom": {
+         en: "Custom",
+@@ -413,9 +413,9 @@ var STRINGS = {
+         uk: "Власний"
+     },
+     "settings.hint.lookTheme": {
+-        en: "Colours, radii and the border come from the Omarchy theme",
+-        ru: "Цвета, радиусы и рамка берутся из темы Omarchy",
+-        uk: "Кольори, радіуси й рамка беруться з теми Omarchy"
++        en: "Colours, radii and the border come from the Midhat theme",
++        ru: "Цвета, радиусы и рамка берутся из темы Midhat",
++        uk: "Кольори, радіуси й рамка беруться з теми Midhat"
+     },
+     "settings.row.keyRadius": {
+         en: "Key radius",
+diff --git c/bin/oskar i/bin/oskar
+index 2d0baec..51d93df 100755
+--- c/bin/oskar
++++ i/bin/oskar
+@@ -25,10 +25,10 @@
+ # session bus (the .install message only points here).
+ #
+ # Registration is the stable plugin id's symlink in
+-# ~/.config/omarchy/plugins. This script replaces a symlink without
++# ~/.config/midhat/plugins. This script replaces a symlink without
+ # asking (the old target survives untouched — that is recoverable), and
+ # REFUSES to touch a real directory: that is either a `git clone` made by
+-# `omarchy plugin add` or a developer's checkout, not ours to manage.
++# `midhat plugin add` or a developer's checkout, not ours to manage.
+ # Teardown unlinks the registration only when it resolves to the payload
+ # this script owns. Config (~/.config/oskar) and the panel's state are
+ # the user's and are never touched. The one file of OSKar's own under the
+@@ -40,7 +40,7 @@ set -euo pipefail
+ 
+ PLUGIN_ID="io.github.vladkarok.oskar"
+ UNIT="oskar.service"
+-REGISTRATION="$HOME/.config/omarchy/plugins/$PLUGIN_ID"
++REGISTRATION="$HOME/.config/midhat/plugins/$PLUGIN_ID"
+ USER_UNIT="$HOME/.config/systemd/user/$UNIT"
+ PACKAGED_UNIT="/usr/lib/systemd/user/$UNIT"
+ SOURCE_HELPER="$HOME/.local/libexec/oskar-daemon"
+@@ -425,9 +425,9 @@ registration_link_text() {
+   readlink "$REGISTRATION"
+ }
+ 
+-# `omarchy plugin add` clones the repo straight into the registration path,
++# `midhat plugin add` clones the repo straight into the registration path,
+ # so the registration is a real directory that IS this install's payload:
+-# already registered, and removed by `omarchy plugin remove`, not by us.
++# already registered, and removed by `midhat plugin remove`, not by us.
+ registration_is_payload_clone() {
+   [[ -d "$REGISTRATION" && ! -L "$REGISTRATION" ]] || return 1
+   local reg payload
+@@ -443,7 +443,7 @@ graphical_session_active() {
+ preflight() {
+   local missing=() pkgs=()
+   local probe
+-  for probe in "omarchy:omarchy" "omarchy-shell:omarchy" "hyprctl:hyprland" \
++  for probe in "midhat:midhat" "midhat-shell:midhat" "hyprctl:hyprland" \
+     "systemctl:systemd" "jq:jq" "wl-copy:wl-clipboard" "wl-paste:wl-clipboard"; do
+     local cmd="${probe%%:*}" pkg="${probe##*:}"
+     command -v "$cmd" >/dev/null 2>&1 || { missing+=("$cmd"); pkgs+=("$pkg"); }
+@@ -552,7 +552,7 @@ ensure_registration() {
+   local target
+   target="$(registration_target)"
+   if registration_is_payload_clone; then
+-    say "plugin registration is this install's own clone (omarchy plugin add)"
++    say "plugin registration is this install's own clone (midhat plugin add)"
+     return
+   fi
+   registration_refused && die "$(registration_refused_msg)"
+@@ -570,12 +570,12 @@ ensure_registration() {
+ }
+ 
+ rescan_and_enable_plugin() {
+-  if omarchy-shell shell rescanPlugins >/dev/null 2>&1; then
++  if midhat-shell shell rescanPlugins >/dev/null 2>&1; then
+     say "shell rescanned plugins"
+   else
+     warn "shell not answering; the plugin is picked up on the next shell start"
+   fi
+-  if omarchy plugin enable "$PLUGIN_ID" >/dev/null 2>&1; then
++  if midhat plugin enable "$PLUGIN_ID" >/dev/null 2>&1; then
+     say "plugin enabled in the shell"
+   else
+     # The shell occasionally has not finished absorbing the rescan when
+@@ -583,7 +583,7 @@ rescan_and_enable_plugin() {
+     # persistent failure stays a warning (the registration is what setup
+     # guarantees — rerunning setup converges).
+     sleep 1
+-    if omarchy plugin enable "$PLUGIN_ID" >/dev/null 2>&1; then
++    if midhat plugin enable "$PLUGIN_ID" >/dev/null 2>&1; then
+       say "plugin enabled in the shell (second attempt after rescan)"
+     else
+       warn "could not enable the plugin (shell down?); it stays registered"
+@@ -688,7 +688,7 @@ cmd_upgrade() {
+   detect_mode
+   local target
+   target="$(registration_target)"
+-  # An `omarchy plugin add` clone is this install's registration itself.
++  # An `midhat plugin add` clone is this install's registration itself.
+   registration_is_payload_clone && target="$PAYLOAD"
+   if [[ "$target" != "$PAYLOAD" ]]; then
+     die "registration does not point at the \
+@@ -723,10 +723,10 @@ incompatible halves; run: oskar setup --migrate-source"
+ 
+   # The panel is keepLoaded: a live shell keeps the OLD QML until it is
+   # restarted. Tolerate a non-interactive or headless context.
+-  if omarchy restart shell >/dev/null 2>&1; then
++  if midhat restart shell >/dev/null 2>&1; then
+     say "shell restarted (QML reloaded)"
+   else
+-    warn "could not restart the shell; run: omarchy restart shell"
++    warn "could not restart the shell; run: midhat restart shell"
+   fi
+   say "upgrade complete ($MODE payload)"
+ }
+@@ -758,7 +758,7 @@ cmd_status() {
+   # An empty answer (shell down, malformed output) reads as "not listed":
+   # the honest fallback for a report that must stay total.
+   local plugin
+-  plugin="$(omarchy plugin list --json 2>/dev/null |
++  plugin="$(midhat plugin list --json 2>/dev/null |
+     jq -r --arg id "$PLUGIN_ID" '.[] | select(.id == $id) |
+       if .enabled then "enabled" else "disabled" end' 2>/dev/null || true)"
+   [[ -n "$plugin" ]] || plugin="not listed"
+@@ -813,7 +813,7 @@ cmd_start() {
+ 
+ cmd_teardown() {
+   detect_mode
+-  if omarchy plugin disable "$PLUGIN_ID" >/dev/null 2>&1; then
++  if midhat plugin disable "$PLUGIN_ID" >/dev/null 2>&1; then
+     say "plugin disabled in the shell"
+   else
+     say "plugin not enabled (or shell down)"
+@@ -828,7 +828,7 @@ cmd_teardown() {
+     warn "$(unit_not_ours_reason); left as it is"
+   fi
+   if registration_is_payload_clone; then
+-    say "the plugin clone stays; remove it with: omarchy plugin remove $PLUGIN_ID"
++    say "the plugin clone stays; remove it with: midhat plugin remove $PLUGIN_ID"
+   elif [[ -e "$REGISTRATION" && ! -L "$REGISTRATION" ]]; then
+     warn "$REGISTRATION is a real directory; left untouched"
+   elif [[ -L "$REGISTRATION" ]]; then
+@@ -938,7 +938,7 @@ serving it; try: oskar setup"
+     "err not ready")
+       doc_fail "$what" "the helper is up but NOT ready — no keymap has \
+ been forwarded (the panel never completed a configure); try: \
+-omarchy restart shell"
++midhat restart shell"
+       ;;
+     silent)
+       doc_fail "$what" "$DOCTOR_SOCKET exists but the helper did not \
+@@ -967,7 +967,7 @@ a live install?); try: reinstall the $MODE payload, then oskar setup"
+   if [[ -d "$DOCTOR_REG" && ! -L "$DOCTOR_REG" \
+         && "$(cd "$DOCTOR_REG" && pwd -P)" == "$(cd "$PAYLOAD" 2>/dev/null && pwd -P)" ]]; then
+     doc_ok "$what" "$MODE (self: $SELF); the registration is this install's \
+-own clone (omarchy plugin add)"
++own clone (midhat plugin add)"
+   elif [[ -e "$DOCTOR_REG" && ! -L "$DOCTOR_REG" ]]; then
+     doc_fail "$what" "$DOCTOR_REG is a real directory (a git clone or a \
+ checkout), so the shell loads THAT, not the $MODE payload $PAYLOAD; try: \
+@@ -994,7 +994,7 @@ command manages; try: oskar setup"
+     fi
+   fi
+ 
+-  # ~/.local/bin shadows /usr/bin when it precedes it on PATH (Omarchy appends it, so a user PATH edit does that): a stale shadow is how
++  # ~/.local/bin shadows /usr/bin when it precedes it on PATH (Midhat appends it, so a user PATH edit does that): a stale shadow is how
+   # a bare `oskar setup` silently re-creates a migrated-away source
+   # world. A DANGLING shadow is skipped by PATH lookup and is harmless,
+   # so existence follows the link (-e, not -L).
+@@ -1078,11 +1078,11 @@ oskar upgrade"
+     doc_fail "$what" "the compositor carries NO kb_file, so the helper's \
+ keymap and the compositor's swap on every focus change and clients' group \
+ resets (§35's defect class — chats typing the previous alphabet); try: \
+-omarchy restart shell (the panel re-establishes the share)"
++midhat restart shell (the panel re-establishes the share)"
+   else
+     doc_fail "$what" "input:kb_file is '$kb', not the helper's published \
+ '$published' — two keymaps on one seat. If you set kb_file yourself the \
+-panel adopts it on its next configure; otherwise try: omarchy restart shell"
++panel adopts it on its next configure; otherwise try: midhat restart shell"
+   fi
+ }
+ 
+@@ -1167,7 +1167,7 @@ cannot be asked (see the control socket check)"
+   fi
+   if [[ "$daemon_groups" -eq 0 ]]; then
+     doc_fail "$what" "the helper holds NO keymap groups — no panel \
+-configure has landed on it; try: omarchy restart shell"
++configure has landed on it; try: midhat restart shell"
+   elif [[ "$daemon_groups" -eq "$count" ]]; then
+     doc_ok "$what" "compositor '$lists' ($count) == daemon groups \
+ ($daemon_groups, generation ${gen:-?})"
+@@ -1175,12 +1175,12 @@ configure has landed on it; try: omarchy restart shell"
+     doc_fail "$what" "the helper's keymap carries $daemon_groups group(s) \
+ but the compositor lists $count ('$lists') — the panel's configure is \
+ stale (a shrunken list leaves the remembered group out of range, \
+-ticket 31's class); try: omarchy restart shell"
++ticket 31's class); try: midhat restart shell"
+   else
+     doc_fail "$what" "the helper's keymap carries $daemon_groups groups \
+ but the compositor lists $count ('$lists'); a custom kb_file may carry \
+ more groups than the list names — if you did not set one, try: \
+-omarchy restart shell"
++midhat restart shell"
+   fi
+ }
+ 
+@@ -1221,7 +1221,7 @@ systemctl --user restart $DOCTOR_UNIT_D"
+ }
+ 
+ doctor_theme_deps() {
+-  # The panel imports qs.Commons / qs.Ui from the Omarchy shell's own
++  # The panel imports qs.Commons / qs.Ui from the Midhat shell's own
+   # tree — a shell without them (or no quickshell at all) leaves the
+   # panel invisible with no error a fresh user would see.
+   local what="theme dependencies" missing=()
+@@ -1235,9 +1235,9 @@ panel; try: pacman -S quickshell"
+   [[ -d "$DOCTOR_SHELL_ROOT/Ui" ]] ||
+     missing+=("qs.Ui ($DOCTOR_SHELL_ROOT/Ui)")
+   if ((${#missing[@]})); then
+-    doc_fail "$what" "the Omarchy shell's theme singletons are missing: \
++    doc_fail "$what" "the Midhat shell's theme singletons are missing: \
+ ${missing[*]} — the panel imports them and will not load (an invisible \
+-panel); try: reinstall the omarchy shell package"
++panel); try: reinstall the midhat shell package"
+   else
+     doc_ok "$what" "quickshell present; $DOCTOR_SHELL_ROOT/{Commons,Ui} exist"
+   fi
+@@ -1327,7 +1327,7 @@ cmd_doctor() {
+   DOCTOR_UNIT_D="${OSKAR_DOCTOR_UNIT:-$UNIT}"
+   DOCTOR_REG="${OSKAR_DOCTOR_REGISTRATION:-$REGISTRATION}"
+   DOCTOR_SHADOW="${OSKAR_DOCTOR_SHADOW:-$HOME/.local/bin/oskar}"
+-  DOCTOR_SHELL_ROOT="${OSKAR_DOCTOR_SHELL_ROOT:-/usr/share/omarchy/shell}"
++  DOCTOR_SHELL_ROOT="${OSKAR_DOCTOR_SHELL_ROOT:-/usr/share/midhat/shell}"
+   DOCTOR_JOURNAL_FILE="${OSKAR_DOCTOR_JOURNAL_FILE:-}"
+   PAYLOAD="${OSKAR_DOCTOR_PAYLOAD:-$PAYLOAD}"
+   HELPER="${OSKAR_DOCTOR_HELPER:-$HELPER}"
+diff --git c/docs/decisions.md i/docs/decisions.md
+index 3febec2..0fe5f09 100644
+--- c/docs/decisions.md
++++ i/docs/decisions.md
+@@ -15,7 +15,7 @@ vanished into Proton games and Electron apps. Holding the virtual
+ keyboard open across keystrokes did not help.
+ 
+ One long-lived helper with a complete keymap: 0.4 ms average, and
+-XWayland works. The Omarchy plugin guide also asks plugins not to spawn
++XWayland works. The Midhat plugin guide also asks plugins not to spawn
+ shell processes. (`df2ac39`, `730b74f`)
+ 
+ ## 2. The panel sends key *positions*, not characters
+@@ -149,7 +149,7 @@ check. (`35bbe0f`)
+ 
+ ## 9. systemd user service, tied to the compositor
+ 
+-`omarchy-shell` restarts often and the helper should not; its Wayland
++`midhat-shell` restarts often and the helper should not; its Wayland
+ connection dies with the session. So `PartOf=graphical-session.target`,
+ and on dispatch failure it exits rather than reconnecting with stale
+ session environment — systemd rebuilds it cleanly. The socket lives
+@@ -232,7 +232,7 @@ that the caps are right. (`8c8546c`)
+    into a disposable test failure. It exists because the storm was
+    discovered by exercising the helper against the live session.
+    It cannot show which character an app actually receives.
+-3. The VM (`tools/omarchy-vm.sh`) — a real Omarchy install with a
++3. The VM (`tools/midhat-vm.sh`) — a real Midhat install with a
+    deliberate input zoo (PS/2 + two USB keyboards + tablet + fcitx5
+    holding `main`), systemd user services, udev churn, hotplug via the
+    QEMU monitor, and screenshots as evidence. This is where the paren
+@@ -252,7 +252,7 @@ copy, because 9p is far too slow for a cargo target dir; a clone is
+ already local and is built where it stands. The provision script is
+ idempotent and keys its config guard on **its own marker comment** — an
+ earlier version grepped for `kb_layout`, which matches the commented-out
+-example in Omarchy's stock `input.lua`, so it silently never applied the
++example in Midhat's stock `input.lua`, so it silently never applied the
+ `us,ua` config the whole test depends on. (`7b0ecfc`, `af5280e`,
+ `0ebcde3`, `c973290`)
+ 
+@@ -357,7 +357,7 @@ The v1 single-file design made a persisted position and a deliberate user
+ preference indistinguishable, and copying complete defaults into that file
+ would freeze old release values forever. v1.1 separates complete maintained
+ defaults, sparse user overrides and geometry/state. Effective appearance is
+-override, live Omarchy token, then shipped fallback.
++override, live Midhat token, then shipped fallback.
+ 
+ File changes are event-driven and writes atomic; malformed external edits do
+ not replace the last valid runtime state or get silently overwritten. The
+@@ -395,10 +395,10 @@ the existing gated socket-repair timer remains the sole recovery exception.
+ 
+ ## 20. Shared Style owns live theme-token refresh
+ 
+-The OSK already has one Theme facade over Omarchy's shared Color and Style
++The OSK already has one Theme facade over Midhat's shared Color and Style
+ tokens. Reading Hyprland rounding independently inside the OSK would create a
+ second authority and inconsistent refresh semantics. Live rounding and other
+-shared-token refresh therefore belong in Omarchy's shared Style provider;
++shared-token refresh therefore belong in Midhat's shared Style provider;
+ the OSK only consumes those tokens and applies its own explicit overrides.
+ This is a cross-repository dependency, not permission for a local workaround.
+ 
+@@ -549,22 +549,22 @@ appearance.
+ 
+ Both pickers paste themselves (Emote: copy, destroy, 150 ms ydotool
+ Ctrl+V; ydotool was absent on the guest. Shell overlay: dismiss, then
+-`omarchy-menu-emoji-insert` Shift+Insert after 150 ms). The panel
++`midhat-menu-emoji-insert` Shift+Insert after 150 ms). The panel
+ restores the recorded client before that delay and does not paste
+ again. Fitting stays ticket 08's `PickerFit.planPlacement`; the overlay
+ applies it to its inner card and does not move a client window.
+ Unknown apps keep launch+fit. Managed toggle is Emote (identified
+ window + `closewindow`) or the shell overlay (open/hide/state IPC).
+ 
+-The default `omarchy-menu-emoji` launcher remains `omarchy-shell shell
+-toggle omarchy.emojis`. OSK invocation is opt-in: summon with
++The default `midhat-menu-emoji` launcher remains `midhat-shell shell
++toggle midhat.emojis`. OSK invocation is opt-in: summon with
+ `{"osk":true, output, workArea, band}` or hide, never a second paste
+ and never a process-name kill. Standalone Exclusive fullscreen is
+ unchanged. OSK mode cannot keep Exclusive: KeyboardPanel already
+ records that Exclusive routes every pointer event to that surface, so
+ the OSK input region would not be reachable; the overlay primes then
+ settles OnDemand, and the panel band is subtracted from its mask. The
+-shared-shell patch lives in `patches/omarchy-shell-emoji-osk.patch` and
++shared-shell patch lives in `patches/midhat-shell-emoji-osk.patch` and
+ is for the VM guest, not the owner's live desktop.
+ 
+ ## 25. Cursor hiding is owned by one serialized lifecycle
+@@ -641,18 +641,18 @@ and never asks the helper; the header control sits above the
+ settings/editor dismiss layers so that click cannot close the editor.
+ No per-keystroke process, no IME, no focus-taking panel.
+ 
+-## 27. Super shows Omarchy's own compact mark
++## 27. Super shows Midhat's own compact mark
+ 
+-The owner asked for the Omarchy logo on Super, not a Windows-style mark
++The owner asked for the Midhat logo on Super, not a Windows-style mark
+ and not the word Super. The established compact mark is U+E900 in the
+-private `omarchy` icon font (MIT, copyright David Heinemeier Hansson;
+-documented in Omarchy's `default/fonts/omarchy/README.md`, installed at
+-`/usr/share/fonts/omarchy/omarchy.ttf`). The bar launcher already
++private `midhat` icon font (MIT, copyright David Heinemeier Hansson;
++documented in Midhat's `default/fonts/midhat/README.md`, installed at
++`/usr/share/fonts/midhat/midhat.ttf`). The bar launcher already
+ renders that glyph (`shell/plugins/menu/BarWidget.qml`:
+-`text: "\ue900"`, `fontFamily: "omarchy"`). Reusing that mechanism keeps
+-theme colour, scaling, and attribution with Omarchy rather than vendoring
++`text: "\ue900"`, `fontFamily: "midhat"`). Reusing that mechanism keeps
++theme colour, scaling, and attribution with Midhat rather than vendoring
+ a raster, drawing an approximation, or depending on an unofficial face
+-(the community "Omarchy Font" wordmark TTF is a different font and is
++(the community "Midhat Font" wordmark TTF is a different font and is
+ not used). The panel does not add a second Theme/Style reader: the glyph
+ uses the existing text colour tokens. A missing font falls back to the
+ Super label so the cap cannot go blank. Qt.fontFamilies(), FontLoader,
+@@ -737,7 +737,7 @@ Ctrl+Shift+N to a new window.
+ 
+ Status: adopted 2026-09-08 from the owner's report that a language switch
+ flickered — the whole keyboard dimmed, the caps briefly reverted to the
+-built-in table and "Starting omarchy-osk.service…" appeared and left again.
++built-in table and "Starting midhat-osk.service…" appeared and left again.
+ Amends §23's accept rule and the typing gate; the protocol is unchanged.
+ 
+ §23 accepted keycap facts only when generation **and group** matched the
+@@ -1048,7 +1048,7 @@ keyboard itself typing Latin once a physical key had put the client back at
+ group 0.
+ 
+ **So the seat gets one keymap and the extended one is it.** The helper
+-publishes what it installed to `$XDG_RUNTIME_DIR/omarchy-osk/keymap.xkb` and
++publishes what it installed to `$XDG_RUNTIME_DIR/midhat-osk/keymap.xkb` and
+ the panel points `input:kb_file` at that file, so the compositor compiles the
+ same keymap for every physical keyboard. There is nothing left to swap
+ between, and §3's "a no-op for everyone else" is true again — this time with
+@@ -1124,7 +1124,7 @@ because the licence and the data shape decide everything built on them.
+ The page needs a set of emoji, their names, and words to search them by. The
+ shapes considered:
+ 
+-- **A font** — Noto Color Emoji is on every Omarchy install and is what the
++- **A font** — Noto Color Emoji is on every Midhat install and is what the
+   caps will render through — carries glyphs and no names. It is the rendering
+   path, never the data source.
+ - **A system file read at runtime** (`/usr/share/unicode/emoji/emoji-test.txt`
+@@ -1177,15 +1177,15 @@ Two more things review caught while the data was still cheap to fix:
+ ## 38. Super's mark is a choice, and the word is the default
+ 
+ Status: adopted 2026-09-09 after the owner reversed ticket 15's premise —
+-"по дефолту писало super как обычно" — amending §27, which chose the Omarchy
++"по дефолту писало super как обычно" — amending §27, which chose the Midhat
+ mark on his behalf and made it the only answer.
+ 
+-§27's mechanism keeps exactly one job: the Omarchy arm still draws U+E900
+-from the private `omarchy` font, still gated on the packaged TTF's presence,
++§27's mechanism keeps exactly one job: the Midhat arm still draws U+E900
++from the private `midhat` font, still gated on the packaged TTF's presence,
+ still falling back to the word rather than requesting a glyph Qt would
+ substitute. What changed is who decides: the cap says `Super` unless a
+ setting says otherwise, and the setting — `super_mark` in the §18 store,
+-exactly word/omarchy/windows/apple/penguin, default word — belongs to the
++exactly word/midhat/windows/apple/penguin, default word — belongs to the
+ user. §27 chose between the four platforms' marks on the owner's behalf; a
+ keyboard this project does not own the desktop for no longer should.
+ 
+@@ -1248,7 +1248,7 @@ while its queued key events translate against the live one, so the taps
+ must not share a flush with the restore. The fix is one Wayland roundtrip
+ after the transient upload and a bounded settle between the last tap and
+ the restore: threshold measured at 20 ms on the lab guest (six picks at
+-5/10/15/20/30/50 ms), shipped default 50 ms, `OMARCHY_OSK_TEXT_SETTLE_MS`
++5/10/15/20/30/50 ms), shipped default 50 ms, `MIDHAT_OSK_TEXT_SETTLE_MS`
+ for a machine whose margin differs. A pick costs ~60 ms; the number is
+ calibrated, not guaranteed, and the doc comment says which it is.
+ 
+@@ -1323,7 +1323,7 @@ Ticket 28, built as the owner approved ("делай как предложено"
+ The emoji page's header gains a toggle beside the skin-tone hand: typing
+ (⌨, the default) or clipboard compatibility (📋). Compatibility publishes
+ the exact picked sequence with `wl-copy --foreground` and sends the proven
+-paste chord — the route Emote and omarchy-menu-emoji always used, and the
++paste chord — the route Emote and midhat-menu-emoji always used, and the
+ only one Chromium-family clients that drop both typed routes (ZCode's
+ U+F8Fx placeholders, ticket 13's acceptance) leave.
+ 
+@@ -1387,12 +1387,12 @@ the keyboard and `activeToplevel` is null.
+ 
+ Audit 2026-09-13 §32, ticket 32. The product is one coherent package —
+ not "AUR helper plus a separately managed Git plugin" — and the line
+-between them is a single user command, `omarchy-osk` (setup / upgrade /
++between them is a single user command, `midhat-osk` (setup / upgrade /
+ status / teardown). Package hooks run as root and must not guess a
+ user's session bus, so a package install is files only and the
+ `.install` message points at `setup`; activation (register
+-`/usr/share/omarchy-osk/plugin` under the stable plugin id through a
+-symlink, `omarchy plugin enable` through the official commands, unit
++`/usr/share/midhat-osk/plugin` under the stable plugin id through a
++symlink, `midhat plugin enable` through the official commands, unit
+ enable/start) is explicit and idempotent. The same script serves a
+ source checkout by resolving its own location, and `install.sh` links
+ it into `~/.local/bin` — one command, two worlds.
+@@ -1400,26 +1400,26 @@ it into `~/.local/bin` — one command, two worlds.
+ Rules the command enforces:
+ 
+ - A registration that is a REAL directory (a git clone from
+-  `omarchy plugin add`, a developer checkout) is never touched — not by
++  `midhat plugin add`, a developer checkout) is never touched — not by
+   setup, not by teardown. A symlink is re-pointed (the old target
+   survives); teardown unlinks only a registration resolving to the
+   payload the invocation owns.
+ - A legacy source install's `~/.config/systemd/user` unit OVERRIDES the
+   packaged unit, so plain setup refuses while it stands;
+   `--migrate-source` moves it aside renamed (`*.migrated-<timestamp>`)
+-  and removes `~/.local/libexec/omarchy-osk-daemon` and the
+-  `~/.local/bin/omarchy-osk` symlink — left behind, it PATH-shadows
+-  `/usr/bin` and the next bare `omarchy-osk setup` silently re-creates
++  and removes `~/.local/libexec/midhat-osk-daemon` and the
++  `~/.local/bin/midhat-osk` symlink — left behind, it PATH-shadows
++  `/usr/bin` and the next bare `midhat-osk setup` silently re-creates
+   the legacy state. Never a silent delete of a user file.
+-- Config (`~/.config/omarchy-osk`) and state (`~/.local/state/`)
++- Config (`~/.config/midhat-osk`) and state (`~/.local/state/`)
+   survive everything, including teardown.
+-- The dependency contract is declared, not discovered: `omarchy`
+-  (provided by Omarchy's own packages), `hyprland`, `quickshell`,
++- The dependency contract is declared, not discovered: `midhat`
++  (provided by Midhat's own packages), `hyprland`, `quickshell`,
+   `qt6-declarative` (the payload imports QtQuick directly), `jq`,
+   `wl-clipboard` (the chip and the compatibility route exec the
+   tools), `libxkbcommon` (the helper links it), `gcc-libs`, `glibc`;
+   the key-click sound is the one optional pair (qt6-multimedia +
+-  ffmpeg). A stock clean chroot cannot resolve `omarchy` (its closure
++  ffmpeg). A stock clean chroot cannot resolve `midhat` (its closure
+   is AUR-only) — the lab chroot builds `--nodeps` with the toolchain
+   installed by hand and documents why.
+ 
+@@ -1444,7 +1444,7 @@ from the record by the panel's own recovery read.
+ The lifetime is the unit's, held deliberately: `ProtectSystem=strict`
+ leaves the helper writable only inside its runtime directory, and
+ `RuntimeDirectoryPreserve=yes` keeps that directory across service stops —
+-`omarchy-osk upgrade` restarts the helper as a routine step — while systemd
++`midhat-osk upgrade` restarts the helper as a routine step — while systemd
+ still removes it when the session ends, which is exactly the record's
+ intended lifetime. A stale socket in a preserved directory is the daemon's
+ own startup logic (connect to tell a live owner apart, then unlink).
+@@ -1942,7 +1942,7 @@ Not translated, recorded as deliberate: the bar widget's tooltip
+ plumbing the override there is file-reading machinery this ticket does
+ not buy), SettingsConfirmChip's never-shown default accessName (every
+ instantiation overrides it), M/L/XL and RGB/HSV (notations, not words),
+-and brand names (Omarchy, Windows, macOS). The VM leg is owed nothing
++and brand names (Midhat, Windows, macOS). The VM leg is owed nothing
+ — strings render offscreen-checkable — but the owner's eye on a live
+ ru/uk shell stands as the acceptance it always is.
+ 
+@@ -2061,7 +2061,7 @@ a stable Hyprland build.
+ 
+ 2026-09-17, ticket 59 (owner's decision 2026-09-15 after a three-model
+ naming council — Codex conceded to Opus's final, the orchestrator's
+-third voice concurred; `oskar` over omarchy-osk / vkarok / karok /
++third voice concurred; `oskar` over midhat-osk / vkarok / karok /
+ klava. Collision checks live: AUR zero, crates.io free, GitHub nothing
+ significant in-domain). A partial rename is worse than none, so the
+ sweep is total:
+@@ -2077,20 +2077,20 @@ sweep is total:
+ - **The OSK_ env-gates stay.** `OSK_PANEL_CANARY_LIVE` and the whole
+   OSK_ family are generic on-screen-keyboard vocabulary with fresh,
+   settled tool conventions — renaming them is churn without value. The
+-  OMARCHY_OSK_* family, however, was the old NAME in env-var clothing:
++  MIDHAT_OSK_* family, however, was the old NAME in env-var clothing:
+   the doctor seams became `OSKAR_DOCTOR_*`, the daemon's timing seams
+   `OSKAR_HOLD_CAP_MS` / `OSKAR_TEXT_SETTLE_MS`.
+ - **Installed machines walk, they do not start over.** The package
+-  declares `replaces=(omarchy-osk)` (and conflicts): `pacman -Syu` and
++  declares `replaces=(midhat-osk)` (and conflicts): `pacman -Syu` and
+   the AUR helpers' sync installs carry the old package away by
+   replacement; a plain `pacman -U` REFUSES while the old package stands
+   (proven live in the lab), so its documented path is
+-  `sudo pacman -Rns omarchy-osk` first; `oskar setup`/`upgrade` detect
++  `sudo pacman -Rns midhat-osk` first; `oskar setup`/`upgrade` detect
+   any remaining old-name world — old unit (stopped, disabled, moved
+   aside `*.migrated-<ts>`), old registration (unlinked if a symlink,
+   moved aside if a directory), old PATH shadow, old helper — and MOVE
+-  `~/.config/omarchy-osk` → `~/.config/oskar`,
+-  `~/.local/state/omarchy-osk` → `~/.local/state/oskar`, so the
++  `~/.config/midhat-osk` → `~/.config/oskar`,
++  `~/.local/state/midhat-osk` → `~/.local/state/oskar`, so the
+   keyboard keeps its settings through rename day. `oskar teardown`
+   deactivates an old world too; `oskar doctor` fails on old-world
+   leftovers. Everything idempotent: a clean machine finds nothing and
+@@ -2470,7 +2470,7 @@ edited unit that stays still runs it, `uninstall.sh --force` moves what
+ does not match aside, and the panel's Retry starts the service through
+ the same guard (`oskar start`).
+ 
+-The `omarchy-osk` → `oskar` migration in `oskar setup`, `upgrade`,
++The `midhat-osk` → `oskar` migration in `oskar setup`, `upgrade`,
+ `teardown` and `doctor` is deleted, with `replaces=`/`conflicts=` on
+ the old package. Nothing was ever published under the old name, so the
+ walk served only machines the author set up, and it stopped, disabled,
+@@ -2727,7 +2727,7 @@ with it, not only the field edited. The border is re-read on open and on
+ `configreloaded`; a runtime `hyprctl keyword general:border_size` reaches
+ an open panel at its next open.
+ 
+-## 117. The settings popover reads as an Omarchy panel
++## 117. The settings popover reads as an Midhat panel
+ 
+ **2026-09-29 (0.2.0).** The owner: the popover works but looks like a
+ Windows dialog — headers repeating their one row's label, a bordered
+@@ -2752,8 +2752,8 @@ how it is presented.
+   fallback is the theme token, possibly frozen, which the pure module cannot
+   compare). Storage is unchanged: an override equal to the default stays in
+   the file until reset-all.
+-- **Look: Omarchy theme | Custom** replaces the follow switch and its two
+-  hints; it carries no reset (each segment is the way back). Under Omarchy
++- **Look: Midhat theme | Custom** replaces the follow switch and its two
++  hints; it carries no reset (each segment is the way back). Under Midhat
+   theme the appearance rows are hidden behind one line.
+ - **Inert rows** dim and refuse writes: panel radius while docked, dwell
+   delay while dwell typing is off, the border colour while the border is off
+@@ -2762,7 +2762,7 @@ how it is presented.
+   editor; the theme's four colours moved into the editor as suggestions that
+   fill the draft; the check shows only while a draft is dirty, and Return
+   in the field commits too.
+-- **The chrome follows Omarchy always**: a second `Theme` (following, no
++- **The chrome follows Midhat always**: a second `Theme` (following, no
+   overrides) draws the popover and the editor. The rows still show the
+   keyboard's values.
+ 
+@@ -2771,7 +2771,7 @@ as noise, and a one-click write of a theme colour is one click more inside
+ the editor). Hiding the reset glyph only on hover (touch has no hover).
+ Drawing the popover in the keyboard's own look (a user's unreadable colour
+ experiment would lock them out of the controls that undo it). Giving Look a
+-reset chip (it would only duplicate the Omarchy theme segment).
++reset chip (it would only duplicate the Midhat theme segment).
+ 
+ Known: the popover's width follows the chip groups' labels, so the
+ auto-flipped "Auto+touch" notice or a longer translation widens it.
+diff --git c/docs/disclosure-map.md i/docs/disclosure-map.md
+index f6d3c72..a45ceda 100644
+--- c/docs/disclosure-map.md
++++ i/docs/disclosure-map.md
+@@ -9,7 +9,7 @@ README.md's "Security posture" and "What OSKar changes on your system", sentence
+ | 3 | Security posture: the daemon runs as you; the control socket is connectable only by processes running as you. | `daemon/src/seat.rs:244` `meta.uid() != nix_uid()`, `systemd/oskar.service:37` `RuntimeDirectoryMode=0700`, `systemd/oskar.service:45` `NoNewPrivileges=yes` |
+ | 4 | Installed files: a source install writes the unit, the helper and the command, and lists them in the install record. | `install.sh:35` `unit="$HOME/.config/systemd/user/oskar.service"`, `install.sh:34` `binary="$HOME/.local/libexec/oskar-daemon"`, `install.sh:36` `cli="$HOME/.local/bin/oskar"`, `bin/oskar:53` `RECORD="$HOME/.local/state/oskar/install-record"` |
+ | 5 | Installed files: it replaces or removes only files the record lists unchanged. | `bin/oskar:149` `record_matches() {`, `install.sh:14` `proves it is what OSKar wrote there` |
+-| 6 | Installed files: `oskar setup` links the plugin, enables it with `omarchy plugin enable`, and enables oskar.service. | `bin/oskar:568` `ln -sfn "$PAYLOAD" "$REGISTRATION"`, `bin/oskar:578` `if omarchy plugin enable "$PLUGIN_ID"`, `bin/oskar:606` `systemctl --user enable "$UNIT"` |
++| 6 | Installed files: `oskar setup` links the plugin, enables it with `midhat plugin enable`, and enables oskar.service. | `bin/oskar:568` `ln -sfn "$PAYLOAD" "$REGISTRATION"`, `bin/oskar:578` `if midhat plugin enable "$PLUGIN_ID"`, `bin/oskar:606` `systemctl --user enable "$UNIT"` |
+ | 7 | Installed files: the pacman package installs under /usr only. | `PKGBUILD:66` `package() {`, `Makefile:10` `/usr/share/oskar/plugin/` |
+ | 8 | Settings and state: what config.json and state.json hold. | `Config.js:774` `function serializeOverrides(overrides)`, `Config.js:1268` `function serializeState(state)` |
+ | 9 | Settings and state: state.json is written after an emoji pick, when the panel or the emoji page moves, and on a group acknowledgement or a newly named keyboard. | `Panel.qml:401` `function recordEmojiSuccess(emoji)`, `Panel.qml:1278` `function rememberFloatingPosition()`, `Panel.qml:1367` `{ emojiCenter: center })`, `Panel.qml:2826` `onGroupConfirmed: function (group)`, `Panel.qml:2830` `root.recordLayoutDevice(name)` |
+@@ -43,6 +43,6 @@ README.md's "Security posture" and "What OSKar changes on your system", sentence
+ | 37 | general:gaps_out: uses hyprctl keyword; a no-op under Lua configs; an unknown form is left alone; a failed write-back is named. | `Panel.qml:1124` `"hyprctl", "keyword", "general:gaps_out"`, `GapsNudge.js:67` `!NUMBERS.test(text)) return null`, `GapsNudge.js:137` `could not restore general:gaps_out` |
+ | 38 | cursor:hide_on_key_press: off while open, back on close; a reload restores it. | `Panel.qml:1055` `targetOpened: root.opened`, `CursorPolicy.js:159` `function close(m)`, `CursorPolicy.js:328` `function configReloaded(m)` |
+ | 39 | Layouts: the language button moves the identified physical keyboards that share the reading keyboard's layout list. | `LayoutDevices.js:69` `function switchSetFor(reading, safe)`, `Keyboard.qml:1054` `function switchToGroup(next)` |
+-| 40 | Buttons: Install package runs omarchy pkg add hyprland in a terminal; Retry starts the service through oskar start. | `Panel.qml:2151` `"omarchy", "pkg", "add", "hyprland"`, `Panel.qml:654` `function retryService()`, `bin/oskar:1370` `start) [[ $# -eq 1 ]]` |
++| 40 | Buttons: Install package runs midhat pkg add hyprland in a terminal; Retry starts the service through oskar start. | `Panel.qml:2151` `"midhat", "pkg", "add", "hyprland"`, `Panel.qml:654` `function retryService()`, `bin/oskar:1370` `start) [[ $# -eq 1 ]]` |
+ | 41 | Crash: no startup restore; the compositor stays on the published keymap until a reload or logout, or a later helper's clean stop. | An absence: the helper's startup never touches kb_file, so nothing puts it back after a kill. A later helper's clean stop does: `daemon/src/main.rs:263` `match restore_on_shutdown(backend, &own)` |
+ | 42 | Crash: a killed shell leaves cursor hiding off until a reload; a key held when the helper is killed stays pressed. | `CursorPolicy.js:362` `function destroyed(m)`, `daemon/src/apply.rs:136` `pub(crate) fn release_everything` |
+diff --git c/docs/ime-coexistence.md i/docs/ime-coexistence.md
+index 7b8b841..8bf4e2e 100644
+--- c/docs/ime-coexistence.md
++++ i/docs/ime-coexistence.md
+@@ -7,7 +7,7 @@ ticket-48 frame technique with `emoji_delivery: clipboard` pre-armed (pre-§91 s
+ because the packaged panel is 0.1.0-2, pre-dwell-era, and the lab's
+ config file must exist at panel boot to be read). fcitx5 5.1.22 with
+ `fcitx5-chinese-addons` (pinyin) added to the default group
+-(`omarchy-fcitx5.service`, Omarchy's own XCompose vehicle — the seat's
++(`midhat-fcitx5.service`, Midhat's own XCompose vehicle — the seat's
+ pre-existing state, kept). Pointer: QMP absolute events; observation:
+ kitty `--debug-input` key log + capture files, x11cat's keysym log,
+ chromium's `document.title` mirror, grim screenshots, the daemon
+@@ -44,7 +44,7 @@ never takes `main` from our device and no OSK path regressed.
+ Verdicts per cell: PASS / BROKEN / REFUSED (the combination cannot
+ exist in that venue). "I" = fcitx5 running, IM inactive (the lab's — and
+ the host's — normal state); "A" = pinyin ACTIVE (`fcitx5-remote -s
+-pinyin`, state 2); "S" = `omarchy-fcitx5.service` stopped.
++pinyin`, state 2); "S" = `midhat-fcitx5.service` stopped.
+ 
+ | Venue × action | I (running, inactive) | A (pinyin active) | S (stopped) |
+ |---|---|---|---|
+@@ -106,7 +106,7 @@ paths showed zero dependence on fcitx5's state.
+ ## fcitx5's state after this run (deliberate)
+ 
+ fcitx5, fcitx5-gtk/qt and fcitx5-chinese-addons stay installed;
+-`omarchy-fcitx5.service` active with the default group
++`midhat-fcitx5.service` active with the default group
+ [keyboard-us, pinyin] (DefaultIM keyboard-us — the as-found default);
+ the OSK service and daemon restored; the venue clients and the hosted
+ panel are gone. ibus was not installed — the fcitx5 half already
+diff --git c/docs/orientation.md i/docs/orientation.md
+index 46c4645..fc7e67f 100644
+--- c/docs/orientation.md
++++ i/docs/orientation.md
+@@ -6,7 +6,7 @@ What OSKar is and how its pieces fit. Why it looks this way is
+ 
+ ## The idea
+ 
+-A mouse-driven on-screen keyboard for Omarchy (Arch + Hyprland +
++A mouse-driven on-screen keyboard for Midhat (Arch + Hyprland +
+ Quickshell), modelled on the Windows touch keyboard: open it, click keys,
+ and **what is drawn on the caps is what gets typed** — including non-Latin
+ layouts, including XWayland, Proton and Electron windows.
+@@ -19,7 +19,7 @@ toggles, three or more open a chooser, and each language is named in its
+ own language.
+ 
+ Machine name `oskar`, wordmark **OSKar**. The project was born
+-`omarchy-osk`; older documents quote that name as history.
++`midhat-osk`; older documents quote that name as history.
+ 
+ `grp:caps_toggle` must not be recommended: it silently breaks layout
+ switching for every client behind fcitx5 (decisions.md has the detail).
+@@ -127,6 +127,6 @@ session or in the lab VM.
+ - [../SECURITY.md](../SECURITY.md): the same-user trust boundary and the
+   audit record.
+ 
+-The first panel sketch grew out of abdxdev/omarchy-onscreen-keyboard;
++The first panel sketch grew out of abdxdev/midhat-onscreen-keyboard;
+ every substantive line has since been replaced, measured to zero shared
+ lines, and the licence is a sole copyright (spec-v1.md §13).
+diff --git c/docs/package-notes.md i/docs/package-notes.md
+index 0ba2cf9..e388a35 100644
+--- c/docs/package-notes.md
++++ i/docs/package-notes.md
+@@ -23,7 +23,7 @@ oskar setup
+ - **`oskar setup`** — preflight dependencies; register exactly
+   `/usr/share/oskar/plugin` under the stable plugin id
+   `io.github.vladkarok.oskar`; rescan; enable the plugin through the
+-  official Omarchy commands; daemon-reload; enable/start the user
++  official Midhat commands; daemon-reload; enable/start the user
+   service. Idempotent: on an already-correct setup it converges (it may
+ restart a healthy helper in a live session; the end state is the same). A source
+   install's `~/.config/systemd/user` unit overrides the packaged one —
+@@ -40,7 +40,7 @@ restart a healthy helper in a live session; the end state is the same). A source
+ - **`oskar status`** — payload, registration target, plugin
+   enabled state, unit enabled/active, socket presence, protocol
+   compatibility. Read-only.
+-- **`oskar teardown`** — disable the plugin through Omarchy,
++- **`oskar teardown`** — disable the plugin through Midhat,
+   stop the unit and remove only the enablement links that point at
+   OSKar's own unit file, unlink the registration — but only a
+   registration whose target is the packaged payload (a git clone or a
+@@ -57,7 +57,7 @@ Both worlds never coexist silently — see `setup --migrate-source`.
+ 
+ ## Dependency contract
+ 
+-Hard: `omarchy` (the shell this panel is built for), `hyprland`,
++Hard: `midhat` (the shell this panel is built for), `hyprland`,
+ `quickshell`, `jq`, `wl-clipboard` (the paste chip and every emoji
+ pick's clipboard transaction execute `wl-copy`/`wl-paste`),
+ `libxkbcommon` (the helper links it), `gcc-libs`, `glibc`. Optional:
+diff --git c/docs/plugin-lifecycle-analysis.md i/docs/plugin-lifecycle-analysis.md
+index 8e33f64..386490d 100644
+--- c/docs/plugin-lifecycle-analysis.md
++++ i/docs/plugin-lifecycle-analysis.md
+@@ -1,8 +1,8 @@
+-# Third-party Omarchy plugin lifecycle
++# Third-party Midhat plugin lifecycle
+ 
+-Research baseline: 2026-09-09. The installed `omarchy-dev`
++Research baseline: 2026-09-09. The installed `midhat-dev`
+ `4.0.0.r2092.g5ead870-1` sources checked here are byte-identical, for every
+-plugin-management file cited below, to official Omarchy commit
++plugin-management file cited below, to official Midhat commit
+ [`5ead870507df`](https://github.com/basecamp/omarchy/tree/5ead870507dfb68db696b3ddb948cc3d178e8d62).
+ This report distinguishes the published contract, observed behavior of that
+ implementation, and recommendations for `oskar`.
+@@ -12,27 +12,27 @@ implementation, and recommendations for `oskar`.
+ ### Location, identity, and manifest
+ 
+ A third-party plugin is a Git repository with `manifest.json` at its root.
+-`omarchy plugin add <git-url>` stages, validates, then moves it to
+-`~/.config/omarchy/plugins/<manifest-id>/`; a hand-installed plugin uses the
++`midhat plugin add <git-url>` stages, validates, then moves it to
++`~/.config/midhat/plugins/<manifest-id>/`; a hand-installed plugin uses the
+ same final directory. It is user-owned source, not a package-owned file under
+-`/usr/share/omarchy`. See the official
++`/usr/share/midhat`. See the official
+ [shell guide](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/shell/README.md#installing-a-third-party-plugin)
+-and installed source `/usr/share/omarchy/bin/omarchy-plugin-add`.
++and installed source `/usr/share/midhat/bin/midhat-plugin-add`.
+ 
+ The enforced schema is version 1. Required fields are `schemaVersion`, `id`,
+ `name`, `version`, non-empty `kinds`, and object `entryPoints`. A third-party
+ ID must match `[A-Za-z0-9][A-Za-z0-9._-]*`, contain no `..`, and not use the
+-reserved `omarchy.*` namespace. Every entry point must be a non-empty,
++reserved `midhat.*` namespace. Every entry point must be a non-empty,
+ existing, relative file path with no `..` or newline. Each recognized kind
+ requires its named entry point: `bar:bar`, `bar-widget:barWidget`, `menu:menu`,
+ `overlay:overlay`, `panel:panel`, and `service:service`. Symlinks anywhere in
+ the plugin tree, except Git internals, are rejected. `barWidget.defaultSection`
+ may be `left`, `center`, or `right`. The executable contract is
+-[`omarchy-plugin-validate`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-validate);
+-authors should run `omarchy plugin validate .` before publishing.
++[`midhat-plugin-validate`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-validate);
++authors should run `midhat plugin validate .` before publishing.
+ 
+-Omarchy, not Quickshell, defines this manifest. Quickshell supplies the QML
+-runtime; the official Omarchy guide defines supported kinds, entry-point host
++Midhat, not Quickshell, defines this manifest. Quickshell supplies the QML
++runtime; the official Midhat guide defines supported kinds, entry-point host
+ injection, and capability-scoped third-party facades. There is no second
+ Quickshell package metadata file to install. See
+ [`shell/README.md`, “Plugin manifest”](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/shell/README.md#plugin-manifest).
+@@ -40,9 +40,9 @@ Quickshell package metadata file to install. See
+ The current `oskar` [`manifest.json`](../manifest.json) satisfies the
+ field-level rules: ID `io.github.vladkarok.oskar`, schema 1, `panel` and
+ `bar-widget` kinds, both entry points, and a valid right-side default.
+-However, the repository as a whole currently fails `omarchy plugin validate
++However, the repository as a whole currently fails `midhat plugin validate
+ .` because tracked `CLAUDE.md` is a symlink to `AGENTS.md`; a release installed
+-with `omarchy plugin add` will therefore be rejected until the symlink is
++with `midhat plugin add` will therefore be rejected until the symlink is
+ replaced by a regular file or excluded from the published plugin tree.
+ (`.agents/skills/board` is another working-tree symlink and would also fail if
+ included in a distributed tree.) `keepLoaded: true` is supported, but means
+@@ -54,9 +54,9 @@ install or supervise an external helper.
+ Canonical installation is:
+ 
+ ```bash
+-omarchy plugin add https://github.com/Vladkarok/oskar.git
++midhat plugin add https://github.com/Vladkarok/oskar.git
+ # review the unsandboxed QML, then:
+-omarchy plugin enable io.github.vladkarok.oskar --section right
++midhat plugin enable io.github.vladkarok.oskar --section right
+ ```
+ 
+ Interactive `add` warns that QML executes unsandboxed in the long-lived shell,
+@@ -68,42 +68,42 @@ the completed checkout into place, rescans, then optionally enables. It never
+ runs plugin code, repository install hooks, or `sudo`. See the
+ [official install/security rules](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/shell/README.md#installing-a-third-party-plugin)
+ and
+-[`omarchy-plugin-add`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-add).
++[`midhat-plugin-add`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-add).
+ 
+-Enablement is persisted by the shell in `~/.config/omarchy/shell.json`. A
++Enablement is persisted by the shell in `~/.config/midhat/shell.json`. A
+ bar-widget is inserted into `bar.layout.<section>`; other non-bar kinds go in
+ `plugins[]`; a full bar becomes `bar.id`. A multi-kind plugin containing a bar
+ widget, as OSK does, is enabled through its bar entry. Placement defaults to
+-`barWidget.defaultSection`, then center. `omarchy bar move` changes placement.
++`barWidget.defaultSection`, then center. `midhat bar move` changes placement.
+ The shell owns atomic writes to this file. These storage rules are documented
+ in the
+ [official persisted-state contract](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/shell/README.md#persisted-state)
+-and implemented in `/usr/share/omarchy/shell/services/PluginRegistry.qml` and
+-`/usr/share/omarchy/shell/shell.qml`.
++and implemented in `/usr/share/midhat/shell/services/PluginRegistry.qml` and
++`/usr/share/midhat/shell/shell.qml`.
+ 
+ ### Reload and restart
+ 
+-`omarchy-shell shell rescanPlugins` re-walks plugin directories. The shell also
+-watches `~/.config/omarchy/plugins/` and schedules plugin reload when files
++`midhat-shell shell rescanPlugins` re-walks plugin directories. The shell also
++watches `~/.config/midhat/plugins/` and schedules plugin reload when files
+ change. Add/update/remove explicitly rescan. `shell.json` is watched and shell
+ IPC mutations apply immediately. The documented force operation is rescan;
+-the stronger fallback is `omarchy restart shell`. `omarchy refresh shell` is
++the stronger fallback is `midhat restart shell`. `midhat refresh shell` is
+ not an update/reload command: it replaces user shell configuration from
+ defaults and is inappropriate here. See the
+ [official IPC contract](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/shell/README.md#ipc-contract),
+-`/usr/share/omarchy/shell/services/PluginRegistry.qml:663`, and
+-`/usr/share/omarchy/bin/omarchy-restart-shell`.
++`/usr/share/midhat/shell/services/PluginRegistry.qml:663`, and
++`/usr/share/midhat/bin/midhat-restart-shell`.
+ 
+ ### Update
+ 
+-`omarchy plugin update <id>` manages only Git checkouts installed in the user
++`midhat plugin update <id>` manages only Git checkouts installed in the user
+ plugin directory. It fetches `origin HEAD`; an equal commit is a successful
+ no-op. Otherwise it shows a diff and confirms (unless `--yes`), performs an
+ FF-only merge, validates the result, resets to `ORIG_HEAD` if validation
+ fails, and rescans after any successful update. With no ID it processes every
+ Git-managed plugin. It does not update hand-copied/symlinked plugins,
+ dependencies, helper binaries, systemd units, or user data. See
+-[`omarchy-plugin-update`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-update).
++[`midhat-plugin-update`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-update).
+ 
+ The managed-checkout assumption matters: add is intentionally not idempotent
+ (an existing ID says to use update), update is idempotent at the current
+@@ -114,11 +114,11 @@ ordinary Git deliberately.
+ 
+ ### Disable and remove
+ 
+-`omarchy plugin disable <id>` removes the third-party ID from `shell.json`.
++`midhat plugin disable <id>` removes the third-party ID from `shell.json`.
+ For a bar widget this removes its complete inline layout entry, including
+ per-widget settings. Disable is therefore not a settings-preserving pause.
+ 
+-`omarchy plugin remove <id>` queries the running shell, disables the plugin if
++`midhat plugin remove <id>` queries the running shell, disables the plugin if
+ enabled (thereby cleaning its persisted reference and unloading it), then:
+ 
+ - unlinks a symlink without touching its target;
+@@ -131,7 +131,7 @@ does not execute `uninstall.sh`, remove dependencies, services, helper files,
+ state, cache, or configuration outside the plugin directory. It also requires
+ a reachable running shell for its initial state query; it is not a headless
+ filesystem cleanup tool. See
+-[`omarchy-plugin-remove`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-remove)
++[`midhat-plugin-remove`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/bin/omarchy-plugin-remove)
+ and
+ [`PluginRegistry.setEnabled`](https://github.com/basecamp/omarchy/blob/5ead870507dfb68db696b3ddb948cc3d178e8d62/shell/services/PluginRegistry.qml#L474-L567).
+ 
+@@ -146,14 +146,14 @@ undone.
+ The official boundary is explicit: the plugin installer only clones,
+ validates, rescans, and toggles shell state; it never runs hooks or elevates.
+ Runtime prerequisites must be documented and installed separately. Repository
+-packages use `omarchy pkg add <packages...>` (idempotent `pacman -S --needed`);
+-AUR packages use `omarchy pkg aur add <packages...>`. These are package-manager
++packages use `midhat pkg add <packages...>` (idempotent `pacman -S --needed`);
++AUR packages use `midhat pkg aur add <packages...>`. These are package-manager
+ operations and must not be silently reversed when one plugin is removed,
+ because packages such as Rust can be shared. Installed implementations:
+-`/usr/share/omarchy/bin/omarchy-pkg-add` and
+-`/usr/share/omarchy/bin/omarchy-pkg-aur-add`.
++`/usr/share/midhat/bin/midhat-pkg-add` and
++`/usr/share/midhat/bin/midhat-pkg-aur-add`.
+ 
+-Omarchy has no plugin command for external helper installation, systemd unit
++Midhat has no plugin command for external helper installation, systemd unit
+ installation, post-update migration, or pre-remove cleanup. A plugin requiring
+ those facilities needs a separate, explicit lifecycle owned by the plugin or,
+ preferably for system-distributed artifacts, an Arch package.
+@@ -170,7 +170,7 @@ QML/helper protocol. It does not install the plugin or enable its bar entry.
+ 
+ The current [`uninstall.sh`](../uninstall.sh) disables/stops the user unit and
+ removes those two helper artifacts. It intentionally leaves the plugin,
+-`shell.json`, and OSK user data alone. Conversely, `omarchy plugin remove`
++`shell.json`, and OSK user data alone. Conversely, `midhat plugin remove`
+ deletes the Git checkout containing `uninstall.sh` but leaves the installed
+ helper/unit behind. Therefore the two commands are complementary and order is
+ currently significant.
+@@ -183,7 +183,7 @@ removal. The `shell.json` bar entry does not survive disable/remove, so its
+ placement or inline fields would need an explicit backup if restoration is a
+ product requirement.
+ 
+-`omarchy plugin update` updates OSK QML and the repository copy of the Rust
++`midhat plugin update` updates OSK QML and the repository copy of the Rust
+ source/unit but cannot build or reinstall the already-running helper. The
+ current protocol mismatch UI makes that split fail closed, and the user must
+ rerun the checkout's `install.sh`. This is safe but not an atomic or automatic
+@@ -194,14 +194,14 @@ upgrade.
+ 1. Keep the canonical QML lifecycle entirely on official commands: `plugin
+    add`, code review, `plugin enable`, `plugin update`, and `plugin remove`.
+    Do not edit `shell.json` directly from OSK install scripts and do not copy
+-   QML into `/usr/share/omarchy`.
++   QML into `/usr/share/midhat`.
+ 2. Document the helper as a distinct explicit prerequisite. Near term, after
+    `plugin add` run
+-   `~/.config/omarchy/plugins/io.github.vladkarok.oskar/install.sh`; after every
++   `~/.config/midhat/plugins/io.github.vladkarok.oskar/install.sh`; after every
+    `plugin update` rerun it before Retry. Preserve the current protocol gate.
+ 3. Prefer a separately versioned Arch/AUR helper package for release. It should
+    own the daemon and unit in package locations, use package upgrade/removal
+-   semantics, and leave QML/user settings to Omarchy. Installing/removing that
++   semantics, and leave QML/user settings to Midhat. Installing/removing that
+    package remains an explicit user action; the plugin CLI must not call it.
+ 4. If retaining the source installer, strengthen idempotence around the helper
+    only: finish build/preflight before replacing installed artifacts, use
+@@ -212,8 +212,8 @@ upgrade.
+    checkout:
+ 
+    ```bash
+-   ~/.config/omarchy/plugins/io.github.vladkarok.oskar/uninstall.sh
+-   omarchy plugin remove io.github.vladkarok.oskar
++   ~/.config/midhat/plugins/io.github.vladkarok.oskar/uninstall.sh
++   midhat plugin remove io.github.vladkarok.oskar
+    ```
+ 
+    The first command removes only OSK-owned helper artifacts; the second owns
+@@ -227,9 +227,9 @@ upgrade.
+ 7. Validate the manifest in CI and before releases. Keep the manifest ID stable:
+    it is simultaneously the install directory, shell configuration identity,
+    IPC identity, and update/remove handle. Make the distributable repository
+-   symlink-free first; current `omarchy plugin validate .` fails on
++   symlink-free first; current `midhat plugin validate .` fails on
+    `CLAUDE.md -> AGENTS.md`.
+ 
+-In short, official Omarchy owns discovery, validation, shell configuration,
++In short, official Midhat owns discovery, validation, shell configuration,
+ QML reload, and checkout management. OSK must own its helper/service and user
+-data explicitly, without implying that `omarchy plugin` manages either.
++data explicitly, without implying that `midhat plugin` manages either.
+diff --git c/docs/research-input-upstream.md i/docs/research-input-upstream.md
+index df72726..4241d96 100644
+--- c/docs/research-input-upstream.md
++++ i/docs/research-input-upstream.md
+@@ -39,7 +39,7 @@ There are three separate improvement targets:
+ - **Hyprland:** provide reliable current-keyboard/layout events and coherent
+   layout state for devices intended to act as one keyboard. Prefer an explicit
+   opt-in grouping policy to destroying intentional per-device configurations.
+-- **Our package and Omarchy plugin lifecycle:** install/update/remove the input
++- **Our package and Midhat plugin lifecycle:** install/update/remove the input
+   backend with the visible plugin. A separate process does not require users to
+   build Rust or manually manage systemd.
+ 
+@@ -54,13 +54,13 @@ the existing QML or compositor interfaces.
+ Our [install.sh](../install.sh) requires Cargo, builds the helper and installs
+ `~/.local/libexec/oskar-daemon` and a systemd user unit. Our
+ [uninstall.sh](../uninstall.sh) stops/disables and removes those artifacts; it
+-does not remove the Omarchy plugin itself. The inspected Omarchy plugin
++does not remove the Midhat plugin itself. The inspected Midhat plugin
+ add/remove path handles plugin files and shell IPC, without invoking these
+ scripts. Removing the plugin therefore does not currently guarantee removal of
+ its helper, and also removes the plugin's own uninstall script.
+-[Omarchy plugin documentation](https://github.com/basecamp/omarchy/blob/quattro/manual/32-shell-plugins.md).
++[Midhat plugin documentation](https://github.com/basecamp/omarchy/blob/quattro/manual/32-shell-plugins.md).
+ 
+-[Omarchy PR #9557](https://github.com/basecamp/omarchy/pull/9557),
++[Midhat PR #9557](https://github.com/basecamp/omarchy/pull/9557),
+ “Allow plugins to specify package dependencies (optional + required)”, was
+ opened September 1, 2026 and remains **open, unmerged**. Its inspected changes
+ cover dependency declarations and add/validation behavior; they do not provide
+diff --git c/docs/spec-v1.1.md i/docs/spec-v1.1.md
+index 5421c4d..ef1f525 100644
+--- c/docs/spec-v1.1.md
++++ i/docs/spec-v1.1.md
+@@ -8,10 +8,10 @@ the reasons; this file records required behaviour.
+ ## 1. Key arrangement and controls
+ 
+ - Keep one Super key on the left; remove the duplicate right Super.
+-  Super's cap draws Omarchy's compact mark: U+E900 from the installed
+-  `omarchy` icon font (`/usr/share/fonts/omarchy/omarchy.ttf`), the same
+-  mechanism the bar menu launcher uses. Source: Omarchy
+-  (`default/fonts/omarchy/omarchy.ttf` and `shell/plugins/menu/BarWidget.qml`),
++  Super's cap draws Midhat's compact mark: U+E900 from the installed
++  `midhat` icon font (`/usr/share/fonts/midhat/midhat.ttf`), the same
++  mechanism the bar menu launcher uses. Source: Midhat
++  (`default/fonts/midhat/midhat.ttf` and `shell/plugins/menu/BarWidget.qml`),
+   MIT, copyright David Heinemeier Hansson. The accessible name remains
+   Super. Key position, hit area, latch/cancel semantics, and emitted
+   chords are unchanged. If that font is missing, the cap shows the
+@@ -184,15 +184,15 @@ through use — while the size change itself still preserves §4's
+ no-movement guarantee.
+ 
+ Approved fields are: docked/floating mode, M/L/XL size, sound on/off,
+-follow Omarchy theme (the popover's Look choice), key radius, panel radius, key
++follow Midhat theme (the popover's Look choice), key radius, panel radius, key
+ background, panel background, text colour, active colour (the `accent_color` key: latched and locked
+ modifiers, the selected tab, the current language), border
+ colour and (since 0.2.0, decisions §116) the card's border on/off, with
+ follow-theme owning all eight appearance fields while on — and, since the 2026-09-09 amendment (ticket 22), the Super cap's
+-mark `super_mark`: the word `Super` by default, or a chosen mark of Omarchy,
++mark `super_mark`: the word `Super` by default, or a chosen mark of Midhat,
+ Windows, macOS or penguin. A value outside those five is a malformed edit
+ with the preservation semantics above; whatever the setting says, the cap
+-never draws blank — an unrenderable mark (the Omarchy glyph without its
++never draws blank — an unrenderable mark (the Midhat glyph without its
+ private font) falls back to the word. Key radius 0–24 is relative to the
+ medium preset so a stored 24
+ stays a circle at L and XL; panel radius is whole pixels. Key hover and
+@@ -201,13 +201,13 @@ foreground — never a replacement fill that is the foreground itself —
+ so follow-theme caps stay keys of the current theme. Custom sound
+ files, volume, fonts, spacing and opacity are out of scope.
+ 
+-(2026-09-29 amendment, decisions §117.) The popover reads as an Omarchy
++(2026-09-29 amendment, decisions §117.) The popover reads as an Midhat
+ panel: four sections — General (mode, size, interface language, pointer
+ profile, Super mark, sound), Emoji page, Dwell, Appearance — each under one
+ separator and one header, drawn with the shell's own separator, header,
+-switch, chip group and button, in the live Omarchy theme whatever look the
+-keyboard has. Appearance opens with **Look: Omarchy theme | Custom**, which
+-writes `follow_theme`; under Omarchy theme the appearance rows are hidden
++switch, chip group and button, in the live Midhat theme whatever look the
++keyboard has. Appearance opens with **Look: Midhat theme | Custom**, which
++writes `follow_theme`; under Midhat theme the appearance rows are hidden
+ behind one line saying the theme supplies them. Panel radius is dimmed and
+ takes no writes while docked (the docked card is square); dwell delay
+ likewise while dwell typing is off; the border colour shows beside the
+@@ -244,7 +244,7 @@ exception (2026-09-04 amendment, owner-requested; extended 2026-09-06 to
+ the custom editor, 2026-09-08 to RGB/HSV fields and to the main OSK).
+ While a hex/RGB/HSV field is active the settings overlay takes keyboard
+ focus — a brief Exclusive prime acquiring it, OnDemand holding it,
+-Omarchy's own KeyboardPanel pattern — and the moment the entry ends
++Midhat's own KeyboardPanel pattern — and the moment the entry ends
+ (confirm, Escape, leftover click, or the popover closing) that overlay
+ returns to `WlrKeyboardFocus.None`. The keyboard panel itself stays
+ `None` so its exclusive zone and key hits are untouched. No other
+@@ -281,7 +281,7 @@ Configuration has three roles:
+ 2. Sparse user overrides at `$XDG_CONFIG_HOME/oskar/config.json`.
+ 3. Geometry/state at `$XDG_STATE_HOME/oskar/state.json`.
+ 
+-Effective appearance is user override, then a live Omarchy theme token, then
++Effective appearance is user override, then a live Midhat theme token, then
+ the shipped fallback. GUI writes are atomic. Valid external file changes
+ reload without polling and update an open GUI. A malformed edit leaves the
+ last valid runtime state intact, is not overwritten, and displays an inline
+@@ -325,8 +325,8 @@ loops notifications.
+ ## 7. Theme refresh ownership
+ 
+ The OSK continues to consume theme values through its single Theme facade.
+-Live updates of shared Omarchy theme tokens, including Hyprland rounding,
+-belong to Omarchy's shared Style provider. The OSK must not add a second
++Live updates of shared Midhat theme tokens, including Hyprland rounding,
++belong to Midhat's shared Style provider. The OSK must not add a second
+ Hyprland/style reader. Local radius and colour overrides apply immediately.
+ Until the shared cross-repository change lands, a shell restart is an honest
+ known limitation for externally changed Hyprland rounding.
+diff --git c/docs/spec-v1.md i/docs/spec-v1.md
+index c28bab2..02503db 100644
+--- c/docs/spec-v1.md
++++ i/docs/spec-v1.md
+@@ -36,7 +36,7 @@ Named so they stop coming up:
+ - **Word prediction and autocomplete.** They need to see the text field,
+   which means a text-input protocol, which never reaches XWayland
+   ([decisions.md, Dead ends](decisions.md#dead-ends--do-not-retry)).
+-- **Emoji panel.** Omarchy has a picker.
++- **Emoji panel.** Midhat has a picker.
+ - **Numpad.**
+ - **Auto-open when a text field takes focus.** Same protocol problem.
+ - **Touch-specific interaction** — gestures, swipe, multi-finger,
+@@ -97,7 +97,7 @@ to land on — arrow keys are the ones that get clicked most in a row.
+ 
+ ## 5. Modifiers
+ 
+-Roster: `Ctrl`, `Alt`, `Shift`, `Super`. Super is required — Omarchy
++Roster: `Ctrl`, `Alt`, `Shift`, `Super`. Super is required — Midhat
+ binds nearly everything to it, and without it the keyboard cannot
+ trigger anything the window manager does.
+ 
+@@ -187,14 +187,14 @@ Both modes:
+ 
+ ## 8. Theming
+ 
+-The keyboard follows the active Omarchy theme — colours, fonts, corner
++The keyboard follows the active Midhat theme — colours, fonts, corner
+ radius — through the shared style tokens, and it does so from the first
+ line of the rewrite rather than as a later pass. Following the theme is
+ the baseline expectation for a Quickshell plugin, and hardcoded colours
+ are the one thing in this spec that is genuinely expensive to undo.
+ 
+ A theme switch redraws the keyboard **without a restart** of the shell
+-or the plugin, the way the rest of Omarchy behaves. A redraw costs no
++or the plugin, the way the rest of Midhat behaves. A redraw costs no
+ keymap compile and no reconnection.
+ 
+ `follow_theme: false` is the v1 escape hatch and does nothing else yet;
+diff --git c/docs/vision.md i/docs/vision.md
+index 4a8299c..9028970 100644
+--- c/docs/vision.md
++++ i/docs/vision.md
+@@ -16,7 +16,7 @@ It is not a spec; specs and decisions live where they live
+ 
+ ## What exists today (the honest inventory)
+ 
+-A WORKING product on Omarchy (Hyprland + Quickshell), daily-driven by
++A WORKING product on Midhat (Hyprland + Quickshell), daily-driven by
+ its owner — a mouse-driven on-screen keyboard whose core promise is
+ **drawn-is-typed**: every cap draws what the seat's real compiled
+ keymap carries, and typing goes through the same keymap via a Rust
+@@ -26,7 +26,7 @@ helper owning `zwp_virtual_keyboard_v1`.
+   symbol block (§33), the `text` transient-swap path (§39), clipboard
+   transactions for XWayland/wine/Proton/Chromium (§44), group
+   discipline, recovery choreography. ~5k LOC, 45 tests, VM lab legs.
+-- QML/Quickshell panel (the Omarchy frontend): layout-following caps,
++- QML/Quickshell panel (the Midhat frontend): layout-following caps,
+   emoji picker with EN/RU/UK search, hold-column menus from the live
+   keymap (§51), the three-shape language control (§49), themes,
+   settings, docked/floating, settle guard (§53). ~17k LOC QML+JS,
+@@ -38,13 +38,13 @@ helper owning `zwp_virtual_keyboard_v1`.
+ 
+ ## The strategic question
+ 
+-The owner's ambition implies users beyond Omarchy (a niche distro).
++The owner's ambition implies users beyond Midhat (a niche distro).
+ The known tension: every existing OSK is welded to one shell
+ (GNOME's to mutter/clutter, plasma-keyboard to KWin's input-method,
+ wvkbd to touch-first Phosh). None is a cross-shell product. The gap is
+ real; so is the cost of N frontends. Options on the table:
+ 
+-- **A. Deepen Omarchy-first** (current course): be the best keyboard
++- **A. Deepen Midhat-first** (current course): be the best keyboard
+   for one ecosystem; expansion is someone else's fork.
+ - **B. Rust core + N thin frontends**: keep the daemon, write
+   frontends per shell (Quickshell now; a GTK4 layer-shell app for
+@@ -77,8 +77,8 @@ of decisions, 45 tickets, zero outside users — Opus's blunt reading):
+ the next unit of value is a stranger installing it, not ticket 46.
+ The REACHABLE version of the dream, unanimously: **the Quickshell
+ shell maintainers (DankMaterialShell, Noctalia, Caelestia, end-4) and
+-Omarchy ship or recommend it** — they live exactly where our frontend
+-already rides. Honest first-year ceiling: 50-300 users Omarchy-only;
++Midhat ship or recommend it** — they live exactly where our frontend
++already rides. Honest first-year ceiling: 50-300 users Midhat-only;
+ 500-3,000 with wlroots reach; 10,000 would be a breakout.
+ 
+ **Architecture — "A+" (unanimous, kills A/B/C as written).**
+@@ -91,7 +91,7 @@ and documented — as a TEST seam and a door for an outside maintainer
+ to build their own frontend someday; we never build a second one.
+ Killed: C (a Slint/egui rewrite cannot make Mutter or KWin grant
+ protocols; it discards 377 tested cases and re-solves placement),
+-plain A (welded to Omarchy's slice), B's N-frontends (every feature
++plain A (welded to Midhat's slice), B's N-frontends (every feature
+ costs N times, solo). GNOME: protocol-impossible (mutter lacks
+ zwp_virtual_keyboard_v1; uinput/libei are root/permission traps) —
+ documented as unsupported, with the mutter issue linked. X11:
+@@ -131,16 +131,16 @@ voice, becoming an input-method, layout editor, theme marketplace,
+ X11, GNOME-via-uinput/libei, a second frontend, a Slint/egui rewrite.
+ 
+ **The gate (unanimous shape).** After a public v1.0 announcement:
+-actively recruit ~20 target users (r/omarchy, r/hyprland, the Omarchy
++actively recruit ~20 target users (r/midhat, r/hyprland, the Midhat
+ and Quickshell Discords — passive waiting proves nothing). At day 30
+ (week 6 at the latest): **≥5 distinct strangers who installed it AND
+ reported back (issue/message/AUR comment — stars and votes do not
+ count) and are still using it after a week** → fund portability (the
+ seat-backend seam, niri, touch). Below that → portability is
+-cancelled for good: it stays an excellent Omarchy-first tool in
++cancelled for good: it stays an excellent Midhat-first tool in
+ maintenance mode, and new decision records stop.
+ 
+-**The owner's first move (unanimous):** boot a fresh Omarchy VM
++**The owner's first move (unanimous):** boot a fresh Midhat VM
+ WITHOUT the owner's dotfiles and try to install and run the keyboard
+ using only the README. File every failure as the next ticket —
+ "install from zero". Nothing else starts until a stranger could get
+diff --git c/docs/vm-handoff.md i/docs/vm-handoff.md
+index a9a6d9e..77b3a7c 100644
+--- c/docs/vm-handoff.md
++++ i/docs/vm-handoff.md
+@@ -20,18 +20,18 @@ this is the operating manual.
+ 
+ ## Driving the VM
+ 
+-- `tools/omarchy-vm.sh` launches it — KVM, UEFI, qcow2 disk under
+-  `~/.local/share/omarchy-vm/`. First run boots the ISO for the
++- `tools/midhat-vm.sh` launches it — KVM, UEFI, qcow2 disk under
++  `~/.local/share/midhat-vm/`. First run boots the ISO for the
+   interactive install; later runs boot the disk.
+ - The same guest is also defined in libvirt as domain `oskar` (renamed
+-  from the pre-rename `omarchy-osk` with `virsh -c qemu:///session
++  from the pre-rename `midhat-osk` with `virsh -c qemu:///session
+   domrename` on 2026-09-17; the xml copy moved with it) on the
+   **user session** connection, so it can be started from
+   virt-manager. Add the connection once with File → Add Connection →
+   QEMU/KVM user session; it appears beside the system connection that
+   holds `win11`. The domain xml copy lives at
+-  `~/.local/share/omarchy-vm/oskar.xml`; redefine after editing
+-  with `virsh -c qemu:///session define ~/.local/share/omarchy-vm/oskar.xml`.
++  `~/.local/share/midhat-vm/oskar.xml`; redefine after editing
++  with `virsh -c qemu:///session define ~/.local/share/midhat-vm/oskar.xml`.
+   It is the system connection that cannot host this VM: QEMU there runs
+   as `libvirt-qemu`, which cannot traverse `$HOME`.
+ - **One at a time.** The script and the libvirt domain open the same
+@@ -43,8 +43,8 @@ this is the operating manual.
+   instead of `monitor.sock`. Everything else — 6 vCPU, 8G, the input
+   zoo, the read-only 9p mount of the repo at `osk-src`, ssh on 2222 — is
+   the same, including S3 being requested.
+-- Guest: Omarchy 4.0.2, user `vladkarok`, hostname `testprod`.
+-  `ssh omarchy-vm` (host port 2222 → guest 22, key `~/.ssh/id_ed25519`,
++- Guest: Midhat 4.0.2, user `vladkarok`, hostname `testprod`.
++  `ssh midhat-vm` (host port 2222 → guest 22, key `~/.ssh/id_ed25519`,
+   already authorised). Networking is SLIRP: only the forwarded port
+   reaches the guest. The guest user has passwordless sudo; the QMP
+   legs' strace oracle uses `sudo -n` and needs no credential.
+@@ -52,7 +52,7 @@ this is the operating manual.
+   or hyprctl/journalctl will not find it:
+ 
+ ```bash
+-ssh omarchy-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u); export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t $XDG_RUNTIME_DIR/hypr | head -1); export WAYLAND_DISPLAY=wayland-1; hyprctl devices -j | jq -c ".keyboards[] | {name, main, active_layout_index}"'
++ssh midhat-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u); export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t $XDG_RUNTIME_DIR/hypr | head -1); export WAYLAND_DISPLAY=wayland-1; hyprctl devices -j | jq -c ".keyboards[] | {name, main, active_layout_index}"'
+ ```
+ 
+ - **Autologin is a deliberate lab setting.** After a logout the SDDM
+@@ -67,7 +67,7 @@ ssh omarchy-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u); export HYPRLAND_INSTA
+   Revert by deleting that file (the pre-existing
+   `autologin.conf` boot autologin remains). Written 2026-09-05 by the
+   v1.1-fixes guest sweep.
+-- QEMU monitor socket: `~/.local/share/omarchy-vm/monitor.sock` — used
++- QEMU monitor socket: `~/.local/share/midhat-vm/monitor.sock` — used
+   for hotplug (`device_add usb-kbd,id=kbd2` / `device_del kbd2`).
+ - Screenshots: `grim` in the guest (needs `WAYLAND_DISPLAY`), then `scp`
+   back. Screenshot evidence beats log lines for anything about
+@@ -77,7 +77,7 @@ ssh omarchy-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u); export HYPRLAND_INSTA
+ 
+ ```bash
+ git clone https://github.com/vladkarok/oskar   # then: git pull
+-bash oskar/tools/omarchy-vm-provision.sh
++bash oskar/tools/midhat-vm-provision.sh
+ ```
+ 
+ - The 9p share is the other way, and the only one that can test **work
+@@ -89,7 +89,7 @@ bash oskar/tools/omarchy-vm-provision.sh
+ ```bash
+ sudo mkdir -p /mnt/osk-src
+ sudo mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 osk-src /mnt/osk-src
+-bash /mnt/osk-src/tools/omarchy-vm-provision.sh
++bash /mnt/osk-src/tools/midhat-vm-provision.sh
+ ```
+ 
+   That run writes an `/etc/fstab` entry, so from the next boot the mount
+@@ -100,7 +100,7 @@ bash /mnt/osk-src/tools/omarchy-vm-provision.sh
+   restarts the service. From the host, needing nothing on the guest:
+ 
+ ```bash
+-ssh -tt omarchy-vm 'bash -s' < tools/omarchy-vm-provision.sh
++ssh -tt midhat-vm 'bash -s' < tools/midhat-vm-provision.sh
+ ```
+ 
+   Piped in it has no path of its own, so it falls back to the share.
+@@ -135,7 +135,7 @@ cd ~/oskar && tools/nested-session.sh tools/smoke-daemon.sh
+   still answering (Hyprland's own environ does not carry it):
+ 
+ ```bash
+-ssh omarchy-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u); for d in $XDG_RUNTIME_DIR/hypr/*/; do printf "j/version" | socat - UNIX-CONNECT:"$d.socket.sock" >/dev/null 2>&1 && basename "$d"; done'
++ssh midhat-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u); for d in $XDG_RUNTIME_DIR/hypr/*/; do printf "j/version" | socat - UNIX-CONNECT:"$d.socket.sock" >/dev/null 2>&1 && basename "$d"; done'
+ ```
+ - Input zoo in the guest, deliberately messy: PS/2 keyboard, two USB
+   keyboards, a USB tablet, a power-button pseudo-device, plus fcitx5's
+@@ -191,18 +191,18 @@ Phase 4, after dogfooding is clean:
+ - Hyprland **discussion** (they migrated off issues): `switchxkblayout
+   current` excluding virtual keyboards; an event when the seat's current
+   keyboard changes; a seat-level layout concept. Prior art: Sway
+-  keyboard groups. Cite #6298, #6589, #8409, #15897 and omarchy
++  keyboard groups. Cite #6298, #6589, #8409, #15897 and midhat
+   #8964 / #9129 / #9552 / #9565.
+ - wayland-protocols: comment on #209, revive #296 with the OSK use case.
+-- Omarchy: bar widget should prefer `main:true`; share the device
++- Midhat: bar widget should prefer `main:true`; share the device
+   selection module with this plugin.
+ 
+ ## As found — 2026-09-17 (ticket 59, the rename round)
+ 
+ - The lab entered the round with the pre-rename package
+-  (`omarchy-osk` 0.1.0-4) installed, set up and active; the round's
++  (`midhat-osk` 0.1.0-4) installed, set up and active; the round's
+   package-test walked it old → new: the old package came out first
+-  (`pacman -Rdd omarchy-osk` — a plain `pacman -U oskar` refuses on
++  (`pacman -Rdd midhat-osk` — a plain `pacman -U oskar` refuses on
+   conflicts; `replaces=` only walks the replacement on -Syu),
+   `oskar setup` migrated registration, config and state, and a second
+   leg proved bare `oskar upgrade` completes the walk on its own.
+@@ -212,6 +212,6 @@ Phase 4, after dogfooding is clean:
+   green), the guest's working tree at `~/oskar`. The old registration
+   was a symlink here and was unlinked by the migration (the migration
+   code was deleted later, decisions §112). The old-name clone
+-  at `~/omarchy-osk` is inert and unregistered — delete it whenever.
+-- The libvirt domain was renamed `omarchy-osk` → `oskar` (user-session
++  at `~/midhat-osk` is inert and unregistered — delete it whenever.
++- The libvirt domain was renamed `midhat-osk` → `oskar` (user-session
+   connection) so the QMP legs' `virsh` commands match the tree.
+diff --git c/install.sh i/install.sh
+index 3c07344..4d9f1f8 100755
+--- c/install.sh
++++ i/install.sh
+@@ -108,11 +108,11 @@ elif ours "$binary"; then
+   # can build a newer one: keep it. The panel says so if its protocol no
+   # longer matches; the two ways to update are named.
+   echo "No cargo: keeping the installed helper at $binary." >&2
+-  echo "To update it: omarchy pkg add rust and rerun, or install the release's prebuilt helper:" >&2
++  echo "To update it: midhat pkg add rust and rerun, or install the release's prebuilt helper:" >&2
+   echo "  bash install.sh --prebuilt oskar-daemon-<version>-$(uname -m).tar.gz" >&2
+ else
+   echo "cargo is required to build the helper. Install it with:" >&2
+-  echo "  omarchy pkg add rust" >&2
++  echo "  midhat pkg add rust" >&2
+   echo "or install the release's prebuilt helper without cargo:" >&2
+   echo "  bash install.sh --prebuilt oskar-daemon-<version>-$(uname -m).tar.gz" >&2
+   exit 1
+diff --git c/manifest.json i/manifest.json
+index 81608a1..64ea2e6 100644
+--- c/manifest.json
++++ i/manifest.json
+@@ -5,7 +5,7 @@
+   "version": "0.2.5",
+   "author": "vladkarok",
+   "license": "MIT",
+-  "description": "OSKar — mouse-driven on-screen keyboard that follows the active keyboard layout, types through a persistent virtual keyboard, and matches the Omarchy theme. Toggle with the bar icon or: omarchy-shell shell toggle io.github.vladkarok.oskar",
++  "description": "OSKar — mouse-driven on-screen keyboard that follows the active keyboard layout, types through a persistent virtual keyboard, and matches the Midhat theme. Toggle with the bar icon or: midhat-shell shell toggle io.github.vladkarok.oskar",
+   "kinds": ["panel", "bar-widget"],
+   "keepLoaded": true,
+   "entryPoints": {
+diff --git c/oskar.install i/oskar.install
+index 8b91202..ae4ea2c 100644
+--- c/oskar.install
++++ i/oskar.install
+@@ -26,9 +26,9 @@ Removing oskar; /usr/bin/oskar goes with it. If you activated this
+ package with `oskar setup` and did not run `/usr/bin/oskar teardown`
+ first, these stay in your home and are yours to remove:
+ 
+-  - ~/.config/omarchy/plugins/io.github.vladkarok.oskar, when it is a
++  - ~/.config/midhat/plugins/io.github.vladkarok.oskar, when it is a
+     symlink to /usr/share/oskar/plugin (then also:
+-    omarchy plugin disable io.github.vladkarok.oskar)
++    midhat plugin disable io.github.vladkarok.oskar)
+   - the oskar.service links to /usr/lib/systemd/user/oskar.service
+     under ~/.config/systemd/user/*.wants/
+ 
+diff --git c/patches/README.md i/patches/README.md
+index 55b17e9..859ae9f 100644
+--- c/patches/README.md
++++ i/patches/README.md
+@@ -1,16 +1,16 @@
+ # Patches
+ 
+-Local patches the OSK carries against installed Omarchy packages until they
++Local patches the OSK carries against installed Midhat packages until they
+ are upstreamed. Local-first directive: the fix lands here first, the
+ external repo follows.
+ 
+-## omarchy-shell-style-live-rounding.patch
++## midhat-shell-style-live-rounding.patch
+ 
+ **What it does.** Adds one event-driven trigger to the shared shell style
+ singleton (`Commons/Style.qml`, a QtObject singleton): a `Connections` on
+ Quickshell's `Hyprland` object watching socket2 for `configreloaded`, the
+ same idiom the shell's own keyboard-layout bar widget uses. On every applied
+-Hyprland config reload — sourced-file changes, `hyprctl reload`, omarchy's
++Hyprland config reload — sourced-file changes, `hyprctl reload`, midhat's
+ own toggles — Style re-runs its existing `hyprctl -j getoption` pair after
+ the 200 ms settle beat (`scheduleRefresh`), so `Style.cornerRadius` (and
+ `gapsOut`) update live in a running shell. No polling; Quickshell 0.3.1
+@@ -22,17 +22,17 @@ through its Theme facade, whose radius overrides (ticket 10) keep winning:
+ the binding is `override ?? Style.cornerRadius`, proven under a live
+ refresh in ticket 11's evidence.
+ 
+-**Applies to.** `omarchy-dev 4.0.0.r2015.g4930677-1`, file
+-`/usr/share/omarchy/shell/Commons/Style.qml` (verified by dry-run; applied
+-on this machine 2026-09-05). Neighbouring omarchy-dev revisions that keep
++**Applies to.** `midhat-dev 4.0.0.r2015.g4930677-1`, file
++`/usr/share/midhat/shell/Commons/Style.qml` (verified by dry-run; applied
++on this machine 2026-09-05). Neighbouring midhat-dev revisions that keep
+ this file byte-identical will also take the patch; `patch` refuses
+ otherwise, which is the intended safety.
+ 
+ **Apply.**
+ 
+ ```
+-cd /usr/share/omarchy/shell
+-sudo patch -p1 < /path/to/oskar/patches/omarchy-shell-style-live-rounding.patch
++cd /usr/share/midhat/shell
++sudo patch -p1 < /path/to/oskar/patches/midhat-shell-style-live-rounding.patch
+ ```
+ 
+ (the patch path is repo-absolute — the shell directory you `cd` into holds
+@@ -43,21 +43,21 @@ reload, and restarting the shell is deliberately not scripted here.
+ **Restore.**
+ 
+ ```
+-sudo pacman -S omarchy-dev          # package reinstall restores pristine
++sudo pacman -S midhat-dev          # package reinstall restores pristine
+ # or, without reinstalling:
+-cd /usr/share/omarchy/shell && sudo patch -R -p1 < .../omarchy-shell-style-live-rounding.patch
++cd /usr/share/midhat/shell && sudo patch -R -p1 < .../midhat-shell-style-live-rounding.patch
+ ```
+ 
+ **Upstream.** Post-board follow-up: propose the same hunk (import
+ `Quickshell.Hyprland`, one `property Connections hyprlandEvents`
+-calling `scheduleRefresh()` on `configreloaded`) in the omarchy shell
++calling `scheduleRefresh()` on `configreloaded`) in the midhat shell
+ repository; once landed upstream this file and the pacman reinstall note
+ here become obsolete.
+ 
+-## omarchy-shell-emoji-osk.patch — withdrawn 2026-09-09, file deleted
++## midhat-shell-emoji-osk.patch — withdrawn 2026-09-09, file deleted
+ 
+ This patch carried the opt-in OSK cooperation for the shell emoji overlay
+-(`omarchy.emojis`): an `{"osk":true, output, workArea, band}` summon
++(`midhat.emojis`): an `{"osk":true, output, workArea, band}` summon
+ payload, vendored `PickerFit.planPlacement` inside the overlay, band
+ subtraction from the input region, and the Exclusive-then-OnDemand focus
+ prime. Nothing summons it any more — ticket 24 replaced the external
+@@ -65,7 +65,7 @@ picker with the panel's own emoji page, and the external app, when
+ wanted, is launched bare from that page's chip with no cooperation from
+ us (decisions §24). The patch itself is recoverable from this repo's
+ history; a machine still carrying it applied can restore stock files with
+-`sudo pacman -S omarchy-dev` (or `omarchy update`).
++`sudo pacman -S midhat-dev` (or `midhat update`).
+ 
+ ### Why event-driven
+ 
+diff --git c/patches/omarchy-shell-style-live-rounding.patch i/patches/midhat-shell-style-live-rounding.patch
+similarity index 91%
+rename from patches/omarchy-shell-style-live-rounding.patch
+rename to patches/midhat-shell-style-live-rounding.patch
+index 739815c..7c29e9b 100644
+--- c/patches/omarchy-shell-style-live-rounding.patch
++++ i/patches/midhat-shell-style-live-rounding.patch
+@@ -25,7 +25,7 @@
+    }
+ 
+ +  // Hyprland announces every applied config on its socket2 event stream:
+-+  // sourced-file changes, `hyprctl reload`, and omarchy's own toggles all
+++  // sourced-file changes, `hyprctl reload`, and midhat's own toggles all
+ +  // land here, so a rounding or gaps change reaches a running shell without
+ +  // a restart. The same connection the keyboard-layout bar widget uses to
+ +  // re-read its layout after a reload. scheduleRefresh keeps the read behind
+@@ -37,6 +37,6 @@
+ +    }
+ +  }
+ +
+-   // `omarchy toggle window-gaps` creates/removes this flag file. Hyprland
++   // `midhat toggle window-gaps` creates/removes this flag file. Hyprland
+    // reloads its config when sourced files change, then hyprctl reflects
+    // the new effective value.
+diff --git c/systemd/oskar.service i/systemd/oskar.service
+index c9bbf57..fdf1012 100644
+--- c/systemd/oskar.service
++++ i/systemd/oskar.service
+@@ -1,8 +1,8 @@
+ [Unit]
+-Description=Omarchy on-screen keyboard input service
++Description=Midhat on-screen keyboard input service
+ Documentation=https://github.com/Vladkarok/oskar
+ 
+-# Tied to the compositor, not to the shell. omarchy-shell restarts often; the
++# Tied to the compositor, not to the shell. midhat-shell restarts often; the
+ # daemon's Wayland connection only dies with the session, and PartOf= stops it
+ # when Hyprland goes away so the next session starts a fresh instance with the
+ # environment uwsm imported for it.
+diff --git c/tests/config.qml i/tests/config.qml
+index ea45e0e..0421971 100644
+--- c/tests/config.qml
++++ i/tests/config.qml
+@@ -16,7 +16,7 @@ QtObject {
+                 sizePreset: "medium",
+                 sound: false,
+                 followTheme: true,
+-                // Matches Omarchy's own default emoji picker behaviour.
++                // Matches Midhat's own default emoji picker behaviour.
+                 emojiCloseAfterPick: false,
+                 emojiPageSize: "medium",
+                 // The emoji page's free drag is opt-in: off is exactly
+@@ -277,7 +277,7 @@ QtObject {
+             // validated store as the rest. The popover offers five marks and
+             // nothing else is one; the canonical snake_case name and its
+             // camelCase alias are the same field with the same rule.
+-            var marks = ["word", "omarchy", "windows", "macos", "penguin"]
++            var marks = ["word", "midhat", "windows", "macos", "penguin"]
+             for (var i = 0; i < marks.length; i++) {
+                 var parsed = Config.reloadOverrides({}, '{"super_mark":"' + marks[i] + '"}')
+                 T.equal(parsed.error, "")
+diff --git c/tests/keyboard-layout.qml i/tests/keyboard-layout.qml
+index 27d7a90..5d5816f 100644
+--- c/tests/keyboard-layout.qml
++++ i/tests/keyboard-layout.qml
+@@ -484,7 +484,7 @@ QtObject {
+         //
+         // The pure arm choice Keyboard.qml draws by: the word is the default
+         // and the landing place for everything undrawable — an unknown
+-        // setting string, and the Omarchy glyph when its private font is
++        // setting string, and the Midhat glyph when its private font is
+         // absent. Rendering shape and proportion of the three drawn marks is
+         // invisible to this suite; what is pinned here is that every
+         // answer names an arm that draws something.
+@@ -501,11 +501,11 @@ QtObject {
+             T.equal(Layout.superMarkArm(7, true), "word")
+         })
+ 
+-        T.test("the Omarchy arm answers on the font gate alone", function () {
+-            T.equal(Layout.superMarkArm("omarchy", true), "omarchy")
++        T.test("the Midhat arm answers on the font gate alone", function () {
++            T.equal(Layout.superMarkArm("midhat", true), "midhat")
+             // The packaged TTF absent: the word, never a blank cap —
+             // the gate stays attached to this arm and to no other.
+-            T.equal(Layout.superMarkArm("omarchy", false), "word")
++            T.equal(Layout.superMarkArm("midhat", false), "word")
+         })
+ 
+         T.test("the three drawn marks draw whatever the font answers", function () {
+diff --git c/tools/install-check.sh i/tools/install-check.sh
+index 00b9522..086cf0a 100755
+--- c/tools/install-check.sh
++++ i/tools/install-check.sh
+@@ -2,7 +2,7 @@
+ # The install record's rule, in a sandbox: install.sh, uninstall.sh and
+ # bin/oskar run with a private HOME, XDG_RUNTIME_DIR, XDG_STATE_HOME and
+ # XDG_CONFIG_HOME, an otherwise empty environment, stubs first on PATH (a
+-# systemctl that logs every call, omarchy, omarchy-shell and the tools
++# systemctl that logs every call, midhat, midhat-shell and the tools
+ # setup's preflight probes), a toolbox PATH without cargo, and a fake
+ # prebuilt tarball whose stand-in helper carries no marker of any kind.
+ # Nothing on the real machine is touched. Run by tools/run-tests.sh;
+@@ -16,7 +16,7 @@ unit="$home/.config/systemd/user/oskar.service"
+ cli="$home/.local/bin/oskar"
+ helper="$home/.local/libexec/oskar-daemon"
+ record_file="$home/.local/state/oskar/install-record"
+-reg="$home/.config/omarchy/plugins/io.github.vladkarok.oskar"
++reg="$home/.config/midhat/plugins/io.github.vladkarok.oskar"
+ mkdir -p "$sandbox/bin" "$sandbox/run" "$sandbox/toolbox" "$sandbox/withcargo" "$sandbox/datestub"
+ 
+ # systemctl: every call logged (per case, and for the whole run);
+@@ -56,8 +56,8 @@ case "\$*" in
+ esac
+ exit 0
+ EOF
+-for stub in omarchy omarchy-shell; do
+-  printf '#!/bin/sh\necho "%s $*" >> "%s/omarchy.log"\nexit 0\n' "$stub" "$sandbox" > "$sandbox/bin/$stub"
++for stub in midhat midhat-shell; do
++  printf '#!/bin/sh\necho "%s $*" >> "%s/midhat.log"\nexit 0\n' "$stub" "$sandbox" > "$sandbox/bin/$stub"
+ done
+ for stub in hyprctl jq wl-copy wl-paste; do printf '#!/bin/sh\nexit 0\n' > "$sandbox/bin/$stub"; done
+ printf '#!/bin/sh\necho "\tlibxkbcommon.so.0 (libc6,x86-64) => /usr/lib/libxkbcommon.so.0"\n' > "$sandbox/bin/ldconfig"
+@@ -111,7 +111,7 @@ anyaside() { find "$home" "$sandbox/run" \( -name '*.replaced-*' -o -name '*.mig
+ asides() { command ls -d "$1".replaced-* 2>/dev/null | wc -l; }
+ calls() { grep -c -E "$1" "$sandbox/systemctl.log"; }
+ written() { [[ -e "$unit" || -e "$helper" || -L "$cli" || -e "$record_file" ]] && echo written || echo untouched; }
+-reset() { rm -rf "$home" "$sandbox/run"; mkdir -p "$home" "$sandbox/run"; : > "$sandbox/systemctl.log"; : > "$sandbox/omarchy.log"; }
++reset() { rm -rf "$home" "$sandbox/run"; mkdir -p "$home" "$sandbox/run"; : > "$sandbox/systemctl.log"; : > "$sandbox/midhat.log"; }
+ passed=0; failed=0
+ check() {
+   if [[ "$2" == "$3" ]]; then echo "ok    $1"; passed=$((passed + 1))
+@@ -176,7 +176,7 @@ check "  via the prebuilt path" "$(grep -c 'Installing the prebuilt helper' "$sa
+ check "version mismatch warns, still installs" "$(run --prebuilt "$tarball")" 0
+ check "  the warning names the plugin version" "$(grep -c "not built for plugin version $version" "$sandbox/out")" 1
+ reset; check "no cargo, no tarball, no helper: exit 1 with the hint" "$(run)" 1
+-check "  the hint names both ways" "$(grep -c 'omarchy pkg add rust\|--prebuilt' "$sandbox/out")" 2
++check "  the hint names both ways" "$(grep -c 'midhat pkg add rust\|--prebuilt' "$sandbox/out")" 2
+ check "  nothing written" "$(written)" untouched
+ reset; echo x > "$sandbox/x"; tar -czf "$sandbox/empty.tar.gz" -C "$sandbox" x
+ check "a tarball without the helper: exit 1" "$(run --prebuilt "$sandbox/empty.tar.gz")" 1
+@@ -345,10 +345,10 @@ check "  starts nothing" "$(calls '(start|restart|reset-failed).*oskar.service')
+ 
+ # ---- uninstall.sh over an install older than the record ----
+ reset; run --prebuilt "$matching" >/dev/null; rm -f "$record_file"; ln -s "$root" "$reg" 2>/dev/null || { mkdir -p "$(dirname "$reg")"; ln -s "$root" "$reg"; }
+-before="$(what "$unit") $(what "$helper") $(what "$cli")"; : > "$sandbox/systemctl.log"; : > "$sandbox/omarchy.log"
++before="$(what "$unit") $(what "$helper") $(what "$cli")"; : > "$sandbox/systemctl.log"; : > "$sandbox/midhat.log"
+ check "uninstall with no file matching the record: exit 3" "$(unrun)" 3
+ check "  the three are untouched" "$(what "$unit") $(what "$helper") $(what "$cli")" "$before"
+-check "  no teardown: registration kept, plugin not disabled, unit not disabled" "$([[ -L "$reg" ]] && echo kept)$(wc -l < "$sandbox/omarchy.log")$(calls 'disable')" kept00
++check "  no teardown: registration kept, plugin not disabled, unit not disabled" "$([[ -L "$reg" ]] && echo kept)$(wc -l < "$sandbox/midhat.log")$(calls 'disable')" kept00
+ check "  it says the truth and both ways out" "$(grep -c 'older than its install record' "$sandbox/out")$(grep -c 'install.sh --force once' "$sandbox/out")$(grep -c 'or run uninstall.sh --force' "$sandbox/out")" 111
+ reset; run --prebuilt "$matching" >/dev/null
+ for how in missing unreadable; do
+@@ -454,21 +454,21 @@ reset
+ check "setup in a live session with our unit" "$(STUB_ACTIVE=0 oskar setup --prebuilt "$matching")" 0
+ check "  enables and restarts it" "$(calls '^systemctl --user (enable|restart) oskar.service')" 4
+ 
+-# ---- nothing named omarchy-osk is ever touched ----
++# ---- nothing named midhat-osk is ever touched ----
+ reset
+-theirs=("$home/.config/omarchy-osk/settings" "$home/.local/state/omarchy-osk/db" "$sandbox/run/omarchy-osk/their-file"
+-  "$home/.config/systemd/user/omarchy-osk.service" "$home/.local/libexec/omarchy-osk-daemon")
++theirs=("$home/.config/midhat-osk/settings" "$home/.local/state/midhat-osk/db" "$sandbox/run/midhat-osk/their-file"
++  "$home/.config/systemd/user/midhat-osk.service" "$home/.local/libexec/midhat-osk-daemon")
+ for f in "${theirs[@]}"; do mkdir -p "$(dirname "$f")"; printf 'theirs: %s\n' "$f" > "$f"; done
+-printf '[Service]\nExecStart=%%h/.local/libexec/omarchy-osk-daemon\n' > "$home/.config/systemd/user/omarchy-osk.service"
++printf '[Service]\nExecStart=%%h/.local/libexec/midhat-osk-daemon\n' > "$home/.config/systemd/user/midhat-osk.service"
+ before="$(for f in "${theirs[@]}"; do sum "$f"; done)"
+-check "omarchy-osk world: setup" "$(STUB_ACTIVE=0 oskar setup --prebuilt "$matching")" 0
+-check "omarchy-osk world: upgrade" "$(STUB_ACTIVE=0 oskar upgrade --prebuilt "$matching")" 0
+-check "omarchy-osk world: teardown" "$(oskar teardown)" 0
+-check "  every omarchy-osk file is byte-identical" "$(for f in "${theirs[@]}"; do sum "$f"; done)" "$before"
+-check "  and nothing was moved aside beside them" "$(command ls -d "$home"/.config/omarchy-osk* "$home"/.local/state/omarchy-osk* "$sandbox"/run/omarchy-osk* "$home"/.config/systemd/user/omarchy-osk* "$home"/.local/libexec/omarchy-osk* | wc -l)" 5
+-check "  systemctl never named it" "$(calls 'omarchy-osk')" 0
+-check "  the shell calls were logged (the check below is not vacuous)" "$(grep -c 'omarchy plugin enable io.github.vladkarok.oskar' "$sandbox/omarchy.log")" 1
+-check "  nor did the shell calls" "$(grep -c -E 'omarchy-osk|vladkarok\.osk( |$)' "$sandbox/omarchy.log")" 0
++check "midhat-osk world: setup" "$(STUB_ACTIVE=0 oskar setup --prebuilt "$matching")" 0
++check "midhat-osk world: upgrade" "$(STUB_ACTIVE=0 oskar upgrade --prebuilt "$matching")" 0
++check "midhat-osk world: teardown" "$(oskar teardown)" 0
++check "  every midhat-osk file is byte-identical" "$(for f in "${theirs[@]}"; do sum "$f"; done)" "$before"
++check "  and nothing was moved aside beside them" "$(command ls -d "$home"/.config/midhat-osk* "$home"/.local/state/midhat-osk* "$sandbox"/run/midhat-osk* "$home"/.config/systemd/user/midhat-osk* "$home"/.local/libexec/midhat-osk* | wc -l)" 5
++check "  systemctl never named it" "$(calls 'midhat-osk')" 0
++check "  the shell calls were logged (the check below is not vacuous)" "$(grep -c 'midhat plugin enable io.github.vladkarok.oskar' "$sandbox/midhat.log")" 1
++check "  nor did the shell calls" "$(grep -c -E 'midhat-osk|vladkarok\.osk( |$)' "$sandbox/midhat.log")" 0
+ 
+ # ---- setup refuses a real-directory registration before it changes anything ----
+ reset; mkdir -p "$reg"; printf 'their checkout\n' > "$reg/README"
+@@ -493,14 +493,14 @@ if [[ -n "$unshare_bin" ]] && "$unshare_bin" -r true 2>/dev/null; then
+   check "  systemd was never called" "$(wc -l < "$sandbox/systemctl.log")" 0
+   reset; run --prebuilt "$matching" >/dev/null; mkdir -p "$(dirname "$reg")"; ln -s "$root" "$reg"
+   before="$(what "$unit") $(what "$helper") $(what "$cli") $(sum "$record_file") $(what "$reg")"
+-  : > "$sandbox/systemctl.log"; : > "$sandbox/omarchy.log"
++  : > "$sandbox/systemctl.log"; : > "$sandbox/midhat.log"
+   check "uninstall.sh as root: refused, exit 1, naming sudo" "$(asroot "$root/uninstall.sh")$(grep -c 'not with sudo or as root' "$sandbox/out")" 11
+   for verb in setup upgrade teardown start unlink-enablement "record write $unit" "record forget $unit" "record aside $unit replaced"; do
+     # shellcheck disable=SC2086
+     check "oskar ${verb% /*} as root: refused, exit 1, naming sudo" "$(asroot "$root/bin/oskar" $verb)$(grep -c 'not with sudo or as root' "$sandbox/out")" 11
+   done
+   check "  every file, the record and the registration are unchanged" "$(what "$unit") $(what "$helper") $(what "$cli") $(sum "$record_file") $(what "$reg")" "$before"
+-  check "  neither systemd nor the shell was called" "$(wc -l < "$sandbox/systemctl.log")$(wc -l < "$sandbox/omarchy.log")" 00
++  check "  neither systemd nor the shell was called" "$(wc -l < "$sandbox/systemctl.log")$(wc -l < "$sandbox/midhat.log")" 00
+   check "oskar status as root still reports" "$(asroot "$root/bin/oskar" status)" 0
+ else skip "the root refusals (no unprivileged user namespace for unshare -r)"; fi
+ 
+diff --git c/tools/integration/emoji_focus.py i/tools/integration/emoji_focus.py
+index 8cb37e7..36e5699 100644
+--- c/tools/integration/emoji_focus.py
++++ i/tools/integration/emoji_focus.py
+@@ -60,7 +60,7 @@ LAB_HOSTNAME = "testprod"
+ def guard():
+     if os.environ.get("OSK_EMOJI_FOCUS_LIVE", "") != "1":
+         raise Failure("this leg stops the osk service and drives the live "
+-                      "session — run it only in the omarchy-vm lab, with "
++                      "session — run it only in the midhat-vm lab, with "
+                       "OSK_EMOJI_FOCUS_LIVE=1 (docs/vm-handoff.md)")
+     if os.uname().nodename != LAB_HOSTNAME:
+         raise Failure(f"OSK_EMOJI_FOCUS_LIVE=1 is set, but this host is "
+@@ -225,7 +225,7 @@ class Panel:
+         for name in ("Commons", "Ui"):
+             target = os.path.join(cfg, name)
+             if not os.path.exists(target):
+-                os.symlink(f"/usr/share/omarchy/shell/{name}", target)
++                os.symlink(f"/usr/share/midhat/shell/{name}", target)
+         self.command_path = os.path.join(PHASE_DIR, "cmd")
+         if os.path.exists(self.command_path):
+             os.unlink(self.command_path)
+diff --git c/tools/integration/emoji_focus_host.py i/tools/integration/emoji_focus_host.py
+index 4962358..93c473e 100644
+--- c/tools/integration/emoji_focus_host.py
++++ i/tools/integration/emoji_focus_host.py
+@@ -13,7 +13,7 @@ import subprocess
+ import sys
+ import time
+ 
+-GUEST = "omarchy-vm"
++GUEST = "midhat-vm"
+ DOMAIN = "oskar"
+ PHASE_DIR = "/run/user/1000/osk-emoji-leg"
+ PHASES = [("1-latin", ["o", "s", "k"]), ("2-cyrillic", ["a"]),
+diff --git c/tools/integration/helper_missing.py i/tools/integration/helper_missing.py
+index 8a0fcdd..391b668 100644
+--- c/tools/integration/helper_missing.py
++++ i/tools/integration/helper_missing.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python3
+ """Ticket 65's lab leg: a panel with no helper installed says what to run.
+ 
+-A plugin placed on its own (`omarchy plugin add`) has no helper unit yet.
++A plugin placed on its own (`midhat plugin add`) has no helper unit yet.
+ The panel must not offer Retry for a unit that does not exist; it must say
+ "not installed" and hand over the install command (the Copy chip). Once
+ the unit exists again, the hint returns to the ordinary stopped state.
+diff --git c/tools/integration/hold_column.py i/tools/integration/hold_column.py
+index 2dc9062..8cabd75 100644
+--- c/tools/integration/hold_column.py
++++ i/tools/integration/hold_column.py
+@@ -54,13 +54,13 @@ def guard():
+     # working compositor — except the VM lab's own session, which is the
+     # documented disposable environment (docs/vm-handoff.md).
+     if LIVE:
+-        if not os.path.isdir("/usr/share/omarchy/shell"):
+-            raise Failure("live mode belongs to the omarchy-vm lab guest")
++        if not os.path.isdir("/usr/share/midhat/shell"):
++            raise Failure("live mode belongs to the midhat-vm lab guest")
+         return
+     if not NESTED or not RUNTIME.startswith("/tmp/osk-nest.") \
+             or not os.path.isfile(CONFIG):
+         raise Failure(
+-            "Run this leg in omarchy-vm via "
++            "Run this leg in midhat-vm via "
+             "tools/nested-session.sh python3 tools/integration/hold_column.py "
+             "(or OSK_HOLD_LEG_LIVE=1 for the lab session)"
+         )
+@@ -371,7 +371,7 @@ class Panel:
+         os.makedirs(self.cfg, exist_ok=True)
+         commons = os.path.join(self.cfg, "Commons")
+         if not os.path.exists(commons):
+-            os.symlink("/usr/share/omarchy/shell/Commons", commons)
++            os.symlink("/usr/share/midhat/shell/Commons", commons)
+         self.command_path = os.path.join(RUNTIME, "osk-hold-leg-cmd")
+         if os.path.exists(self.command_path):
+             os.unlink(self.command_path)
+diff --git c/tools/integration/layout_leg.py i/tools/integration/layout_leg.py
+index 8743fb9..f19c5e1 100644
+--- c/tools/integration/layout_leg.py
++++ i/tools/integration/layout_leg.py
+@@ -269,7 +269,7 @@ class Panel:
+         for name in ("Commons", "Ui"):
+             target = os.path.join(cfg, name)
+             if not os.path.exists(target):
+-                os.symlink(f"/usr/share/omarchy/shell/{name}", target)
++                os.symlink(f"/usr/share/midhat/shell/{name}", target)
+         self.command_path = os.path.join(LEG_DIR, "cmd")
+         shell = os.path.join(cfg, "shell.qml")
+         with open(shell, "w", encoding="utf-8") as handle:
+diff --git c/tools/integration/lone_toggle.py i/tools/integration/lone_toggle.py
+index e3892bb..7cb47dd 100644
+--- c/tools/integration/lone_toggle.py
++++ i/tools/integration/lone_toggle.py
+@@ -68,7 +68,7 @@ def guard():
+     # proof: this leg stops the osk service and moves the seat's groups.
+     if os.environ.get("OSK_LONE_TOGGLE_LIVE", "") != "1":
+         raise Failure("this leg stops the osk service and drives the live "
+-                      "session — run it only in the omarchy-vm lab, with "
++                      "session — run it only in the midhat-vm lab, with "
+                       "OSK_LONE_TOGGLE_LIVE=1 (docs/vm-handoff.md)")
+     if os.uname().nodename != LAB_HOSTNAME:
+         raise Failure(f"OSK_LONE_TOGGLE_LIVE=1 is set, but this host is "
+diff --git c/tools/integration/panel_canary.py i/tools/integration/panel_canary.py
+index eb946a0..c0a12ae 100644
+--- c/tools/integration/panel_canary.py
++++ i/tools/integration/panel_canary.py
+@@ -24,7 +24,7 @@ ways, and asserts:
+ 
+ Everything is driven through the command file (the lab has no pointer
+ synthesis): open, close, group switches and state reads go through the
+-same properties and functions the omarchy shell's IPC uses — `opened`,
++same properties and functions the midhat shell's IPC uses — `opened`,
+ `close()`, `switchToGroup` — with the real items found by walking the
+ scene. Run inside the VM's lab session:
+ 
+@@ -46,7 +46,7 @@ RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "")
+ # Our files, for the warning sweep: a warning naming our tree carries the
+ # tree's path (the leg loads file:~/oskar/…, the packaged panel
+ # /usr/share/oskar/…) and one of our basenames. Both halves are
+-# required, so the omarchy shell's own Commons/Ui files cannot collide.
++# required, so the midhat shell's own Commons/Ui files cannot collide.
+ OURS = re.compile(
+     r"(Panel|Keyboard|HelperLink|PasteChords|PrivateSaves|EmojiDelivery|HoldMenu|DragLine|BarWidget|Theme|HoverTooltip|KeyClickSound|CursorPolicy|SettingsLayer"
+     r"|Settings\w*|EmojiPage|EmojiCatalog|LanguageControl|HoldColumn"
+@@ -72,7 +72,7 @@ def guard():
+     # lab's documented hostname (docs/vm-handoff.md) as the positive proof.
+     if os.environ.get("OSK_PANEL_CANARY_LIVE", "") != "1":
+         raise Failure("this leg stops the osk service and drives the live "
+-                      "session — run it only in the omarchy-vm lab, with "
++                      "session — run it only in the midhat-vm lab, with "
+                       "OSK_PANEL_CANARY_LIVE=1 (docs/vm-handoff.md)")
+     if os.uname().nodename != LAB_HOSTNAME:
+         raise Failure(f"OSK_PANEL_CANARY_LIVE=1 is set, but this host is "
+@@ -158,7 +158,7 @@ import "file:__TREE__" as Plugin
+ Item {
+     id: root
+ 
+-    // The real panel: the same component the omarchy shell loads from the
++    // The real panel: the same component the midhat shell loads from the
+     // plugin manifest's panel entry point. It brings its own PanelWindows,
+     // its config and state files, and the socket client. Loaded, so the
+     // leg can destroy it the way a clean shell quit or a plugin disable
+@@ -507,7 +507,7 @@ class Panel:
+         for name in ("Commons", "Ui"):
+             target = os.path.join(self.cfg, name)
+             if not os.path.exists(target):
+-                os.symlink(f"/usr/share/omarchy/shell/{name}", target)
++                os.symlink(f"/usr/share/midhat/shell/{name}", target)
+         self.command_path = os.path.join(RUNTIME, "osk-canary-cmd")
+         if os.path.exists(self.command_path):
+             os.unlink(self.command_path)
+@@ -1000,7 +1000,7 @@ def _run_leg(repo, window_start):
+             on_argv = [pid for pid, args in process_argv() if word in args]
+             if on_argv:
+                 raise Failure(f"the published text is on the argv of pid(s) {on_argv}")
+-            # Destroyed the way a clean shell quit (`omarchy restart shell`)
++            # Destroyed the way a clean shell quit (`midhat restart shell`)
+             # or a plugin disable destroys it: every process the panel
+             # tracks dies with the component.
+             panel.command("unload", "unloaded")
+@@ -1081,7 +1081,7 @@ def restore_service():
+ # --------------------------------------------------------------------------
+ 
+ QMP_DOMAIN = "oskar"
+-GUEST = "omarchy-vm"
++GUEST = "midhat-vm"
+ # The Q cap's screen point per lab output size, docked at the default size
+ # preset. The key grid is fixed-width and centred, so a point does not scale
+ # with the band; each entry is read off a live screenshot and re-verified at
+@@ -1140,7 +1140,7 @@ def _host_guard():
+     if subprocess.run(["ssh", "-o", "BatchMode=yes", "-o",
+                        "ConnectTimeout=5", GUEST, "true"],
+                       capture_output=True).returncode != 0:
+-        raise Failure("cannot ssh the guest (omarchy-vm)")
++        raise Failure("cannot ssh the guest (midhat-vm)")
+     # Passwordless sudo BEFORE any leg touches the lab: finding out only at
+     # the real-click leg would let the mask leg stop the service first.
+     if _guest("sudo -n true").returncode != 0:
+@@ -1366,12 +1366,12 @@ def mask_leg():
+     forces the overlay state (the layer's own mask) and proves the
+     assertion detects a mask-eater: the same click must NOT focus."""
+     print("leg   mask click-through (green)")
+-    # The lab accumulates Omarchy's crash notifications (hyprland-welcome
++    # The lab accumulates Midhat's crash notifications (hyprland-welcome
+     # dies on every nested run) in the top-right corner, and a click on
+     # one launches an agent terminal that takes focus: dismiss them and
+     # any such terminal before the first real click.
+-    _guest("omarchy-shell -q notifications dismissAll; "
+-           "pkill -f 'app-id=org.omarchy.agent' 2>/dev/null; "
++    _guest("midhat-shell -q notifications dismissAll; "
++           "pkill -f 'app-id=org.midhat.agent' 2>/dev/null; "
+            "pkill -x kitty 2>/dev/null; sleep 1; true")
+     _guest("nohup kitty --title=mtarget sh -c 'sleep 600' >/dev/null "
+            "2>&1 & sleep 2; true")
+diff --git c/tools/integration/qmp_guest_frame.py i/tools/integration/qmp_guest_frame.py
+index aced210..0926755 100644
+--- c/tools/integration/qmp_guest_frame.py
++++ i/tools/integration/qmp_guest_frame.py
+@@ -14,7 +14,7 @@ file whose mtime the frame polls.
+ 
+ Launched by the host driver as:
+ 
+-  ssh omarchy-vm 'cd <tree> && XDG_RUNTIME_DIR=/run/user/1000 \
++  ssh midhat-vm 'cd <tree> && XDG_RUNTIME_DIR=/run/user/1000 \
+       WAYLAND_DISPLAY=wayland-1 \
+       HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/1000/hypr | head -1) \
+       python3 tools/integration/qmp_guest_frame.py <tree>'
+diff --git c/tools/integration/restart_settle.py i/tools/integration/restart_settle.py
+index 7a8582e..9104da4 100644
+--- c/tools/integration/restart_settle.py
++++ i/tools/integration/restart_settle.py
+@@ -140,7 +140,7 @@ def guard():
+     # wrong machine must refuse before it can.
+     if os.environ.get("OSK_RESTART_SETTLE_LIVE", "") != "1":
+         raise Failure("this leg stops the osk service and drives the live "
+-                      "session — run it only in the omarchy-vm lab, with "
++                      "session — run it only in the midhat-vm lab, with "
+                       "OSK_RESTART_SETTLE_LIVE=1 (docs/vm-handoff.md)")
+     if os.uname().nodename != LAB_HOSTNAME:
+         raise Failure(f"OSK_RESTART_SETTLE_LIVE=1 is set, but this host is "
+@@ -341,7 +341,7 @@ import "file:__TREE__" as Plugin
+ Item {
+     id: root
+ 
+-    // The real panel — the component the omarchy shell loads — bringing
++    // The real panel — the component the midhat shell loads — bringing
+     // its own PanelWindows, config/state files and socket client, but
+     // dialled at the private runtime the leg owns.
+     Plugin.Panel {
+@@ -498,7 +498,7 @@ class Panel:
+         for name in ("Commons", "Ui"):
+             target = os.path.join(self.cfg, name)
+             if not os.path.exists(target):
+-                os.symlink(f"/usr/share/omarchy/shell/{name}", target)
++                os.symlink(f"/usr/share/midhat/shell/{name}", target)
+         self.command_path = os.path.join(PRIVATE, f"osk-settle-leg-cmd-{tag}")
+         if os.path.exists(self.command_path):
+             os.unlink(self.command_path)
+diff --git c/tools/integration/summon_output.py i/tools/integration/summon_output.py
+index 13927d4..6b8fb07 100644
+--- c/tools/integration/summon_output.py
++++ i/tools/integration/summon_output.py
+@@ -95,9 +95,9 @@ Item {
+ 
+ def guard():
+     if os.environ.get("OSK_SUMMON_LIVE", "") != "1":
+-        raise Failure("this leg drives the lab session: run it in omarchy-vm "
++        raise Failure("this leg drives the lab session: run it in midhat-vm "
+                       "with OSK_SUMMON_LIVE=1 (docs/vm-handoff.md)")
+-    if not os.path.isdir("/usr/share/omarchy/shell"):
++    if not os.path.isdir("/usr/share/midhat/shell"):
+         raise Failure("OSK_SUMMON_LIVE=1 is set, but this host is not the lab")
+ 
+ 
+@@ -129,7 +129,7 @@ class Host:
+         for name in ("Commons", "Ui"):
+             target = os.path.join(self.cfg, name)
+             if not os.path.exists(target):
+-                os.symlink(f"/usr/share/omarchy/shell/{name}", target)
++                os.symlink(f"/usr/share/midhat/shell/{name}", target)
+         self.command_path = os.path.join(RUNTIME, "osk-summon-cmd")
+         if os.path.exists(self.command_path):
+             os.unlink(self.command_path)
+diff --git c/tools/integration/transport_faults.py i/tools/integration/transport_faults.py
+index 9b2f30a..8aae43c 100644
+--- c/tools/integration/transport_faults.py
++++ i/tools/integration/transport_faults.py
+@@ -87,7 +87,7 @@ BOUND_S = HELLO_STALE_S + 2 * FAST_TICK_S + MARGIN_S
+ def guard():
+     if os.environ.get("OSK_TRANSPORT_LIVE", "") != "1":
+         raise Failure("this leg hosts a panel in the live session — run it "
+-                      "only in the omarchy-vm lab, with OSK_TRANSPORT_LIVE=1 "
++                      "only in the midhat-vm lab, with OSK_TRANSPORT_LIVE=1 "
+                       "(docs/vm-handoff.md)")
+     if os.uname().nodename != LAB_HOSTNAME:
+         raise Failure(f"OSK_TRANSPORT_LIVE=1 is set, but this host is "
+@@ -326,7 +326,7 @@ class Host:
+         for name in ("Commons", "Ui"):
+             target = os.path.join(self.cfg, name)
+             if not os.path.exists(target):
+-                os.symlink(f"/usr/share/omarchy/shell/{name}", target)
++                os.symlink(f"/usr/share/midhat/shell/{name}", target)
+         self.command_path = os.path.join(PRIVATE, "osk-tf-cmd")
+         shell = os.path.join(self.cfg, "shell.qml")
+         with open(shell, "w", encoding="utf-8") as handle:
+diff --git c/tools/keymap-recovery-test.sh i/tools/keymap-recovery-test.sh
+index b2950cb..f64d2b1 100755
+--- c/tools/keymap-recovery-test.sh
++++ i/tools/keymap-recovery-test.sh
+@@ -46,7 +46,7 @@ check() { if [[ "$1" == "$2" ]]; then ok "$3"; else no "$3 (wanted: $2, got: ${1
+ session_env() {
+   export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+   export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
+-  export OMARCHY_PATH=/usr/share/omarchy
++  export MIDHAT_PATH=/usr/share/midhat
+   local sig
+   # The || true is load-bearing under pipefail: stale nested-session
+   # directories never answer, the loop's exit status is its LAST
+@@ -101,15 +101,15 @@ hello() {
+ }
+ 
+ panel_open() {
+-  omarchy-shell shell toggle "$PLUGIN_ID" >/dev/null 2>&1 || true
++  midhat-shell shell toggle "$PLUGIN_ID" >/dev/null 2>&1 || true
+ }
+ 
+ shell_pid() { pgrep -x quickshell | head -1; }
+ 
+ # The shell is no unit in this session: uwsm spawns it as a bare process
+-# (`quickshell -n -p /usr/share/omarchy/shell`). Respawn it the same way.
++# (`quickshell -n -p /usr/share/midhat/shell`). Respawn it the same way.
+ start_shell() {
+-  (setsid quickshell -n -p /usr/share/omarchy/shell >/dev/null 2>&1 &)
++  (setsid quickshell -n -p /usr/share/midhat/shell >/dev/null 2>&1 &)
+ }
+ 
+ sidecar_value() { cat "$SIDECAR" 2>/dev/null | tr -d '\n'; }
+diff --git c/tools/lvl5-probe/README.md i/tools/lvl5-probe/README.md
+index ad44055..332a05a 100644
+--- c/tools/lvl5-probe/README.md
++++ i/tools/lvl5-probe/README.md
+@@ -47,8 +47,8 @@ Files (this directory, host) → `~/lvl5-probe/` (VM, `scp -r`):
+ - `run.sh` — entry point, owned by the nested session:
+ 
+ ```sh
+-scp -r tools/lvl5-probe omarchy-vm:~/
+-ssh omarchy-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u) WAYLAND_DISPLAY=wayland-1; cd ~/oskar && tools/nested-session.sh bash ~/lvl5-probe/run.sh'
++scp -r tools/lvl5-probe midhat-vm:~/
++ssh midhat-vm 'export XDG_RUNTIME_DIR=/run/user/$(id -u) WAYLAND_DISPLAY=wayland-1; cd ~/oskar && tools/nested-session.sh bash ~/lvl5-probe/run.sh'
+ ```
+ 
+ The steps: control (`tap AB01` → `z`), negative (`tap I219`, a keycode
+diff --git c/tools/lvl5-probe/drive.py i/tools/lvl5-probe/drive.py
+index ac6d5e4..a1001b3 100644
+--- c/tools/lvl5-probe/drive.py
++++ i/tools/lvl5-probe/drive.py
+@@ -340,7 +340,7 @@ class FootReader:
+ def main():
+     runtime = os.environ.get("XDG_RUNTIME_DIR", "")
+     if os.environ.get("OSK_NESTED_SESSION", "") != "1" or not runtime:
+-        sys.exit("Run this under tools/nested-session.sh inside omarchy-vm.")
++        sys.exit("Run this under tools/nested-session.sh inside midhat-vm.")
+     if not wait_monitor():
+         say("ABORT: nested compositor never published a monitor (known VM "
+             "flake — re-run before believing a failure)")
+diff --git c/tools/lvl5-probe/run.sh i/tools/lvl5-probe/run.sh
+index 3d3351f..3d9efd7 100644
+--- c/tools/lvl5-probe/run.sh
++++ i/tools/lvl5-probe/run.sh
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+ #
+ # Levels 5-8 probe entry point. Run ONLY through the
+-# nested session, inside omarchy-vm:
++# nested session, inside midhat-vm:
+ #
+ #   cd ~/oskar && tools/nested-session.sh bash ~/lvl5-probe/run.sh
+ #
+diff --git c/tools/omarchy-vm-provision.sh i/tools/midhat-vm-provision.sh
+similarity index 90%
+rename from tools/omarchy-vm-provision.sh
+rename to tools/midhat-vm-provision.sh
+index a61843b..35f0aef 100755
+--- c/tools/omarchy-vm-provision.sh
++++ i/tools/midhat-vm-provision.sh
+@@ -1,15 +1,15 @@
+ #!/usr/bin/env bash
+ #
+-# Runs INSIDE the Omarchy VM (not on the host), from whichever copy of the
++# Runs INSIDE the Midhat VM (not on the host), from whichever copy of the
+ # repo the guest has. Two ways to get one:
+ #
+ #   git clone https://github.com/vladkarok/oskar   # simplest
+-#   bash oskar/tools/omarchy-vm-provision.sh
++#   bash oskar/tools/midhat-vm-provision.sh
+ #
+ # and the 9p share the VM exports, which is the host's working tree — the
+ # only way to test edits that are not pushed yet:
+ #
+-#   bash /mnt/osk-src/tools/omarchy-vm-provision.sh
++#   bash /mnt/osk-src/tools/midhat-vm-provision.sh
+ #
+ # A freshly installed guest has neither the share mounted nor sshd running,
+ # and this script is what fixes both, so with no clone the first run is typed
+@@ -17,13 +17,13 @@
+ #
+ #   sudo mkdir -p /mnt/osk-src
+ #   sudo mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 osk-src /mnt/osk-src
+-#   bash /mnt/osk-src/tools/omarchy-vm-provision.sh
++#   bash /mnt/osk-src/tools/midhat-vm-provision.sh
+ #
+ # That run writes the fstab entry, so from the next boot the mount is simply
+ # there. Once sshd is up the host can also pipe the script in, which needs
+ # nothing on the guest and so repairs one that lost its share:
+ #
+-#   ssh -tt omarchy-vm 'bash -s' < tools/omarchy-vm-provision.sh
++#   ssh -tt midhat-vm 'bash -s' < tools/midhat-vm-provision.sh
+ #
+ # -tt because the sudo calls need a terminal to prompt on: stdin is the
+ # script itself.
+@@ -108,10 +108,10 @@ echo "--- building daemon from $BUILD_SRC"
+ cargo build --release --manifest-path "$BUILD_SRC/daemon/Cargo.toml"
+ 
+ echo "--- installing plugin and service"
+-mkdir -p "$HOME/.config/omarchy/plugins/$PLUGIN_ID"
++mkdir -p "$HOME/.config/midhat/plugins/$PLUGIN_ID"
+ rsync -a --delete \
+     --exclude .git --exclude daemon --exclude tools --exclude 'core.*' \
+-    "$BUILD_SRC/" "$HOME/.config/omarchy/plugins/$PLUGIN_ID/"
++    "$BUILD_SRC/" "$HOME/.config/midhat/plugins/$PLUGIN_ID/"
+ install -Dm755 "$BUILD_SRC/daemon/target/release/oskar-daemon" "$HOME/.local/libexec/oskar-daemon"
+ install -Dm644 "$BUILD_SRC/systemd/oskar.service" "$HOME/.config/systemd/user/oskar.service"
+ systemctl --user daemon-reload
+@@ -157,13 +157,13 @@ fi
+ 
+ # Same layouts the real machine runs, so the layout zoo looks familiar.
+ # Keyed on our own marker comment: grepping for "kb_layout" matches the
+-# commented-out example in Omarchy's stock input.lua, which makes the script
++# commented-out example in Midhat's stock input.lua, which makes the script
+ # believe its block is already there and skip appending it forever.
+-if ! grep -q "omarchy-vm-provision.sh" "$HOME/.config/hypr/input.lua" 2>/dev/null; then
++if ! grep -q "midhat-vm-provision.sh" "$HOME/.config/hypr/input.lua" 2>/dev/null; then
+     cat >> "$HOME/.config/hypr/input.lua" <<'LUA'
+ 
+ -- Two layouts and Caps Lock switching, mirroring the real machine (added by
+--- omarchy-vm-provision.sh).
++-- midhat-vm-provision.sh).
+ hl.config({
+   input = {
+     kb_layout = "us,ua",
+@@ -176,15 +176,15 @@ fi
+ 
+ sudo systemctl enable --now sshd
+ 
+-# The plugin itself is enabled through omarchy below; the helper unit is
++# The plugin itself is enabled through midhat below; the helper unit is
+ # enabled and started here unless OSK_NO_AUTOSTART is set (see above).
+-if omarchy plugin enable "$PLUGIN_ID"; then
++if midhat plugin enable "$PLUGIN_ID"; then
+     plugin_state="enabled"
+ else
+-    plugin_state="NOT enabled (omarchy plugin enable failed — run it by hand)"
++    plugin_state="NOT enabled (midhat plugin enable failed — run it by hand)"
+     # The summary says so too, but success must never be the only voice:
+     # the failure warns on stderr here, where a provision log keeps it.
+-    echo "WARNING: 'omarchy plugin enable $PLUGIN_ID' failed; enable it by hand" >&2
++    echo "WARNING: 'midhat plugin enable $PLUGIN_ID' failed; enable it by hand" >&2
+ fi
+ 
+ # The unit branch above records what actually happened — enabled, started,
+diff --git c/tools/omarchy-vm.sh i/tools/midhat-vm.sh
+similarity index 87%
+rename from tools/omarchy-vm.sh
+rename to tools/midhat-vm.sh
+index cbc4658..77e5fec 100755
+--- c/tools/omarchy-vm.sh
++++ i/tools/midhat-vm.sh
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ #
+-# Omarchy VM for daily-dogfooding the on-screen keyboard.
++# Midhat VM for daily-dogfooding the on-screen keyboard.
+ #
+ # The nested-session polygon exercises the daemon against a disposable
+ # compositor, but it cannot reproduce what surrounds a real session: udev
+@@ -9,22 +9,22 @@
+ # PS/2 keyboard, two USB keyboards and a USB tablet — so the per-device
+ # layout state that Hyprland keeps is exercised the way a messy real desk is.
+ #
+-# First run boots the ISO for the interactive Omarchy install. Later runs
++# First run boots the ISO for the interactive Midhat install. Later runs
+ # boot the installed disk. The host repo is mounted read-write over 9p at
+ # /mnt/osk-src, so the guest builds the daemon from the same tree you edit.
+ #
+-#   tools/omarchy-vm.sh              # install mode on first run, disk after
+-#   tools/omarchy-vm.sh --console    # serial console in this terminal instead
++#   tools/midhat-vm.sh              # install mode on first run, disk after
++#   tools/midhat-vm.sh --console    # serial console in this terminal instead
+ #
+ # SSH (once the guest has openssh enabled):  ssh -p 2222 <user>@127.0.0.1
+ # QEMU monitor for runtime hotplug tests:    $VM_DIR/monitor.sock
+ 
+ set -euo pipefail
+ 
+-VM_DIR="${OMARCHY_VM_DIR:-$HOME/.local/share/omarchy-vm}"
+-ISO="$VM_DIR/omarchy-4.0.2.iso"
++VM_DIR="${MIDHAT_VM_DIR:-$HOME/.local/share/midhat-vm}"
++ISO="$VM_DIR/midhat-4.0.2.iso"
+ ISO_SHA256="2ef8e624aa1bec7e277e28056b8535a6c9373ba48d7ede3f1a01cb6d2373cfb8"
+-DISK="$VM_DIR/osk-omarchy.qcow2"
++DISK="$VM_DIR/osk-midhat.qcow2"
+ VARS="$VM_DIR/OVMF_VARS.fd"
+ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ 
+@@ -55,7 +55,7 @@ fi
+ # error-page download is deleted instead of ever becoming the ISO.
+ if (( install_mode || want_iso )); then
+     if [[ ! -f "$ISO" ]]; then
+-        echo "Downloading Omarchy 4.0.2..." >&2
++        echo "Downloading Midhat 4.0.2..." >&2
+         curl -L --fail --retry 3 -o "$ISO.part" https://iso.omarchy.org/omarchy-4.0.2.iso
+         echo "$ISO_SHA256  $ISO.part" | sha256sum -c - || {
+             rm -f "$ISO.part"
+diff --git c/tools/nested-session.sh i/tools/nested-session.sh
+index 3221b55..901f497 100755
+--- c/tools/nested-session.sh
++++ i/tools/nested-session.sh
+@@ -22,7 +22,7 @@ set -uo pipefail
+ # graphical tests to the VM; host use requires a deliberate manual override.
+ if [[ "${OSK_ALLOW_HOST_NESTED:-}" != "1" ]] \
+     && ! systemd-detect-virt --vm --quiet 2>/dev/null; then
+-    echo "Graphical tests run in omarchy-vm. Host nested Hyprland is disabled; explicitly authorised manual runs may set OSK_ALLOW_HOST_NESTED=1." >&2
++    echo "Graphical tests run in midhat-vm. Host nested Hyprland is disabled; explicitly authorised manual runs may set OSK_ALLOW_HOST_NESTED=1." >&2
+     exit 1
+ fi
+ 
+diff --git c/tools/package-test.sh i/tools/package-test.sh
+index 91cf49d..5842f12 100755
+--- c/tools/package-test.sh
++++ i/tools/package-test.sh
+@@ -9,7 +9,7 @@
+ #   build        package the CURRENT TREE (tarball source, no developer
+ #                checkout inside the build), namcap + ldd inspection
+ #   chroot-build the same recipe inside a clean archbuild chroot
+-#                (best-effort: needs the omarchy packages reachable)
++#                (best-effort: needs the midhat packages reachable)
+ #   install      pacman -U the built package
+ #   status       read-only report on a freshly installed package
+ #   setup        activate, then activate AGAIN (idempotence)
+@@ -37,7 +37,7 @@ BUILD="${OSK_PKG_BUILD:-$HOME/.cache/osk-pkg}"
+ PKGOUT="$BUILD/oskar-0.1.0-1-x86_64.pkg.tar.zst"
+ PKGOUT2="$BUILD/oskar-0.1.0-2-x86_64.pkg.tar.zst"
+ PLUGIN_ID=io.github.vladkarok.oskar
+-REG="$HOME/.config/omarchy/plugins/$PLUGIN_ID"
++REG="$HOME/.config/midhat/plugins/$PLUGIN_ID"
+ PASS=0
+ FAIL=0
+ 
+@@ -72,7 +72,7 @@ hello_until_ready() {
+ session_env() {
+   export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+   export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
+-  export OMARCHY_PATH=/usr/share/omarchy
++  export MIDHAT_PATH=/usr/share/midhat
+   local sig
+   # The || true is load-bearing under pipefail: stale nested-session
+   # directories never answer, the loop's exit status is its LAST
+@@ -171,9 +171,9 @@ phase_chroot_build() {
+   # while intermediate directories are missing — create them first.
+   sudo mkdir -p "$chroot"
+   [[ -d $chroot/root ]] || sudo mkarchroot "$chroot/root" base-devel >/dev/null
+-  # A stock chroot cannot resolve depends=(omarchy): the omarchy packages
+-  # are Omarchy's own AUR set whose closure (omarchy-keyring,
+-  # omarchy-settings-dev, …) no mirror carries. That is a property of the
++  # A stock chroot cannot resolve depends=(midhat): the midhat packages
++  # are Midhat's own AUR set whose closure (midhat-keyring,
++  # midhat-settings-dev, …) no mirror carries. That is a property of the
+   # dependency graph, not of this recipe — a real AUR helper resolves it
+   # against the user's full set. The chroot leg therefore proves the
+   # recipe in a clean environment with the toolchain installed by hand
+@@ -232,7 +232,7 @@ phase_setup() {
+   oskar setup | tee "$BUILD/setup1.log"
+   [[ "$(readlink -f "$REG")" == /usr/share/oskar/plugin ]] \
+     && ok "registration -> packaged payload" || no "registration wrong"
+-  omarchy plugin list --json | jq -e --arg id "$PLUGIN_ID" \
++  midhat plugin list --json | jq -e --arg id "$PLUGIN_ID" \
+     '.[] | select(.id == $id) | .enabled' | grep -q true \
+     && ok "plugin enabled" || no "plugin not enabled"
+   systemctl --user --quiet is-enabled oskar.service \
+@@ -257,9 +257,9 @@ phase_protocol() {
+   reply="$(hello_until_ready)"
+   [[ "$reply" == "hello 6" ]] && ok "protocol hello ok" || no "hello reply: $reply"
+   local rc1=0 rc2=0
+-  omarchy-shell shell toggle "$PLUGIN_ID" || rc1=$?
++  midhat-shell shell toggle "$PLUGIN_ID" || rc1=$?
+   sleep 2
+-  omarchy-shell shell toggle "$PLUGIN_ID" || rc2=$?
++  midhat-shell shell toggle "$PLUGIN_ID" || rc2=$?
+   if [[ $rc1 -eq 0 && $rc2 -eq 0 ]]; then
+     ok "panel toggles both directions from the packaged tree"
+   else
+@@ -357,9 +357,9 @@ phase_coldboot() {
+   [[ "$reply" == "hello 6" ]] && ok "protocol ok after cold boot" || no "hello reply: $reply"
+   [[ "$(readlink -f "$REG")" == /usr/share/oskar/plugin ]] \
+     && ok "registration intact" || no "registration lost on boot"
+-  omarchy-shell shell toggle "$PLUGIN_ID" && sleep 2 \
++  midhat-shell shell toggle "$PLUGIN_ID" && sleep 2 \
+     && ok "panel loads from the packaged payload" || no "panel toggle failed"
+-  omarchy-shell shell toggle "$PLUGIN_ID" >/dev/null
++  midhat-shell shell toggle "$PLUGIN_ID" >/dev/null
+   summary
+ }
+ 
+diff --git c/tools/qml-check.sh i/tools/qml-check.sh
+index 7a02cd4..0660323 100755
+--- c/tools/qml-check.sh
++++ i/tools/qml-check.sh
+@@ -69,9 +69,9 @@ if [[ ! -d /usr/lib/qt6/qml/Quickshell ]]; then
+   exit 0
+ fi
+ 
+-# The panel imports `qs.Commons` from the installed Omarchy shell.
++# The panel imports `qs.Commons` from the installed Midhat shell.
+ imports=(-I /usr/lib/qt6/qml)
+-[[ -d /usr/share/omarchy/shell ]] && imports+=(-I /usr/share/omarchy/shell)
++[[ -d /usr/share/midhat/shell ]] && imports+=(-I /usr/share/midhat/shell)
+ 
+ # Messages that are worth failing a build over: each one means the file cannot
+ # do what it says, and each one is at zero across the tree today.
+diff --git c/tools/smoke-daemon.sh i/tools/smoke-daemon.sh
+index 4fd639c..25557cd 100755
+--- c/tools/smoke-daemon.sh
++++ i/tools/smoke-daemon.sh
+@@ -19,7 +19,7 @@ nested_runtime="${XDG_RUNTIME_DIR:-}"
+ if [[ "${OSK_NESTED_SESSION:-}" != "1"
+     || ! "$nested_runtime" =~ ^/tmp/osk-n\.[A-Za-z0-9]+/rt$
+     || "${OSK_NEST_CONFIG:-}" != "${nested_runtime%/rt}/hypr.lua" ]]; then
+-    echo "Run this test in omarchy-vm via tools/nested-session.sh tools/smoke-daemon.sh." >&2
++    echo "Run this test in midhat-vm via tools/nested-session.sh tools/smoke-daemon.sh." >&2
+     exit 1
+ fi
+ if [[ ! -f "$OSK_NEST_CONFIG" || -z "${HYPRLAND_INSTANCE_SIGNATURE:-}"
+diff --git c/tools/test-wall.sh i/tools/test-wall.sh
+index c7057f3..038174a 100755
+--- c/tools/test-wall.sh
++++ i/tools/test-wall.sh
+@@ -26,7 +26,7 @@ WALL_TMP="$(mktemp -d /tmp/oskar-wall.XXXXXX)" || exit 1
+ # A failing row's detail points into WALL_TMP, so the logs outlive the run
+ # whenever anything failed; a clean run leaves nothing behind.
+ trap 'if (( failed )); then echo "logs kept in $WALL_TMP"; else rm -rf "$WALL_TMP"; fi' EXIT
+-LAB=omarchy-vm
++LAB=midhat-vm
+ declare -a ROWS
+ wall=0
+ failed=0
+diff --git c/uninstall.sh i/uninstall.sh
+index 9e9bf79..110da22 100755
+--- c/uninstall.sh
++++ i/uninstall.sh
+@@ -28,7 +28,7 @@ if ((EUID == 0)); then
+ fi
+ 
+ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+-reg="$HOME/.config/omarchy/plugins/io.github.vladkarok.oskar"
++reg="$HOME/.config/midhat/plugins/io.github.vladkarok.oskar"
+ unit="$HOME/.config/systemd/user/oskar.service"
+ binary="$HOME/.local/libexec/oskar-daemon"
+ cli="$HOME/.local/bin/oskar"
