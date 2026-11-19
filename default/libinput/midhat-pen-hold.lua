@@ -1,7 +1,6 @@
 -- Mid’hat: hold the pen still to right-click (midhat-pen-hold-guard links it in).
 -- A landing tip is held back. Lifting it, or moving it more than 1.5 mm,
--- within 0.6 s lets it through as a normal touch starting where the tip
--- landed; staying still that long
+-- within 0.6 s lets it through as a normal touch; staying still that long
 -- sends a right-click (BTN_STYLUS2) and ignores the rest of that touch.
 -- libinput 1.32 takes tablet pressure from the kernel, not from plugin frames,
 -- so pressure is switched off and contact follows BTN_TOUCH alone.
@@ -61,11 +60,7 @@ local function on_frame(device, events, time)
         elseif moved() then
             libinput:timer_cancel()
             state = "passing"
-            device:prepend_frame({
-                { usage = evdev.ABS_X, value = x0 },
-                { usage = evdev.ABS_Y, value = y0 },
-                { usage = evdev.BTN_TOUCH, value = 1 },
-            })
+            table.insert(events, { usage = evdev.BTN_TOUCH, value = 1 })
             return events
         end
     elseif state == "passing" then
