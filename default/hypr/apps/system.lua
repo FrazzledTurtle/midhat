@@ -27,8 +27,8 @@ o.window("org.midhat.about", { float = true })
 o.window("org.midhat.about", { center = true })
 o.window("org.midhat.about", { size = { 920, 480 } })
 
-o.window("dev.tensaku.Tensaku", { float = true })
-o.window("dev.tensaku.Tensaku", { center = true })
+o.window("org.midhat.Annotate", { float = true })
+o.window("org.midhat.Annotate", { center = true })
 
 -- Fullscreen screensaver.
 o.window("org.midhat.screensaver", { fullscreen = true })

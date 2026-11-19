@@ -16,7 +16,7 @@ fi
 
 pkill slurp && exit 0
 
-SCREENSHOT_EDITOR="${MIDHAT_SCREENSHOT_EDITOR:-tensaku-edit}"
+SCREENSHOT_EDITOR="${MIDHAT_SCREENSHOT_EDITOR:-midhat-annotate-edit}"
 
 # Parse --editor flag from any position
 ARGS=()

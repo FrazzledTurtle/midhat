@@ -98,7 +98,7 @@ default/**                     ──►  midhat-settings    /usr/share/midhat/d
   │                                                       → /etc/skel/.bashrc (post_install cp -f)
   ├─ hypr/toggles/flags.lua                             /etc/skel/.local/state/midhat/toggles/hypr/
   ├─ nautilus-python/extensions/*.py                    /etc/skel/.local/share/nautilus-python/extensions/
-  ├─ tensaku/state.toml                                 /etc/skel/.local/state/tensaku/state.toml
+  ├─ midhat-annotate/state.toml                         /etc/skel/.local/state/midhat-annotate/state.toml
   ├─ uwsm/env.d/10-midhat                              /usr/share/uwsm/env.d/
   ├─ environment.d/*.conf                               /usr/lib/environment.d/
   ├─ fontconfig/conf.avail/50-midhat.conf              /usr/share/fontconfig/conf.avail/

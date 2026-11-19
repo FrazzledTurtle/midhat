@@ -1,0 +1,70 @@
+# Maintainer: FrazzledTurtle
+# Mid'hat's screenshot editor: Tensaku 0.28.0 by Jon Kinney (a fork of Satty
+# by Matthias Gabriel), renamed. MPL-2.0; LICENSE and NOTICE kept as shipped.
+pkgname=midhat-annotate
+_upstream=tensaku
+_upver=0.28.0
+pkgver=${_upver}
+pkgrel=1
+pkgdesc="Mid'hat's screenshot annotation tool (Tensaku, renamed)"
+arch=('aarch64')
+url='https://github.com/FrazzledTurtle/midhat'
+license=('MPL-2.0')
+depends=('gtk4' 'gtk4-layer-shell' 'libadwaita' 'libepoxy' 'fontconfig')
+makedepends=('rust')
+optdepends=('hyprland: window snapping and pin placement')
+conflicts=('tensaku')
+replaces=('tensaku')
+options=('!lto')
+source=("${_upstream}-${_upver}.tar.gz::https://github.com/jondkinney/tensaku/archive/refs/tags/v${_upver}.tar.gz")
+sha256sums=('08f61dce1a4b629a1229c0b2cead642e165319e4b61a6f605fc3568d9f6183ee')
+
+prepare() {
+  cd "${_upstream}-${_upver}"
+  rm -f rust-toolchain.toml
+
+  mv dev.tensaku.Tensaku.desktop org.midhat.Annotate.desktop
+  mv dev.tensaku.Tensaku.metainfo.xml org.midhat.Annotate.metainfo.xml
+  mv assets/tensaku-edit assets/midhat-annotate-edit
+  mv assets/tensaku-capture assets/midhat-annotate-capture
+  mv assets/tensaku.svg assets/midhat-annotate.svg
+
+  find . -type f ! -path './.git*' ! -path './packaging/*' \
+    ! -name LICENSE ! -name NOTICE ! -name CHANGELOG.md ! -name 'flake.*' \
+    ! -name '*.png' ! -name '*.gif' ! -name '*.ttf' ! -name '*.otf' -print0 |
+    xargs -0 grep -IlZ -i tensaku |
+    xargs -0 -r perl -pi -e '
+      s/dev\.tensaku\.Tensaku/org.midhat.Annotate/g;
+      s{jondkinney/tensaku}{\x01}g;
+      s{tensaku\.dev}{\x02}g;
+      s/(?<![A-Za-z0-9_])tensaku(?![A-Za-z0-9_])/midhat-annotate/g;
+      s/(?<![A-Za-z0-9_])Tensaku(?![A-Za-z0-9_])/Annotate/g;
+      s/TENSAKU_/MIDHAT_ANNOTATE_/g;
+      s/\x01/jondkinney\/tensaku/g;
+      s/\x02/tensaku.dev/g;
+    '
+
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "${_upstream}-${_upver}"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  cargo build --frozen --release --features ci-release
+}
+
+package() {
+  cd "${_upstream}-${_upver}"
+  install -Dm755 target/release/midhat-annotate "$pkgdir/usr/bin/midhat-annotate"
+  install -Dm755 assets/midhat-annotate-edit "$pkgdir/usr/bin/midhat-annotate-edit"
+  install -Dm644 org.midhat.Annotate.desktop "$pkgdir/usr/share/applications/org.midhat.Annotate.desktop"
+  install -Dm644 assets/midhat-annotate.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/org.midhat.Annotate.svg"
+  install -Dm644 man/midhat-annotate.1 "$pkgdir/usr/share/man/man1/midhat-annotate.1"
+  install -Dm644 completions/midhat-annotate.bash "$pkgdir/usr/share/bash-completion/completions/midhat-annotate"
+  install -Dm644 completions/midhat-annotate.fish "$pkgdir/usr/share/fish/vendor_completions.d/midhat-annotate.fish"
+  install -Dm644 completions/_midhat-annotate "$pkgdir/usr/share/zsh/site-functions/_midhat-annotate"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+}

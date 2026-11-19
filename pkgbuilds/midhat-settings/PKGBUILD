@@ -214,7 +214,7 @@ EOF
   install -Dm644 default/hypr/toggles/flags.lua "$pkgdir/etc/skel/.local/state/midhat/toggles/hypr/flags.lua"
   install -Dm644 default/nautilus-python/extensions/localsend.py "$pkgdir/etc/skel/.local/share/nautilus-python/extensions/localsend.py"
   install -Dm644 default/nautilus-python/extensions/transcode.py "$pkgdir/etc/skel/.local/share/nautilus-python/extensions/transcode.py"
-  install -Dm644 default/tensaku/state.toml "$pkgdir/etc/skel/.local/state/tensaku/state.toml"
+  install -Dm644 default/midhat-annotate/state.toml "$pkgdir/etc/skel/.local/state/midhat-annotate/state.toml"
 
   install -Dm755 bin/midhat-upload-log "$pkgdir/usr/bin/midhat-upload-log"
   install -Dm755 bin/midhat-debug "$pkgdir/usr/bin/midhat-debug"
