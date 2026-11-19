@@ -47,10 +47,7 @@ allowed = {
 skip_scripts = {"bin/midhat-upgrade-to-quattro"}
 
 pkgs_candidates = [
-  root.parent / "midhat-pkgs/pkgbuilds",
-  root.parent.parent / "midhat-pkgs/pkgbuilds",
-  root.parent / "omacom/omarchy-pkgs/pkgbuilds",
-  Path.home() / "Work/omacom/omarchy-pkgs/pkgbuilds",
+  root / "pkgbuilds",
 ]
 override = os.environ.get("MIDHAT_PKGS_PATH")
 if override:

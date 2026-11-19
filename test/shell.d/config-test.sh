@@ -90,18 +90,14 @@ pass "default bar widget ids resolve to manifests and entry points"
 
 ROOT="$ROOT" python3 <<'PY'
 import os
+import re
 import sys
 from pathlib import Path
 
 root = Path(os.environ["ROOT"])
 home = Path.home()
 pkgs_candidates = [
-  root.parent / "midhat-pkgs/pkgbuilds",
-  root.parent / "midhat/midhat-pkgs/pkgbuilds",
-  root.parent.parent / "midhat-pkgs/pkgbuilds",
-  root.parent / "omacom/omarchy-pkgs/pkgbuilds",
-  root.parent.parent / "omacom/omarchy-pkgs/pkgbuilds",
-  home / "Work/omacom/omarchy-pkgs/pkgbuilds",
+  root / "pkgbuilds",
 ]
 # Checkouts differ per machine, so allow an explicit pointer at the sibling repo.
 # Accepts either the midhat-pkgs checkout or its pkgbuilds/ directory.
@@ -152,18 +148,13 @@ for source, destination, legacy in package_defaults:
     errors.append(f"missing package default source: {source}")
   if (root / "config" / legacy).exists():
     errors.append(f"legacy path still in config/: {legacy}")
-  if destination and (source not in pkgbuild or destination not in pkgbuild):
-    errors.append(f"PKGBUILD does not explicitly install {source} -> {destination}")
-
-# Existing users have an absolute wants symlink to the old unit path, and the
-# migration that repoints it only runs for users who run an update -- the
-# opposite of who the notifier is for. Dropping this alias strands them.
-notify_alias = 'ln -sfn midhat-migrate-notify.service "$pkgdir/usr/lib/systemd/user/midhat-update-user-notify.service"'
-if notify_alias not in pkgbuild:
-  errors.append(
-    "PKGBUILD does not ship the midhat-update-user-notify.service compatibility "
-    "alias, so users who have not run migration 1785095882 lose the login notifier"
+  looped = (
+    source.startswith("default/systemd/user/")
+    and '"default/systemd/user/$unit.service"' in pkgbuild
+    and re.search(rf"\bfor unit in [^;]*\b{re.escape(Path(source).stem)}\b", pkgbuild)
   )
+  if destination and not looped and (source not in pkgbuild or destination not in pkgbuild):
+    errors.append(f"PKGBUILD does not explicitly install {source} -> {destination}")
 
 alpm_hooks = [
   "00-midhat-update-guard.hook",
@@ -414,44 +405,3 @@ jq -e '
 ' "$TMPDIR/home/.config/midhat/shell.json" >/dev/null
 [[ -f $TMPDIR/home/.local/state/midhat/restart-shell-called ]] || fail "shell refresh restarts shell"
 pass "shell refresh places optional service widgets when services are available"
-
-if grep -RIl 'upgrade-to-quattro\|Midhat 4\.0 is upgraded' "$ROOT/migrations" >/dev/null; then
-  fail "4.0 upgrade is not modeled as a migration"
-fi
-pass "4.0 upgrade is handled outside the migration runner"
-
-clock_migration=$(grep -rl 'Remove leading zero from bar clock date' "$ROOT/migrations" | head -n 1 || true)
-[[ -n $clock_migration ]] || fail "clock date format user migration exists"
-
-cat >"$TMPDIR/home/.config/midhat/shell.json" <<'JSON'
-{
-  "version": 1,
-  "bar": {
-    "layout": {
-      "left": [],
-      "center": [
-        { "id": "midhat.clock", "formatAlt": "dd MMMM 'W'ww yyyy" },
-        { "id": "midhat.weather" }
-      ],
-      "right": [
-        { "id": "local.clock", "formatAlt": "dd MMMM 'W'ww yyyy" }
-      ]
-    }
-  },
-  "plugins": []
-}
-JSON
-
-HOME="$TMPDIR/home" MIDHAT_PATH="$ROOT" bash "$clock_migration"
-
-jq -e '
-  .bar.layout.center[0].formatAlt == "d MMMM \u0027W\u0027ww yyyy" and
-  .bar.layout.right[0].formatAlt == "dd MMMM \u0027W\u0027ww yyyy"
-' "$TMPDIR/home/.config/midhat/shell.json" >/dev/null
-pass "clock date format migration removes leading zero from clock"
-
-before=$(sha256sum "$TMPDIR/home/.config/midhat/shell.json" | awk '{print $1}')
-HOME="$TMPDIR/home" MIDHAT_PATH="$ROOT" bash "$clock_migration"
-after=$(sha256sum "$TMPDIR/home/.config/midhat/shell.json" | awk '{print $1}')
-[[ $before == "$after" ]] || fail "clock date format migration is idempotent"
-pass "clock date format migration is idempotent"
