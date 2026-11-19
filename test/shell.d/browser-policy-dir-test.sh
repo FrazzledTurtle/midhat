@@ -310,3 +310,14 @@ printf 'not json\n' >"$fx_merge/policies.json"
 browser_policy_firefox_skip_default_check "$fx_merge"
 [[ $(<"$fx_merge/policies.json") == "not json" ]] || fail "an unreadable Firefox policies.json is left alone"
 pass "Firefox's default browser check is merged into existing policies"
+
+fx_prefs=$test_tmp/fx-prefs
+mkdir -p "$fx_prefs"
+printf '{"policies": {"DisableTelemetry": true, "Preferences": {"ui.dragThresholdX": {"Value": 10, "Status": "locked"}}}}\n' >"$fx_prefs/policies.json"
+browser_policy_firefox_merge_preferences "$fx_prefs"
+[[ $(jq -c '.policies.Preferences["ui.dragThresholdX"]' "$fx_prefs/policies.json") == '{"Value":10,"Status":"locked"}' ]] ||
+  fail "an administrator's preference survives the merge" "$(cat "$fx_prefs/policies.json")"
+[[ $(jq -c '.policies.Preferences["ui.dragThresholdY"]' "$fx_prefs/policies.json") == '{"Value":32,"Status":"default"}' ]] ||
+  fail "Mid’hat's default preferences are added to an existing policies.json" "$(cat "$fx_prefs/policies.json")"
+[[ $(jq '.policies.DisableTelemetry' "$fx_prefs/policies.json") == "true" ]] || fail "other policies survive the merge"
+pass "Mid’hat's default preferences merge into an existing Firefox policies.json"

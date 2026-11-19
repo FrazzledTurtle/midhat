@@ -26,7 +26,7 @@ BROWSER_POLICY_PARENT_DIRS=(
 
 BROWSER_POLICY_FIREFOX_DIRS=(
   /usr/lib/firefox/distribution
-  /opt/zen-browser/distribution
+  /opt/zen-browser-bin/distribution
 )
 
 BROWSER_POLICY_DEFAULT_COLOR="#1c2027"
@@ -180,6 +180,24 @@ browser_policy_firefox_skip_default_check() {
 
   tmp=$(mktemp) || return 1
   if jq '.policies.DontCheckDefaultBrowser = true' "$file" >"$tmp" 2>/dev/null; then
+    as_root install -m 644 -o root -g root -T "$tmp" "$file"
+  fi
+  rm -f "$tmp"
+}
+
+# Add Mid’hat's default preferences to an existing policies.json, keeping every
+# preference an administrator already set.
+browser_policy_firefox_merge_preferences() {
+  local file=$1/policies.json
+  local defaults=${2:-$MIDHAT_PATH/default/firefox/policies.json}
+  local tmp
+
+  browser_policy_firefox_policy_file_ok "$file" || return 0
+
+  tmp=$(mktemp) || return 1
+  if jq --slurpfile d "$defaults" \
+    '.policies.Preferences = ($d[0].policies.Preferences + (.policies.Preferences // {}))' \
+    "$file" >"$tmp" 2>/dev/null && ! cmp -s "$tmp" "$file"; then
     as_root install -m 644 -o root -g root -T "$tmp" "$file"
   fi
   rm -f "$tmp"
