@@ -150,6 +150,7 @@ Item {
       anchors.leftMargin: 56
       anchors.verticalCenter: sleepBand.verticalCenter
       anchors.verticalCenterOffset: -Math.round(sleepDate.height / 2) - 4
+      textFormat: Text.PlainText
       text: Qt.formatDateTime(root.now, "HH:mm")
       color: Commons.Color.foreground
       font.family: Style.font.family
@@ -163,6 +164,7 @@ Item {
       anchors.leftMargin: 4
       anchors.top: sleepClock.bottom
       anchors.topMargin: 2
+      textFormat: Text.PlainText
       text: Qt.formatDateTime(root.now, "dddd, d MMMM")
       color: Commons.Color.muted
       font.family: Style.font.family

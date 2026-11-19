@@ -385,6 +385,7 @@ Panel {
               Text {
                 id: heroDate
                 anchors.verticalCenter: parent.verticalCenter
+                textFormat: Text.PlainText
                 text: Qt.formatDate(root.today, "MMMM d")
                 color: heroMouse.containsMouse
                   ? Style.hoverStateColor(root.contentForeground, Color.accent)
@@ -488,6 +489,7 @@ Panel {
                 visible: !root.editingLife
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
+                textFormat: Text.PlainText
                 text: root.today.getFullYear()
                 color: Qt.darker(root.contentForeground, 1.5)
                 font.family: root.contentFontFamily
@@ -500,6 +502,7 @@ Panel {
                 visible: !root.editingLife
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
+                textFormat: Text.PlainText
                 text: root.yearDonePercent + "%"
                 color: root.contentForeground
                 font.family: root.contentFontFamily
@@ -559,6 +562,7 @@ Panel {
                 id: lifePercent
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
+                textFormat: Text.PlainText
                 text: root.lifeDonePercent + "%"
                 color: root.contentForeground
                 font.family: root.contentFontFamily
@@ -685,6 +689,7 @@ Panel {
                     height: Style.space(16)
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
+                    textFormat: Text.PlainText
                     text: root.weekdayLabel(modelData)
                     color: Qt.darker(root.contentForeground, 1.5)
                     font.family: root.contentFontFamily
@@ -707,6 +712,7 @@ Panel {
                     height: root.cellHeight
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
+                    textFormat: Text.PlainText
                     text: modelData.week
                     color: Qt.darker(root.contentForeground, 1.9)
                     font.family: root.contentFontFamily
@@ -745,6 +751,7 @@ Panel {
                         // The number lifts a hair off center when dots move
                         // in underneath, so the pair reads as one unit.
                         anchors.verticalCenterOffset: dayCell.dots.length > 0 ? -Style.space(2) : 0
+                        textFormat: Text.PlainText
                         text: modelData.day
                         color: modelData.inMonth
                           ? (modelData.weekend ? Qt.darker(root.contentForeground, 1.45) : root.contentForeground)
@@ -827,6 +834,7 @@ Panel {
                 // "MAY 2026" and a "SEPTEMBER 2026".
                 width: Style.space(130)
                 horizontalAlignment: Text.AlignHCenter
+                textFormat: Text.PlainText
                 text: Qt.formatDate(root.viewDate, "MMMM yyyy").toUpperCase()
                 color: monthMouse.containsMouse
                   ? Style.hoverStateColor(root.contentForeground, Color.accent)
@@ -963,6 +971,7 @@ Panel {
                   anchors.leftMargin: Style.space(24)
                   anchors.right: orderButtons.left
                   anchors.verticalCenter: parent.verticalCenter
+                  textFormat: Text.PlainText
                   text: (feedRow.modelData.name || "Calendar") + " · "
                     + (feedRow.modelData.count || 0) + " events"
                   elide: Text.ElideRight
@@ -1120,6 +1129,7 @@ Panel {
             }
 
             Text {
+              textFormat: Text.PlainText
               text: root.showUpcoming
                 ? "UPCOMING"
                 : Qt.formatDate(root.selectedDate, "dddd d MMMM").toUpperCase()
@@ -1131,6 +1141,7 @@ Panel {
 
             Text {
               visible: (root.showUpcoming ? root.upcomingEvents : root.selectedEvents).length === 0
+              textFormat: Text.PlainText
               text: root.showUpcoming ? "Nothing coming up." : "Nothing scheduled."
               color: Qt.darker(root.contentForeground, 1.9)
               font.family: root.contentFontFamily
@@ -1165,6 +1176,7 @@ Panel {
                   anchors.leftMargin: Style.space(16)
                   anchors.verticalCenter: parent.verticalCenter
                   width: Style.space(root.showUpcoming ? 132 : 52)
+                  textFormat: Text.PlainText
                   text: root.showUpcoming
                     ? root.agendaWhen(selectedEventRow.modelData)
                     : (selectedEventRow.modelData.allDay ? "all day"
@@ -1179,6 +1191,7 @@ Panel {
                   anchors.right: parent.right
                   anchors.rightMargin: Style.space(8)
                   anchors.verticalCenter: parent.verticalCenter
+                  textFormat: Text.PlainText
                   text: selectedEventRow.modelData.title
                     + (selectedEventRow.modelData.location ? " · " + selectedEventRow.modelData.location : "")
                   elide: Text.ElideRight
