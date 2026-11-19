@@ -12,19 +12,8 @@ if gum confirm "Are you sure you want to restore all preinstalled web apps, TUI 
 
   # Mirrors the list in midhat-remove-preinstalls; both track midhat-base.packages
   if ! midhat-pkg-add \
-    aether \
-    cliamp \
     libreoffice-fresh \
-    xournalpp \
-    pinta \
-    obsidian \
-    obs-studio \
-    kdenlive \
-    moonlight-qt \
-    lazydocker \
-    omacut \
-    omacalc \
-    omawrite; then
+    xournalpp; then
     echo -e "\nPreinstalls are still marked as removed. Fix the errors above and try again."
     exit 1
   fi

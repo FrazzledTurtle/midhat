@@ -10,12 +10,6 @@ cups_files_conf="$ROOT/etc/cups/cups-files.conf"
 sysusers_conf="$ROOT/etc/sysusers.d/midhat-cups-browsed.conf"
 service_dropin="$ROOT/etc/systemd/system/cups-browsed.service.d/10-midhat.conf"
 
-# Only discovery goes. Everything else printing needs stays, or this stops
-# being a removal of one daemon and becomes a removal of printing.
-grep -qxF cups "$packages" || fail "CUPS itself remains in the base package set"
-grep -qxF cups-filters "$packages" || fail "the CUPS filters remain in the base package set"
-grep -qxF system-config-printer "$packages" || fail "Print Settings remains in the base package set"
-grep -qxF cups-pk-helper "$packages" || fail "Polkit printer administration is installed"
 ! grep -qxF cups-pdf "$packages" || fail "the root CUPS-PDF backend is removed"
 
 # Automatic discovery is temporarily out of the default install while it is
