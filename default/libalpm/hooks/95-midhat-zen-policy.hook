@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = zen-browser-bin
+Target = midhat
+Target = midhat-settings
+
+[Action]
+Description = Merging Mid’hat's preferences into Zen's policy...
+When = PostTransaction
+Exec = /usr/bin/midhat-browser-policy-zen

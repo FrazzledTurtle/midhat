@@ -81,7 +81,7 @@ package() {
     local base
     base=$(basename "$bin")
     case "$base" in
-      midhat-debug|midhat-debug-idle|midhat-pen-hold-guard)
+      midhat-debug|midhat-debug-idle|midhat-pen-hold-guard|midhat-browser-policy-zen)
         continue
         ;;
     esac

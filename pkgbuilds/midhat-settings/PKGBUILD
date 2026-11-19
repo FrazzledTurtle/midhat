@@ -197,6 +197,8 @@ EOF
   install -Dm644 default/udev/90-midhat-pen-touch.rules "$pkgdir/usr/lib/udev/rules.d/90-midhat-pen-touch.rules"
   install -Dm644 default/udev/91-midhat-camera.rules "$pkgdir/usr/lib/udev/rules.d/91-midhat-camera.rules"
   install -Dm755 bin/midhat-pen-hold-guard "$pkgdir/usr/bin/midhat-pen-hold-guard"
+  install -Dm755 bin/midhat-browser-policy-zen "$pkgdir/usr/bin/midhat-browser-policy-zen"
+  install -Dm644 default/libalpm/hooks/95-midhat-zen-policy.hook "$pkgdir/usr/share/libalpm/hooks/95-midhat-zen-policy.hook"
   install -Dm644 default/libalpm/hooks/95-midhat-pen-hold.hook "$pkgdir/usr/share/libalpm/hooks/95-midhat-pen-hold.hook"
   install -Dm644 default/systemd/system/sddm.service.d/midhat-pen-hold.conf \
     "$pkgdir/usr/lib/systemd/system/sddm.service.d/midhat-pen-hold.conf"

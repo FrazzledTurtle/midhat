@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# midhat:summary=Merge Mid’hat's preferences into the policy zen-browser-bin ships
+# midhat:hidden=true
+# midhat:requires-sudo=true
+
+# zen-browser-bin owns its policies.json and replaces it on every upgrade, so
+# this runs from a pacman hook after Zen or Mid’hat is installed or upgraded.
+
+set -euo pipefail
+
+share=/usr/share/midhat
+zen=/opt/zen-browser-bin/distribution
+
+[[ -x /opt/zen-browser-bin/zen-bin && -f $share/install/helpers/browser-policy.sh ]] || exit 0
+
+source "$share/install/helpers/browser-policy.sh"
+
+if [[ -f $zen/policies.json ]]; then
+  browser_policy_firefox_merge_preferences "$zen" "$share/default/firefox/policies.json"
+else
+  browser_policy_setup_firefox_distribution "$zen" "$share/default/firefox/policies.json"
+fi
