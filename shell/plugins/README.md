@@ -23,6 +23,7 @@ User-installed plugins live alongside these conceptually but on disk under
 | Audio         | `midhat.audio`           | `bar-widget`            | `panels/audio/Panel.qml`              |
 | Bluetooth     | `midhat.bluetooth`       | `bar-widget`            | `panels/bluetooth/Panel.qml`          |
 | Clock         | `midhat.clock`           | `bar-widget`            | `panels/clock/BarWidget.qml`          |
+| Calendar clock | `matteodevenuto.clock`  | `bar-widget`            | `calendar-clock/BarWidget.qml` (vendored from matteodevenuto/omarchy-calendar-clock cbca86f, MIT) |
 | Monitor       | `midhat.monitor`         | `bar-widget`            | `panels/monitor/Panel.qml`            |
 | Network       | `midhat.network`         | `bar-widget`            | `panels/network/Panel.qml`            |
 | Power         | `midhat.power`           | `bar-widget`            | `panels/power/Panel.qml`              |
