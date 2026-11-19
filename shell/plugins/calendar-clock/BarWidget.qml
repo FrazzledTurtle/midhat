@@ -15,7 +15,7 @@ import "Model.js" as Model
 // panel can show event dots and an upcoming list without a second widget.
 BarWidget {
   id: root
-  moduleName: "matteodevenuto.clock"
+  moduleName: "midhat.calendar-clock"
 
   CalendarService {
     id: calendar
@@ -138,7 +138,7 @@ BarWidget {
   }
 
   IpcHandler {
-    target: "matteodevenuto.clock"
+    target: "midhat.calendar-clock"
 
     function refresh(): void { root.broadcast("refresh") }
     function cycleFormat(): void { root.cycleFormat() }

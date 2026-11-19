@@ -21,8 +21,8 @@ import "CalendarModel.js" as CalModel
 // anchor against.
 Panel {
   id: root
-  moduleName: "matteodevenuto.clock"
-  ipcTarget: "matteodevenuto.clock"
+  moduleName: "midhat.calendar-clock"
+  ipcTarget: "midhat.calendar-clock"
   manageIpc: false
 
   property var anchorItem: null
