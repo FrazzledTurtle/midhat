@@ -331,7 +331,6 @@ post_theme_commands=(
   midhat-theme-set-browser
   midhat-theme-set-vscode
   midhat-theme-set-obsidian
-  midhat-theme-set-keyboard
 )
 
 if [[ $THEME_HEADLESS != "1" ]]; then

@@ -17,4 +17,3 @@ if [[ -f $MIDHAT_PATH/etc-overrides/cups-cups-files.conf && -f /etc/cups/cups-fi
   rm -f /etc/cups/cups-files.conf.pacnew
 fi
 
-source "$MIDHAT_INSTALL/hardware/pacman.sh"

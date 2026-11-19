@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# midhat:summary=Detect ASUS Zenbook UX5406AA series laptops on Intel Panther Lake.
-
-midhat-hw-match "ux5406aa" && midhat-hw-intel-ptl

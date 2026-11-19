@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# midhat:summary=Apply the current theme keyboard color to supported keyboards
-# midhat:hidden=true
-
-midhat-theme-set-keyboard-asus-rog
-midhat-theme-set-keyboard-f16

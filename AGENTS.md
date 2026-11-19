@@ -73,7 +73,7 @@ Use these instead of raw shell commands:
 - `midhat-pkg-add` - install packages (handles both pacman and AUR)
 - `midhat-pkg-drop` - remove packages; use this instead of raw `pacman -R*`
 - `midhat-notification-send` - send desktop notifications; do not call `notify-send` directly
-- `midhat-hw-asus-rog` - detect ASUS ROG hardware (and similar `hw-*` commands)
+- `midhat-hw-touchscreen` - detect hardware (and similar `hw-*` commands)
 
 Commands installed by Mid’hat's default package set are runtime invariants. Invoke them directly; do not add defensive `midhat-cmd-present` / `midhat-cmd-missing` checks around them. Use command-presence helpers only for genuinely optional dependencies or code that can run before the default package set is installed.
 
