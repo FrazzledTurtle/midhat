@@ -34,7 +34,7 @@ A full bar plugin has no off state at all. There's always exactly one bar, so yo
 A third-party plugin is just a git repo with a `manifest.json` at its root.
 
 ```
-midhat plugin add https://github.com/acme/omarchy-weather.git --enable
+midhat plugin add https://github.com/acme/midhat-weather.git --enable
 ```
 
 Before it does anything, it tells you plainly that plugins run as arbitrary, unsandboxed code inside your long-lived shell process, shows you the URL, and asks you to confirm. Take that seriously. The third-party plugin interface does not directly expose authentication services, and a replacement bar receives only limited capabilities for configured non-authentication UI. Visual plugins still share the shell's QML scene and can walk ordinary parent objects, while all plugin code runs with everything your user account can reach. Authentication state is protected separately by keeping those services outside the reachable host object graph. Only add repos you're willing to run, and read them before you enable them.
@@ -100,5 +100,3 @@ For the full picture, the source is the documentation: `shell/README.md` in the 
 ## Sharing yours with the world
 
 Once you've made something you like, put it in a public git repo. That's the whole distribution mechanism — anyone can then run `midhat plugin add` against your URL and have it running in seconds.
-
-To help people actually find it, list it at [midhatplugins.com](https://omarchyplugins.com). That's the community directory of Mid’hat shell plugins, and it's the first place to look when you're wondering whether someone has already built the widget you're about to write. Browse it before you start!

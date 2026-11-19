@@ -70,6 +70,6 @@ You start Zoom using the application launcher (`Super + Space`).
 
 ## Discord
 
-[Discord](https://discord.com/) is where most gaming and open source communities hang out, including [Mid’hat's own](https://discord.gg/tXFUdasqhY).
+[Discord](https://discord.com/) is where most gaming and open source communities hang out.
 
 You start Discord using the application launcher (`Super + Space`).

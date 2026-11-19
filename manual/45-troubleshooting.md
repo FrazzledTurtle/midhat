@@ -2,7 +2,7 @@
 
 ### I broke my system with an update!
 
-First try to [rollback your system](47-system-snapshots.md) the version before your recent update. If that doesn't work, use `midhat-debug` to share with your problem on #midhat-help in the Discord. And if all that fails, you can reinstall the defaults configs and packages using `midhat-reinstall`.
+First try to [rollback your system](47-system-snapshots.md) the version before your recent update. If that doesn't work, use `midhat-debug` to collect the details and open an issue on [the Mid’hat repository](https://github.com/FrazzledTurtle/midhat/issues). And if all that fails, you can reinstall the defaults configs and packages using `midhat-reinstall`.
 
 ### Why are some apps so large on my display?
 

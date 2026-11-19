@@ -2,19 +2,19 @@
 
 ### Apple M1/M2 chips
 
-[Asahi Alarm](https://asahi-alarm.org/) is a version of Arch for Apple M1/M2 computers built on top of [Asahi Linux](https://asahilinux.org/). You can get Mid’hat running on top of that with some effort. See [the user-driven guide](https://codeberg.org/malik-na/omarchy-mac).
+[Asahi Alarm](https://asahi-alarm.org/) is a version of Arch for Apple M1/M2 computers built on top of [Asahi Linux](https://asahilinux.org/). You can get Mid’hat running on top of that with some effort.
 
 ### Apple Virtual Machine
 
-You can also install Mid’hat inside a Parallels VM. Quite the cumbersome process, but there's [a user-driven guide](https://github.com/omacom/omarchy/discussions/452) for that too.
+You can also install Mid’hat inside a Parallels VM. Quite the cumbersome process.
 
 ### VirtualBox
 
-VirtualBox is a popular VM runner. [You can run Mid’hat inside that too](https://github.com/omacom/omarchy/discussions/176). But performance probably won't be great.
+VirtualBox is a popular VM runner. You can run Mid’hat inside that too. But performance probably won't be great.
 
 ### VMware Workstation on Windows 11
 
-Another popular VM runner for Windows. [Mid’hat has been setup inside of that as well](https://github.com/omacom/omarchy/discussions/572).
+Another popular VM runner for Windows. Mid’hat has been setup inside of that as well.
 
 ### Steam Deck
 
@@ -22,8 +22,6 @@ The Steam Deck runs on Arch, which means you can run Mid’hat on your Steam Dec
 
 ### NixOS
 
-Mid’hat is really Arch + Hyprland, but Henry Sipp has [ported the essence of the setup to NixOS](https://github.com/henrysipp/omarchy-nix). So if you've been nix-pilled, here's a good starting point. It may or may not stay up-to-date with the latest Mid’hat changes, but it's pretty cool none the less!
+Mid’hat is really Arch + Hyprland, but Henry Sipp has ported the essence of the setup to NixOS. So if you've been nix-pilled, here's a good starting point. It may or may not stay up-to-date with the latest Mid’hat changes, but it's pretty cool none the less!
 
 ### Something else!
-
-If you're trying to get Mid’hat running on a configuration that isn't the default, you should join the #midhat-on-other channel on [our community Discord](https://discord.gg/tXFUdasqhY).
