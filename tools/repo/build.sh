@@ -15,6 +15,24 @@ fi
 
 pkgs=("$@")
 (( ${#pkgs[@]} )) || pkgs=(midhat-settings midhat midhat-nvim midhat-annotate oskar libinput koreader)
+missing=()
+for name in "${pkgs[@]}"; do
+  mapfile -t -O "${#missing[@]}" missing < <(
+    cd "$root/pkgbuilds/$name" && source ./PKGBUILD && pacman -T "${makedepends[@]}" || true
+  )
+done
+if command -v cargo >/dev/null; then
+  for i in "${!missing[@]}"; do
+    if [[ ${missing[i]} == "rust" ]]; then
+      unset 'missing[i]'
+    fi
+  done
+fi
+if (( ${#missing[@]} )); then
+  echo "Install the build tools first: sudo pacman -S --needed ${missing[*]}" >&2
+  exit 1
+fi
+
 for name in "${pkgs[@]}"; do
   echo -e "\e[32m\nBuilding $name\e[0m"
   for key in "$root/pkgbuilds/$name"/keys/pgp/*.asc; do
