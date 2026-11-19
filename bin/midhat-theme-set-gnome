@@ -28,6 +28,9 @@ fi
 # Change gnome icon theme color
 GNOME_ICONS_THEME=$HOME/.local/state/midhat/current/theme/icons.theme
 if [[ -f $GNOME_ICONS_THEME ]]; then
+  if [[ $(<$GNOME_ICONS_THEME) == "Yaru-Mono" && ! -f $HOME/.local/share/icons/Yaru-Mono/index.theme ]]; then
+    midhat-theme-icons-mono >/dev/null 2>&1
+  fi
   gsettings set org.gnome.desktop.interface icon-theme "$(<$GNOME_ICONS_THEME)"
 else
   gsettings set org.gnome.desktop.interface icon-theme "Yaru-blue"

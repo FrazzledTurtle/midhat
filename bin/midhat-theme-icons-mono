@@ -1,0 +1,102 @@
+#!/usr/bin/python3
+# midhat:summary=Build the greyscale Yaru-Mono icon theme the E Ink themes use
+# midhat:hidden=true
+import configparser, os, re, shutil, subprocess
+
+SRC = "/usr/share/icons/Yaru"
+HICOLOR = ["/usr/share/icons/hicolor", os.path.expanduser("~/.local/share/icons/hicolor")]
+DST = os.path.expanduser("~/.local/share/icons/Yaru-Mono")
+CATS = {"apps", "places", "mimetypes", "devices", "categories"}
+
+HEX = re.compile(r"#([0-9a-fA-F]{6})([0-9a-fA-F]{2})?(?![0-9a-fA-F])|#([0-9a-fA-F]{3})(?![0-9a-fA-F])")
+RGB = re.compile(r"rgb(a?)\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)")
+
+
+def grey(r, g, b):
+    return round(0.299 * r + 0.587 * g + 0.114 * b)
+
+
+def hex_sub(m):
+    if m.group(1):
+        h = m.group(1)
+        v = grey(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+        return "#%02x%02x%02x%s" % (v, v, v, m.group(2) or "")
+    h = m.group(3)
+    v = grey(*(int(c * 2, 16) for c in h))
+    return "#%02x%02x%02x" % (v, v, v)
+
+
+def rgb_sub(m):
+    v = grey(int(m.group(2)), int(m.group(3)), int(m.group(4)))
+    return "rgb%s(%d,%d,%d" % (m.group(1), v, v, v)
+
+
+pngs = []
+
+
+def convert(src, dst):
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    if os.path.lexists(dst):
+        os.remove(dst)
+    if os.path.islink(src):
+        os.symlink(os.readlink(src), dst)
+    elif src.endswith(".svg"):
+        with open(src, encoding="utf-8", errors="surrogateescape") as f:
+            text = f.read()
+        with open(dst, "w", encoding="utf-8", errors="surrogateescape") as f:
+            f.write(RGB.sub(rgb_sub, HEX.sub(hex_sub, text)))
+    elif src.endswith(".png"):
+        shutil.copyfile(src, dst)
+        pngs.append(dst)
+
+
+def walk(root, prefix, only_apps=False):
+    dirs = []
+    for size in sorted(os.listdir(root)):
+        sdir = os.path.join(root, size)
+        if not os.path.isdir(sdir):
+            continue
+        for cat in os.listdir(sdir):
+            if cat not in CATS or (only_apps and cat != "apps"):
+                continue
+            cdir = os.path.join(sdir, cat)
+            for name in os.listdir(cdir):
+                convert(os.path.join(cdir, name), os.path.join(DST, prefix, size, cat, name))
+            dirs.append((size, cat))
+    return dirs
+
+
+shutil.rmtree(DST, ignore_errors=True)
+walk(SRC, "")
+
+index = configparser.ConfigParser(interpolation=None, strict=False)
+index.optionxform = str
+index.read(os.path.join(SRC, "index.theme"))
+index["Icon Theme"]["Name"] = "Yaru-Mono"
+index["Icon Theme"]["Comment"] = "Greyscale Yaru for the E Ink themes"
+index["Icon Theme"]["Inherits"] = "Yaru,hicolor"
+extra = []
+for n, root in enumerate(HICOLOR):
+    if not os.path.isdir(root):
+        continue
+    hc = configparser.ConfigParser(interpolation=None, strict=False)
+    hc.optionxform = str
+    hc.read(os.path.join("/usr/share/icons/hicolor", "index.theme"))
+    for size, cat in walk(root, "hc%d" % n, only_apps=True):
+        key = "%s/%s" % (size, cat)
+        name = "hc%d/%s" % (n, key)
+        if hc.has_section(key) and name not in extra:
+            index[name] = dict(hc[key])
+            extra.append(name)
+dirs = [d for d in index["Icon Theme"]["Directories"].split(",") if d]
+index["Icon Theme"]["Directories"] = ",".join(dirs + extra)
+with open(os.path.join(DST, "index.theme"), "w") as f:
+    index.write(f, space_around_delimiters=False)
+
+for i in range(0, len(pngs), 400):
+    subprocess.run(["xargs", "-0", "-n", "50", "-P", str(os.cpu_count() or 4),
+                    "magick", "mogrify", "-colorspace", "Gray", "-type", "TrueColorAlpha"],
+                   input="\0".join(pngs[i:i + 400]).encode(), check=True)
+
+subprocess.run(["gtk-update-icon-cache", "-f", "-q", "-t", DST], check=False)
+print("Yaru-Mono: %d PNGs, extra hicolor dirs %d -> %s" % (len(pngs), len(extra), DST))
