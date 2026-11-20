@@ -27,6 +27,8 @@ Item {
   // Injected by the host shell. Used for shell-wide actions such as opening
   // settings and persisting inline widget state.
   property var shell: null
+  // The Slate rail is fixed: its gestures would otherwise rewrite the Desk bar.
+  readonly property bool editable: !(shell && shell.slate === true)
   // Manifest for the active bar option. Present for custom bars and useful for
   // diagnostics; the built-in bar does not otherwise need it.
   property var manifest: null
@@ -499,6 +501,7 @@ Item {
   }
 
   function beginBarMove(window) {
+    if (!editable) return
     barMoveWindow = window
     barMoveScreen = window ? window.screen : null
     barMoveCandidate = position
@@ -877,6 +880,7 @@ Item {
   }
 
   function toggleTransparency() {
+    if (!editable) return
     var nextTransparent = !(root.requestedTransparent === true)
     if (root.shell && typeof root.shell.mutateShellConfig === "function") {
       root.shell.mutateShellConfig(function(config) {
@@ -933,7 +937,7 @@ Item {
   function dropBarModule(source, toRegion, beforeName) {
     if (!source || !source.region || !source.moduleName || !toRegion) return false
     if (source.region === toRegion && source.moduleName === beforeName) return false
-    if (!root.shell || typeof root.shell.mutateShellConfig !== "function") return false
+    if (!root.editable || !root.shell || typeof root.shell.mutateShellConfig !== "function") return false
 
     var changed = false
     root.shell.mutateShellConfig(function(config) {
@@ -1962,7 +1966,7 @@ Item {
       property bool pen: false
       property real pressedX: 0
       property real pressedY: 0
-      readonly property bool canReorder: root.shell && typeof root.shell.mutateShellConfig === "function"
+      readonly property bool canReorder: root.editable && root.shell && typeof root.shell.mutateShellConfig === "function"
       property real dragThreshold: Style.space(4)
 
       anchors.fill: parent

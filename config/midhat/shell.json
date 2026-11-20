@@ -65,5 +65,48 @@
       ]
     }
   },
+  "slate": {
+    "bar": {
+      "position": "left",
+      "transparent": false,
+      "centerAnchor": "",
+      "layout": {
+        "left": [
+          {
+            "id": "midhat.slate-button",
+            "action": "home"
+          },
+          {
+            "id": "midhat.slate-button",
+            "action": "read"
+          },
+          {
+            "id": "midhat.slate-button",
+            "action": "ask"
+          }
+        ],
+        "center": [
+          {
+            "id": "midhat.active-window",
+            "spine": true,
+            "maxWidth": 440
+          }
+        ],
+        "right": [
+          {
+            "id": "midhat.slate-button",
+            "action": "keyboard"
+          },
+          {
+            "id": "midhat.slate-button",
+            "action": "settings"
+          },
+          {
+            "id": "midhat.power"
+          }
+        ]
+      }
+    }
+  },
   "plugins": []
 }

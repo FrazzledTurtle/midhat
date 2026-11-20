@@ -62,6 +62,7 @@ ShellRoot {
 
   // Slate: the keyboard cover is off. bin/midhat-slate owns the flag and calls set.
   property bool slate: false
+  onSlateChanged: Style.slate = slate
 
   Process {
     id: slateProbe
@@ -138,7 +139,18 @@ ShellRoot {
     userConfigFile.setText(JSON.stringify(payload, null, 2) + "\n")
   }
 
-  readonly property var barConfig: shellConfig && Util.isPlainObject(shellConfig.bar) ? shellConfig.bar : builtinShellConfig.bar
+  // The rail is the Slate layout: the user's slate.bar, else the shipped one,
+  // since a user shell.json replaces the defaults without merging.
+  readonly property var slateBarConfig: {
+    var configs = [shellConfig, defaultsConfig]
+    for (var i = 0; i < configs.length; i++) {
+      var c = configs[i]
+      if (Util.isPlainObject(c) && Util.isPlainObject(c.slate) && Util.isPlainObject(c.slate.bar)) return c.slate.bar
+    }
+    return null
+  }
+  readonly property var barConfig: slate && slateBarConfig ? slateBarConfig
+    : shellConfig && Util.isPlainObject(shellConfig.bar) ? shellConfig.bar : builtinShellConfig.bar
   onBarConfigChanged: {
     if (bar && "barConfig" in bar)
       bar.barConfig = shell.barConfigFor(shell.activeBarManifest)

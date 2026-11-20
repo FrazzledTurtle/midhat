@@ -46,3 +46,16 @@ pass "the cover drives slate"
 
 run midhat-slate bogus 2>/dev/null && fail "slate rejects unknown actions"
 pass "slate rejects unknown actions"
+
+ids=$(cd "$ROOT/shell/plugins" && cat $(find . -name '*manifest.json') | jq -r '.id // empty' | sort -u)
+missing=$(jq -r '.slate.bar.layout[][] | .id' "$ROOT/config/midhat/shell.json" | sort -u | comm -23 - <(printf '%s\n' "$ids"))
+[[ -z $missing ]] || fail "the rail layout only uses existing widgets" "$missing"
+pass "the rail layout only uses existing widgets"
+
+actions=$(jq -r '.barWidget.schema[] | select(.key == "action") | .options[]' "$ROOT/shell/plugins/bar/widgets/SlateButton.manifest.json" | sort)
+unknown=$(jq -r '.slate.bar.layout[][] | select(.id == "midhat.slate-button") | .action' "$ROOT/config/midhat/shell.json" | sort -u | comm -23 - <(printf '%s\n' "$actions"))
+[[ -z $unknown ]] || fail "rail buttons use known actions" "$unknown"
+for action in $actions; do
+  grep -q "^    $action: {" "$ROOT/shell/plugins/bar/widgets/SlateButton.qml" || fail "slate button implements $action"
+done
+pass "rail buttons use known actions"

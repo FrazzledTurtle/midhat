@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.slate-button",
+  "name": "Slate button",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "A big Slate rail button: Home, Read, Ask Claude, Keyboard or Settings",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "SlateButton.qml"
+  },
+  "barWidget": {
+    "displayName": "Slate button",
+    "description": "A big Slate rail button: Home, Read, Ask Claude, Keyboard or Settings",
+    "category": "Widgets",
+    "allowMultiple": true,
+    "defaultSection": "left",
+    "schema": [
+      {
+        "key": "action",
+        "type": "enum",
+        "label": "Opens",
+        "options": ["home", "read", "ask", "keyboard", "settings"],
+        "defaultValue": "home"
+      }
+    ]
+  }
+}

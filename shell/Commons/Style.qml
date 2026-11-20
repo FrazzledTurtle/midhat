@@ -339,12 +339,16 @@ QtObject {
     readonly property int iconLarge:    root.fontToken("icon-large",    root.fontPx(1.5))     // 18
   }
 
+  // Slate (cover off) turns the bar into the finger-sized rail; its sizes are
+  // physical, so they ignore the font scale. shell.qml keeps this in step.
+  property bool slate: false
+
   readonly property QtObject bar: QtObject {
     readonly property int sizeHorizontal: root.barToken("size-horizontal", 26)
-    readonly property int sizeVertical:   root.barToken("size-vertical",   28)
-    readonly property int iconSlot:       root.barToken("icon-slot",       27)
-    readonly property int iconCanvas:     root.barToken("icon-canvas",     16)
-    readonly property int iconFont:       root.barToken("icon-font",       13)
+    readonly property int sizeVertical:   root.slate ? 72 : root.barToken("size-vertical", 28)
+    readonly property int iconSlot:       root.slate ? 56 : root.barToken("icon-slot",     27)
+    readonly property int iconCanvas:     root.slate ? 28 : root.barToken("icon-canvas",   16)
+    readonly property int iconFont:       root.slate ? 24 : root.barToken("icon-font",     13)
     readonly property int statusSlot:     root.barToken("status-slot",     21)
   }
 
