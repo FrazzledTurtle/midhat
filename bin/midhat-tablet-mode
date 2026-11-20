@@ -25,11 +25,13 @@ status() {
 case ${1:-status} in
   on)
     [[ -f ~/.local/state/midhat/indicators/rotation-lock ]] || pgrep -f "$ROTATE" >/dev/null || setsid -f $ROTATE &>/dev/null
+    midhat-slate on
     midhat-hook tablet-mode on
     ;;
   off)
     pkill -f "$ROTATE"
     midhat-hyprland-monitor-rotate 3
+    midhat-slate off
     midhat-hook tablet-mode off
     ;;
   sync) "$0" "$(status)" ;;

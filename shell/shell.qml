@@ -60,6 +60,29 @@ ShellRoot {
   property bool pluginReloading: false
   property bool pluginReloadPending: false
 
+  // Slate: the keyboard cover is off. bin/midhat-slate owns the flag and calls set.
+  property bool slate: false
+
+  Process {
+    id: slateProbe
+    running: true
+    command: ["midhat-slate", "status"]
+    onExited: function(exitCode) { shell.slate = exitCode === 0 }
+  }
+
+  IpcHandler {
+    target: "slate"
+
+    function set(state: string): void {
+      slateProbe.running = false
+      shell.slate = state === "on"
+    }
+
+    function status(): string {
+      return shell.slate ? "on" : "off"
+    }
+  }
+
   Timer {
     id: localPluginReloadTimer
     interval: 150

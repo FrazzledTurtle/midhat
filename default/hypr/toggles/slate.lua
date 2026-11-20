@@ -1,0 +1,1 @@
+-- Slate: the keyboard cover is off (midhat-slate). Slate's window rules go here.
