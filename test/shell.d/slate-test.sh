@@ -11,7 +11,7 @@ mkdir -p "$TMPDIR/bin" "$TMPDIR/home"
 LOG="$TMPDIR/log"
 FLAG="$TMPDIR/home/.local/state/midhat/toggles/hypr/slate.lua"
 
-for stub in midhat-shell midhat-hook midhat-hyprland-monitor-rotate pkill pgrep setsid; do
+for stub in midhat-shell midhat-hook midhat-hyprland-monitor-rotate pkill pgrep setsid hyprctl; do
   printf '#!/bin/bash\nprintf "%%s\\n" "%s $*" >>"$STUB_LOG"\n' "$stub" >"$TMPDIR/bin/$stub"
   chmod +x "$TMPDIR/bin/$stub"
 done
@@ -19,6 +19,18 @@ ln -s "$ROOT/bin/midhat-slate" "$TMPDIR/bin/midhat-slate"
 
 run() {
   HOME="$TMPDIR/home" PATH="$TMPDIR/bin:$PATH" MIDHAT_PATH="$ROOT" STUB_LOG="$LOG" "$@"
+}
+
+# A hyprctl that answers activewindow with $ACTIVE and logs dispatches.
+fake_hyprctl() {
+  cat >"$TMPDIR/bin/hyprctl" <<'SH'
+#!/bin/bash
+case $1 in
+  activewindow) printf '%s\n' "$ACTIVE" ;;
+  clients) printf '[]\n' ;;
+  dispatch) printf 'dispatch %s\n' "$2" >>"$STUB_LOG" ;;
+esac
+SH
 }
 
 [[ $(run midhat-slate status || true) == "off" ]] || fail "slate starts off"
@@ -59,3 +71,22 @@ for action in $actions; do
   grep -q "^    $action: {" "$ROOT/shell/plugins/bar/widgets/SlateButton.qml" || fail "slate button implements $action"
 done
 pass "rail buttons use known actions"
+
+fake_hyprctl
+tiled='{"address":"0x1","floating":false,"fullscreen":0,"workspace":{"name":"1"}}'
+: >"$LOG"
+ACTIVE=$tiled run midhat-slate fit
+[[ ! -s $LOG ]] || fail "fit does nothing outside Slate"
+run midhat-slate on >/dev/null
+: >"$LOG"
+ACTIVE=$tiled run midhat-slate fit
+grep -q 'dispatch hl.dsp.window.fullscreen({ mode = "maximized", action = "set" })' "$LOG" || fail "fit maximizes the focused tiled window"
+for skip in '{"address":"0x1","floating":true,"fullscreen":0,"workspace":{"name":"1"}}' \
+  '{"address":"0x1","floating":false,"fullscreen":1,"workspace":{"name":"1"}}' \
+  '{"address":"0x1","floating":false,"fullscreen":0,"workspace":{"name":"split"}}' '{}'; do
+  : >"$LOG"
+  ACTIVE=$skip run midhat-slate fit
+  [[ ! -s $LOG ]] || fail "fit leaves floating, maximized, split and missing windows alone" "$skip"
+done
+run midhat-slate off >/dev/null
+pass "fit keeps only the focused tiled window maximized, and only in Slate"

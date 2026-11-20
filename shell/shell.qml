@@ -84,6 +84,11 @@ ShellRoot {
     }
   }
 
+  LazyLoader {
+    active: shell.slate
+    Slate { }
+  }
+
   Timer {
     id: localPluginReloadTimer
     interval: 150

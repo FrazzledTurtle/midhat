@@ -1,30 +1,117 @@
 #!/bin/bash
 
 # midhat:summary=Turn Slate, the keyboard-cover-off posture, on or off
-# midhat:args=[on|off|status]
+# midhat:args=[on|off|status|fit|back|split]
 # midhat:hidden=true
 
 # midhat-tablet-mode runs on/off as the cover comes off and goes back on. The
 # flag sits in the Hyprland toggles directory so Slate's compositor rules load
 # with it across reloads; the shell is told directly.
+#
+# One app at a time: the focused window is kept maximized (the shell runs fit
+# on every focus change), and Hyprland's on_focus_under_fullscreen hands that
+# state to whichever window is focused next, so back is just "focus the last
+# window". Split moves the current and previous app side by side onto the
+# "split" workspace, landscape only; split again puts them back.
 
 FLAG="$HOME/.local/state/midhat/toggles/hypr/slate.lua"
+STATE="$HOME/.local/state/midhat/slate"
+SPLIT=split
+
+dispatch() {
+  hyprctl dispatch "$1" >/dev/null
+}
+
+maximize() {
+  local target=""
+  [[ -n ${2:-} ]] && target=", window = \"address:$2\""
+  dispatch "hl.dsp.window.fullscreen({ mode = \"maximized\", action = \"$1\"$target })"
+}
+
+focus_window() {
+  dispatch "hl.dsp.focus({ window = \"address:$1\" })"
+}
+
+landscape() {
+  hyprctl monitors -j | jq -e '.[] | select(.focused)
+    | if .transform % 2 == 1 then .height > .width else .width > .height end' >/dev/null
+}
+
+fit() {
+  [[ -f $FLAG && ! -e $STATE/busy ]] || return 0
+  hyprctl activewindow -j | jq -e --arg split "$SPLIT" \
+    '.address and (.floating | not) and .fullscreen == 0 and .workspace.name != $split' >/dev/null || return 0
+  maximize set
+}
+
+unfit() {
+  local address
+  for address in $(hyprctl clients -j | jq -r '.[] | select(.fullscreen == 1) | .address'); do
+    maximize unset "$address"
+  done
+}
+
+# The tiled, mapped windows, most recently focused first.
+recent() {
+  hyprctl clients -j | jq -r '[.[] | select(.mapped and (.floating | not) and (.workspace.name | startswith("special") | not))]
+    | sort_by(.focusHistoryID) | .[] | "\(.address) \(.workspace.id) \(.workspace.name)"'
+}
+
+split() {
+  local current previous address workspace name origin
+  [[ -f $FLAG ]] && landscape || return 0
+  mkdir -p "$STATE"
+  touch "$STATE/busy"
+  trap 'rm -f "$STATE/busy"' RETURN
+
+  read -r current workspace name < <(recent | head -n1)
+  [[ -n $current ]] || return 0
+
+  if [[ $name == "$SPLIT" ]]; then
+    origin=$(<"$STATE/split-origin") 2>/dev/null
+    [[ $origin =~ ^[0-9]+$ ]] || origin=1
+    for address in $(hyprctl clients -j | jq -r --arg split "$SPLIT" '.[] | select(.workspace.name == $split) | .address'); do
+      focus_window "$address"
+      dispatch "hl.dsp.window.move({ workspace = \"$origin\", follow = false })"
+    done
+    dispatch "hl.dsp.focus({ workspace = \"$origin\" })"
+    focus_window "$current"
+    rm -f "$STATE/busy"
+    fit
+    return 0
+  fi
+
+  read -r previous _ < <(recent | sed -n 2p)
+  [[ -n $previous ]] || return 0
+  echo "$workspace" >"$STATE/split-origin"
+  maximize unset "$current"
+  maximize unset "$previous"
+  focus_window "$previous"
+  dispatch "hl.dsp.window.move({ workspace = \"name:$SPLIT\", follow = false })"
+  focus_window "$current"
+  dispatch "hl.dsp.window.move({ workspace = \"name:$SPLIT\", follow = true })"
+}
 
 case ${1:-status} in
   on)
     mkdir -p "${FLAG%/*}"
     cp "$MIDHAT_PATH/default/hypr/toggles/slate.lua" "$FLAG"
     midhat-shell -q slate set on
+    fit
     ;;
   off)
     rm -f "$FLAG"
     midhat-shell -q slate set off
+    unfit
     ;;
   status)
     if [[ -f $FLAG ]]; then echo on; else echo off; exit 1; fi
     ;;
+  fit) fit ;;
+  back) [[ -f $FLAG ]] && dispatch 'hl.dsp.focus({ last = true })' ;;
+  split) split ;;
   *)
-    echo "Usage: midhat-slate [on|off|status]" >&2
+    echo "Usage: midhat-slate [on|off|status|fit|back|split]" >&2
     exit 1
     ;;
 esac
