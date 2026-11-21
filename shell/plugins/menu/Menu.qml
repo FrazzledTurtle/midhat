@@ -100,7 +100,7 @@ Item {
   property int contentMargin: Style.spacing.panelPadding
   property int headerHeight: Math.max(Style.space(34), Style.font.title + Style.spacing.controlPaddingY * 2)
   property int contentSpacing: Style.spacing.md
-  property int baseRowHeight: Math.max(Style.space(50), Style.font.body + Style.spacing.rowPaddingX * 2)
+  property int baseRowHeight: Math.max(Style.space(Style.slate ? 64 : 50), Style.font.body + Style.spacing.rowPaddingX * 2)
   property int detailRowHeight: Math.max(Style.space(58), Style.font.body + Style.font.caption + Style.spacing.rowPaddingX * 2)
   // How much of the first hidden row stays visible at the fold — enough to
   // read as a cut-off row rather than a bottom border.
@@ -278,6 +278,19 @@ Item {
       script: "current=$(powerprofilesctl get 2>/dev/null); midhat-powerprofiles-list 2>/dev/null | while read -r p; do [[ -z $p ]] && continue; printf '%s\\t%s\\t%s\\n' \"$p\" \"$p\" \"$current\"; done",
       icon: "\udb81\udc0b",
       actionFor: function(value) { return "midhat-powerprofiles-set autodetect " + Util.shellQuote(value) }
+    },
+    // The Do menu: the Home page's files, each value "app:path".
+    "recent": {
+      script: "midhat-slate-home 2>/dev/null | jq -r '(.book | select(.) | [.title, \"koreader:\" + .file]), (.today | select(.) | [.name, \"xournalpp:\" + .file]), (.pdfs[] | [.name, \"zathura:\" + .file]) | @tsv'",
+      icon: "\udb80\ude19",
+      volatile: true,
+      top: true,
+      actionFor: function(value) {
+        var app = value.slice(0, value.indexOf(":"))
+        var file = Util.shellQuote(value.slice(app.length + 1))
+        if (app === "koreader") return "midhat-launch-or-focus rocks.koreader.KOReader " + Util.shellQuote("uwsm-app -- koreader " + file)
+        return "uwsm-app -- " + app + " " + file
+      }
     }
   })
 
@@ -611,6 +624,12 @@ Item {
         rows.push(root.displayRow(child, child.description, child.order))
       }
 
+      var activeSpec = root.providers[root.item(active).provider]
+      if (activeSpec && activeSpec.top) {
+        var isProvided = function(row) { return root.item(row.itemId).providerMenu === active }
+        rows = rows.filter(isProvided).concat(rows.filter(function(row) { return !isProvided(row) }))
+      }
+
       // DesktopEntries can reorder its values when an application starts.
       // Keep the Apps menu alphabetical independently of provider refreshes.
       if (active === "apps") {
@@ -702,6 +721,7 @@ Item {
 
   function goBack() {
     if (root.activeMenu === "root") return false
+    if (Style.slate && root.navStack.length === 0 && root.item(root.activeMenu) && root.item(root.activeMenu).parent === "root") return false
 
     if (root.navStack.length > 0) {
       var previous = root.navStack[root.navStack.length - 1]
@@ -853,6 +873,7 @@ Item {
 
   function openRoute(initialMenu) {
     var id = root.resolveRoute(initialMenu)
+    if (Style.slate && id === "root") id = "do"
     var entry = root.items[id]
     // If the resolved id is an action (i.e. the user invoked an alias for
     // a leaf, e.g. `midhat menu summon screenrecord-stop`), run it directly

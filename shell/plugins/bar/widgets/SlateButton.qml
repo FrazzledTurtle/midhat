@@ -14,7 +14,7 @@ BarWidget {
     read: { glyph: "󱗖", label: "Read", command: "midhat-launch-or-focus rocks.koreader.KOReader koreader" },
     ask: { glyph: "󰍪", label: "Ask Claude", command: "midhat-agent-card" },
     keyboard: { glyph: "󰥻", label: "Keyboard", command: "midhat-shell shell toggle io.github.vladkarok.oskar" },
-    settings: { glyph: "󰘮", label: "Settings", command: "midhat-menu toggle" }
+    settings: { glyph: "󰘮", label: "Settings", command: "midhat-menu toggle settings" }
   })
   readonly property string action: actions[String(setting("action", ""))] ? String(setting("action", "")) : "home"
   readonly property var spec: actions[action]

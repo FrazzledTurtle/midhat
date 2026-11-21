@@ -110,6 +110,14 @@ assertDeepEqual(
 const defaultItems = menu.parseMenuJsonc(defaultMenuJsonc)
 const defaultById = Object.fromEntries(defaultItems.map(item => [item.id, item]))
 
+const menuMerged = menu.mergeMenuSources(defaultItems, [])
+assertDeepEqual(defaultItems.filter(item => item.parent === 'root').map(item => item.id), ['apps', 'do', 'settings'], 'the menu opens on Apps, Do and Settings')
+assert(['learn', 'style', 'setup', 'update', 'system', 'about', 'software'].every(id => defaultById[id].parent === 'settings'), 'system menus live under Settings')
+assert(['install', 'remove'].every(id => defaultById[id].parent === 'software'), 'Install and Remove live under Software')
+assert(defaultItems.every(item => item.parent === '' || defaultById[item.parent] || item.parent === 'root'), 'every menu row has an existing parent')
+assert(defaultItems.every(item => item.kind !== 'link' || defaultById[item.target]), 'every menu link points at an existing menu')
+assert(menu.isVisible(menuMerged.items, menuMerged.itemOrder, {}, menuMerged.items['do.apps'], 0), 'a link to a provider menu shows before its rows load')
+
 // Needs the real menu: app rows sort after all menu items, and only at that
 // item count does the order tiebreak alone bury an installed app.
 const rankBase = menu.mergeMenuSources(defaultItems, [])
@@ -152,17 +160,6 @@ assert(menu.matchesQuery(routed.items['apps.htop'], 'system', true), 'menu still
 assert(
   /function resolveRoute\(input\) \{\s*\n\s*return MenuModel\.resolveRoute\(root\.items, root\.itemOrder, input\)\s*\n\s*\}/.test(menuQml),
   'menu delegates route resolution to the shared model'
-)
-const triggerItems = defaultItems.filter(item => item.parent === 'trigger')
-assertEqual(
-  triggerItems[0].id,
-  'trigger.emoji',
-  'menu lists Emoji first under Trigger'
-)
-assertEqual(
-  defaultById['trigger.emoji'].action,
-  'midhat-menu-emoji',
-  'menu opens the emoji picker from Trigger'
 )
 assert(
   defaultById['update.midhat'].icon === '\ue900',

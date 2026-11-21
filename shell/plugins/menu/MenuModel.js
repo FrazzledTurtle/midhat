@@ -255,12 +255,12 @@ function isVisible(items, itemOrder, whenResults, entry, depth) {
   if (!entry) return false
   if (entry.when && whenResults && whenResults[entry.id] === false) return false
   if (entry.kind !== "menu" && entry.kind !== "link") return true
-  if (entry.provider) return true
+  var target = entry.kind === "link" ? entry.target : entry.id
+  if (entry.provider || (item(items, target) && item(items, target).provider)) return true
 
   var guard = depth || 0
   if (guard >= 32) return false
 
-  var target = entry.kind === "link" ? entry.target : entry.id
   var order = Array.isArray(itemOrder) ? itemOrder : []
   for (var i = 0; i < order.length; i++) {
     var child = item(items, order[i])
