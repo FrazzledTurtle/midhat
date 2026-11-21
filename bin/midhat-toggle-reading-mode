@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# midhat:summary=Toggle reading mode: grey screen, warm light, no animations, notifications silenced, power saving
+# midhat:summary=Toggle reading mode: grey screen, warm light, no animations, notifications held, power saving
 # midhat:group=toggle
 # midhat:args=[toggle|on|off|sync|status]
 
@@ -42,7 +42,7 @@ refresh_shell() {
 apply() {
   hyprctl eval "dofile(\"$FLAG\")" >/dev/null
   set_temperature "$WARM_TEMP"
-  midhat-shell -q notifications setDnd on
+  midhat-shell -q notifications readingStart
   if midhat-powerprofiles-list | grep -qx power-saver; then
     powerprofilesctl set power-saver
   fi
@@ -83,6 +83,7 @@ off() {
   hyprctl eval "hl.config({ decoration = { screen_shader = \"[[EMPTY]]\" }, animations = { enabled = $animations } })" >/dev/null
   set_temperature "${temperature:-$OFF_TEMP}"
   midhat-shell -q notifications setDnd "$dnd"
+  midhat-shell -q notifications readingEnd
   if [[ -n $profile ]]; then
     powerprofilesctl set "$profile"
   fi

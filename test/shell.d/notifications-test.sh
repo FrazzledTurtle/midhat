@@ -370,6 +370,13 @@ assertEqual(
   'notifications flag a settings file still carrying the retired history rows'
 )
 assert(notifications.parseSettings('{').error, 'notifications flag invalid settings JSON')
+assertEqual(notifications.parseSettings('').readingDelivery, 'hold', 'Reading mode holds notifications by default')
+assertEqual(notifications.parseSettings(JSON.stringify({ readingDelivery: 'arrive', heldSince: 1700 })).readingDelivery, 'arrive', 'notifications keep the As They Arrive choice')
+assertEqual(notifications.parseSettings(JSON.stringify({ heldSince: 1700 })).heldSince, 1700, 'notifications remember when holding began across restarts')
+assertEqual(notifications.parseSettings(JSON.stringify({ readingDelivery: 'bogus', heldSince: 'x' })).readingDelivery, 'hold', 'an unknown choice falls back to holding')
+const heldRaw = [{ id: 1, app: 'a', summary: 'old', timestamp: 100 }, { id: 2, app: 'b', summary: 'new', timestamp: 300 }, { id: 3, app: 'c', summary: 'newer', timestamp: 500 }].map(r => JSON.stringify(r)).join('\n')
+assertDeepEqual(notifications.heldRows(heldRaw, 300, 1, 10).map(r => r.summary), ['newer', 'new'], 'the stack holds only what arrived since holding began, newest first')
+assertDeepEqual(notifications.heldRows(JSON.stringify({ id: 4, app: 'midhat-action', summary: 'shown anyway', timestamp: 600 }), 300, 1, 10), [], 'Mid’hat toasts that got through are not held')
 
 // History is the notification files moved into the history dir, read back
 // exactly like live popup files.

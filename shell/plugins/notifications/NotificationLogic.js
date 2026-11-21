@@ -258,17 +258,22 @@ function historyEntry(value, normalUrgency) {
 // so the service can rewrite the file without the dead payload.
 function parseSettings(raw) {
   var text = String(raw || "").trim()
-  if (!text) return { error: false, dnd: null, legacy: false }
+  var empty = { error: false, dnd: null, readingDelivery: "hold", heldSince: 0, legacy: false }
+  if (!text) return empty
 
   try {
     var parsed = JSON.parse(text)
     return {
       error: false,
       dnd: parsed && typeof parsed.dnd === "boolean" ? parsed.dnd : null,
+      readingDelivery: parsed && parsed.readingDelivery === "arrive" ? "arrive" : "hold",
+      heldSince: parsed && typeof parsed.heldSince === "number" && parsed.heldSince > 0 ? parsed.heldSince : 0,
       legacy: !!(parsed && (parsed.pending || parsed.past || parsed.entries))
     }
   } catch (e) {
-    return { error: true, errorMessage: String(e), dnd: null, legacy: false }
+    empty.error = true
+    empty.errorMessage = String(e)
+    return empty
   }
 }
 
@@ -446,6 +451,14 @@ function historyRows(raw, liveRows, normalUrgency, limit) {
   return out.slice(0, max)
 }
 
+// What Reading mode held back: history written since holding began, newest
+// first. Mid’hat's own toasts get through anyway, so they are never held.
+function heldRows(raw, since, normalUrgency, limit) {
+  return historyRows(raw, [], normalUrgency, limit).filter(function(row) {
+    return row.timestamp >= since && !isEphemeralApp(row.app)
+  })
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     isChromiumDerived: isChromiumDerived,
@@ -458,6 +471,7 @@ if (typeof module !== "undefined") {
     glyphFromHints: glyphFromHints,
     execArgvFromHints: execArgvFromHints,
     parseExecArgv: parseExecArgv,
+    heldRows: heldRows,
     shouldRenderCompactGlyph: shouldRenderCompactGlyph,
     snapshotOf: snapshotOf,
     popupRoles: popupRoles,

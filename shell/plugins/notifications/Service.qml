@@ -66,11 +66,17 @@ Item {
     id: persisted
     reloadableId: "midhat-notifications"
     property bool doNotDisturb: false
+    // Reading mode: "hold" (stack every 2 hours and when it ends) or "arrive".
+    property string readingDelivery: "hold"
+    // When Reading mode started holding; 0 while nothing is held.
+    property double heldSince: 0
     onDoNotDisturbChanged: {
       // Suppress the write that load-time hydration would otherwise trigger.
       if (service._hydrating) return
       service.scheduleSettingsSave()
     }
+    onReadingDeliveryChanged: if (!service._hydrating) service.scheduleSettingsSave()
+    onHeldSinceChanged: if (!service._hydrating) service.scheduleSettingsSave()
   }
 
   // Guards onDoNotDisturbChanged while we're hydrating from disk so the
@@ -81,6 +87,65 @@ Item {
 
   function setDoNotDisturb(value) {
     persisted.doNotDisturb = !!value
+  }
+
+  readonly property int heldInterval: 2 * 60 * 60 * 1000
+  // The held notifications on screen as one card, newest first.
+  property var heldStack: []
+
+  function readingStart() {
+    if (persisted.readingDelivery !== "hold") return "arrive"
+    if (!persisted.heldSince) persisted.heldSince = Date.now()
+    setDoNotDisturb(true)
+    return "held"
+  }
+
+  function readingEnd() {
+    var since = persisted.heldSince
+    if (!since) return "none"
+    persisted.heldSince = 0
+    releaseHeld(since)
+    return "ok"
+  }
+
+  function releaseHeld(since) {
+    heldReadProc.since = since
+    heldReadProc.command = ["bash", "-c", "awk 1 \"$1\"/*.json 2>/dev/null || true", "--", historyDir]
+    heldReadProc.running = true
+  }
+
+  function openHeld(index) {
+    var entry = heldStack[index]
+    if (!entry) return
+    var argv = NotificationLogic.parseExecArgv(entry.execArgv)
+    if (argv) Util.execArgv(argv)
+    else focusApp(entry)
+    heldStack = heldStack.filter(function(row, i) { return i !== index })
+  }
+
+  Process {
+    id: heldReadProc
+    property double since: 0
+    running: false
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        var rows = NotificationLogic.heldRows(text, heldReadProc.since, NotificationUrgency.Normal, service.historyLimit)
+        if (rows.length > 0) service.heldStack = rows
+      }
+    }
+  }
+
+  // shortcut: restarts its 2 hours when the shell restarts; count from heldSince if that matters.
+  Timer {
+    interval: service.heldInterval
+    repeat: true
+    running: persisted.heldSince > 0
+    onTriggered: {
+      var since = persisted.heldSince
+      persisted.heldSince = Date.now()
+      service.releaseHeld(since)
+    }
   }
 
   // popupModel feeds the on-screen toast stack — the only model the service
@@ -815,11 +880,11 @@ Item {
     var parsed = NotificationLogic.parseSettings(raw)
     if (parsed.error) console.warn("notifications: settings parse failed:", parsed.errorMessage || "")
 
-    if (parsed.dnd !== null) {
-      service._hydrating = true
-      persisted.doNotDisturb = parsed.dnd
-      service._hydrating = false
-    }
+    service._hydrating = true
+    if (parsed.dnd !== null) persisted.doNotDisturb = parsed.dnd
+    persisted.readingDelivery = parsed.readingDelivery
+    persisted.heldSince = parsed.heldSince
+    service._hydrating = false
 
     service.settingsLoaded = true
     // Versions before the history moved into its own directory kept every
@@ -829,7 +894,7 @@ Item {
   }
 
   function flushSettings() {
-    settingsFile.setText(JSON.stringify({ version: 3, dnd: persisted.doNotDisturb }, null, 2) + "\n")
+    settingsFile.setText(JSON.stringify({ version: 3, dnd: persisted.doNotDisturb, readingDelivery: persisted.readingDelivery, heldSince: persisted.heldSince }, null, 2) + "\n")
   }
 
   Component.onCompleted: {
@@ -923,6 +988,23 @@ Item {
       return hit ? "ok" : "none"
     }
 
+    function readingDelivery(): string {
+      return persisted.readingDelivery
+    }
+
+    function setReadingDelivery(value: string): string {
+      persisted.readingDelivery = value === "arrive" ? "arrive" : "hold"
+      return persisted.readingDelivery
+    }
+
+    function readingStart(): string {
+      return service.readingStart()
+    }
+
+    function readingEnd(): string {
+      return service.readingEnd()
+    }
+
     function ping(): string { return "ok" }
   }
 
@@ -956,7 +1038,7 @@ Item {
       id: popupWindow
       required property var modelData
       screen: modelData
-      visible: popupModel.count > 0
+      visible: popupModel.count > 0 || service.heldStack.length > 0
 
       WlrLayershell.namespace: "midhat-notifications"
       WlrLayershell.layer: WlrLayer.Overlay
@@ -984,6 +1066,15 @@ Item {
         anchors.topMargin: popupWindow.popupPlacement.margins.top
         anchors.rightMargin: popupWindow.popupPlacement.margins.right
         spacing: Style.space(8)
+
+        HeldStack {
+          Layout.alignment: Qt.AlignRight
+          visible: service.heldStack.length > 0
+          rows: service.heldStack
+          cornerRadius: service.cornerRadius
+          onOpenRequested: function(index) { service.openHeld(index) }
+          onCloseRequested: service.heldStack = []
+        }
 
         Repeater {
           model: popupModel
