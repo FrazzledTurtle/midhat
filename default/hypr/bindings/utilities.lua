@@ -1,6 +1,5 @@
 o.bind("SUPER + SPACE", "Mid’hat menu", "midhat-menu toggle")
 o.bind("SUPER + ALT + SPACE", "Apps menu", "midhat-menu toggle apps")
-o.bind("SUPER + CTRL + E", "Emojis", "midhat-shell shell toggle midhat.emojis")
 o.bind("SUPER + CTRL + C", "Capture menu", "midhat-menu toggle capture")
 o.bind("SUPER + CTRL + O", "Toggle menu", "midhat-menu toggle toggle")
 o.bind("SUPER + CTRL + H", "Hardware menu", "midhat-menu toggle hardware")
@@ -9,7 +8,6 @@ o.bind("SUPER + ESCAPE", "System menu", "midhat-menu toggle system")
 o.bind("XF86PowerOff", "Power menu", "midhat-menu toggle system", { locked = true })
 o.bind("SUPER + K", "Keybindings", "midhat-menu-keybindings")
 o.bind("SUPER + ALT + K", "Tmux keybindings", "midhat-menu-tmux-keybindings")
-o.bind("SUPER + CTRL + K", "Herdr keybindings", "midhat-menu-herdr-keybindings")
 
 o.bind_toggle("SUPER + SHIFT + SPACE", "Toggle top bar", "bar")
 o.bind("SUPER + CTRL + SPACE", "Background switcher", "midhat-menu toggle background")
@@ -28,8 +26,6 @@ o.bind("SUPER + SHIFT + ALT + comma", "Open notification history", "midhat-shell
 o.bind_toggle("SUPER + CTRL + I", "Toggle locking on idle", "idle")
 o.bind_toggle("SUPER + CTRL + N", "Toggle nightlight", "nightlight")
 o.bind_toggle("SUPER + CTRL + G", "Toggle reading mode", "reading-mode")
-o.bind("SUPER + CTRL + Delete", "Toggle laptop display", "midhat-hyprland-monitor-internal toggle")
-o.bind("SUPER + CTRL + ALT + Delete", "Toggle laptop display mirroring", "midhat-hyprland-monitor-internal-mirror toggle")
 o.bind("switch:on:Lid Switch", nil, "midhat-system-lid-close", { locked = true })
 o.bind("switch:off:Lid Switch", nil, "midhat-hyprland-monitor-clamshell", { locked = true })
 o.bind("switch:on:fyde-vdtb", nil, "midhat-tablet-mode on", { locked = true })
@@ -37,8 +33,6 @@ o.bind("switch:off:fyde-vdtb", nil, "midhat-tablet-mode off", { locked = true })
 
 o.bind("PRINT", "Screenshot", "midhat-capture-screenshot")
 o.bind("ALT + PRINT", "Screenrecording", "midhat-capture-screenrecording --stop-recording || midhat-menu toggle trigger.capture.screenrecord")
-o.bind("SUPER + ALT + code:34", "Make webcam overlay smaller", "midhat-capture-webcam-resize smaller")
-o.bind("SUPER + ALT + code:35", "Make webcam overlay larger", "midhat-capture-webcam-resize larger")
 o.bind("SUPER + PRINT", "Color picker", "pkill hyprpicker || hyprpicker -a")
 o.bind("SUPER + CTRL + PRINT", "Extract text (OCR) from screenshot", "midhat-capture-text")
 
@@ -86,9 +80,6 @@ o.bind("SUPER + CTRL + S", "Share", "midhat-menu toggle share")
 
 o.bind("SUPER + CTRL + PERIOD", "Transcode", "midhat-transcode")
 
-o.bind("SUPER + CTRL + R", "Set reminder", "midhat-menu toggle reminder-set")
-o.bind("SUPER + CTRL + ALT + R", "Show reminders", "midhat-reminder show")
-o.bind("SUPER + SHIFT + CTRL + R", "Clear reminders", "midhat-reminder clear")
 
 o.bind("SUPER + CTRL + ALT + T", "Show time", "midhat-notification-time")
 o.bind("SUPER + CTRL + ALT + B", "Show battery remaining", "midhat-notification-battery")

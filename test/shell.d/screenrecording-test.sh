@@ -282,12 +282,6 @@ pass "webcam sizes stay distinct and inside a narrow region"
 
 rm -f "$region_file"
 
-grep -F 'o.bind("SUPER + ALT + code:34", "Make webcam overlay smaller", "midhat-capture-webcam-resize smaller")' \
-  "$ROOT/default/hypr/bindings/utilities.lua" >/dev/null || fail "webcam smaller hotkey is configured"
-grep -F 'o.bind("SUPER + ALT + code:35", "Make webcam overlay larger", "midhat-capture-webcam-resize larger")' \
-  "$ROOT/default/hypr/bindings/utilities.lua" >/dev/null || fail "webcam larger hotkey is configured"
-pass "webcam resize hotkeys are configured"
-
 grep -F -- '--wayland-app-id="WebcamOverlay-$WEBCAM_SIZE"' \
   "$ROOT/bin/midhat-capture-screenrecording" >/dev/null || fail "webcam uses a dedicated size-specific app id"
 
