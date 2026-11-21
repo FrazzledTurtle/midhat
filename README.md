@@ -13,17 +13,21 @@ commands, shell and update machinery, and goes its own way from there:
 - **Pen and touch.** Taking the keyboard cover off switches to tablet mode with
   auto-rotate; palm rejection, the OSKar on-screen keyboard, a swipe off the bar
   for the menu, and holding the pen still to right-click.
+- **Slate.** With the cover off, a finger-sized rail on the left, one window at
+  a time with a swipe in from the right edge to go back, two side by side in
+  landscape, and a Home page with your book, today's page and recent PDFs.
+- **One menu.** SUPER+SPACE opens Apps, Do and Settings, with the cover on or off.
 - **The E Ink look.** Paper and ink themes (E Ink, E Ink Mono) with Edward
   Lear's 1848 drawings of Albania, a black-and-white screensaver, and the
   qeleshe, the white felt cap of northern Albania, as the mark.
 - **Reading.** KOReader for books, zathura for PDFs, Xournal++ to write on
-  them, and Reading mode (SUPER+CTRL+G) to grey the screen and hold notifications.
+  them, and Reading mode (SUPER+CTRL+G) to grey the screen and hold notifications, which
+  arrive as one stack every 2 hours and when it ends.
 - **One agent.** Claude, built in, with a floating agent card (SUPER+SHIFT+A).
 - **Its own updates.** Packages come from the `[midhat]` repo, published from
   this repository; nothing changes unless it is built here.
 
-Next: Slate, the cover-off posture (a side rail, one window at a time, a Home
-page), then the Notebook app (handwriting, text and live maths on one page).
+Next: the Notebook app (handwriting, text and live maths on one page).
 
 ## Layout
 
@@ -89,10 +93,10 @@ The repo is a GitHub release tagged `repo` holding the packages and
 ```
 
 Shell tests that render QML or run JavaScript need `node`. Known failures as of
-0.1.12: `menu`, `plymouth-set` and `release-ai-port` still expect Omarchy menu
-entries Mid’hat removed; `browser-handoff` calls a missing `skip` helper;
-`bar-icon-geometry` finds the bluetooth icon 0.9 px off centre; and
-`screenshot-sanity` depends on what is on screen.
+0.2.0: `menu`, `plymouth-set` and `release-ai-port` still check menu rows
+Mid’hat removed; `bar-icon-geometry` finds the bluetooth icon 0.9 px off
+centre; and `runtime-smoke` can miss one IPC handler when the whole suite runs
+at once.
 
 ## Name
 
