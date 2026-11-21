@@ -4,9 +4,7 @@ Read this when the user wants to report a Mid’hat bug, suggest a feature, or
 contribute a fix.
 
 Mid’hat lives at https://github.com/FrazzledTurtle/midhat. Verified bugs and
-feature ideas go to its GitHub issues. Mid’hat split off from Omarchy for good,
-so Omarchy's issue tracker, Discord and log server are not the place for
-Mid’hat problems.
+feature ideas go to its GitHub issues.
 
 ## Filing a Good Bug Report
 

@@ -26,9 +26,8 @@ useful; filing there yourself is not part of this.
 ## Three conditions, all required
 
 1. **It is a verified bug in Mid’hat's sphere**, established on evidence. Issues
-   are for verified bugs only. An "is this even a bug?" belongs on the Discord at
-   <https://omarchy.org/discord>; a feature idea belongs in GitHub Discussions
-   under Suggestions.
+   are for verified bugs only. An "is this even a bug?" or a feature idea is a
+   question for the user, not an issue.
 2. **The user has explicitly agreed.** Show them the exact title and body you
    propose, and wait for a yes. Never file unprompted.
 3. **The machine can file it** — `gh auth status` must succeed. If `gh` is missing
@@ -40,8 +39,8 @@ useful; filing there yourself is not part of this.
 A duplicate issue costs a maintainer more time than no report at all.
 
 ```bash
-gh search issues --repo basecamp/omarchy "<program> crash"
-gh issue list --repo basecamp/omarchy --state all --search "<signal> <program>"
+gh search issues --repo FrazzledTurtle/midhat "<program> crash"
+gh issue list --repo FrazzledTurtle/midhat --state all --search "<signal> <program>"
 ```
 
 Search on the crashing program, the signal, and distinctive symbols from the
@@ -59,7 +58,7 @@ more than another duplicate.
 If a plausible match comes back, read it properly first:
 
 ```bash
-gh issue view <number> --repo basecamp/omarchy --comments
+gh issue view <number> --repo FrazzledTurtle/midhat --comments
 ```
 
 Confirm it is genuinely the same failure. The same program crashing is not the
@@ -74,7 +73,7 @@ A comment that only says the bug happens to you too is noise. If that is all you
 have, tell the user so and file nothing.
 
 ```bash
-gh issue comment <number> --repo basecamp/omarchy --body "..."
+gh issue comment <number> --repo FrazzledTurtle/midhat --body "..."
 ```
 
 ## Filing a new issue
@@ -82,13 +81,12 @@ gh issue comment <number> --repo basecamp/omarchy --body "..."
 Only when the search turns up nothing that matches:
 
 ```bash
-gh issue create --repo basecamp/omarchy --title "..." --body "..."
+gh issue create --repo FrazzledTurtle/midhat --title "..." --body "..."
 ```
 
 Include what happened, what was expected, steps to reproduce, system details from
 `midhat version`, and diagnostics from `midhat debug --no-sudo --print` (which
-also writes `/tmp/midhat-debug.log`; the interactive `midhat debug` can upload
-it and print a shareable URL worth including).
+also writes `/tmp/midhat-debug.log`).
 
 `gh` cannot attach media. If a screenshot would help, save one and give the user
 the path to drag into the web form.

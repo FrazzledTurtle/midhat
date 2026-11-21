@@ -13,7 +13,7 @@ description: >
 
 # Mid’hat Skill
 
-Manage [Mid’hat](https://github.com/FrazzledTurtle/midhat) systems: a calm pen-and-touch OS for the FydeTab Duo tablet, built on Arch Linux ARM, Hyprland and a Quickshell desktop. It split off from Omarchy 4.0.5 for good.
+Manage [Mid’hat](https://github.com/FrazzledTurtle/midhat) systems: a calm pen-and-touch OS for the FydeTab Duo tablet, built on Arch Linux ARM, Hyprland and a Quickshell desktop.
 
 ## This Device
 
