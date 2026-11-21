@@ -11,7 +11,7 @@
 #    as the FydeTab build of 4.0.5 did
 #  - os-release names Mid'hat
 pkgname='midhat-settings'
-pkgver=0.2.0
+pkgver=0.2.1
 pkgrel=1
 pkgdesc="Mid'hat user defaults, /etc/skel content, fonts, greeter theme and support helpers"
 arch=('aarch64')
