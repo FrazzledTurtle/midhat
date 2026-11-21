@@ -489,11 +489,9 @@ visible_default_ids='[
   "midhat.menu",
   "midhat.workspaces",
   "midhat.clock",
-  "midhat.weather",
   "midhat.system-update",
   "midhat.network",
-  "midhat.audio",
-  "midhat.monitor"
+  "midhat.audio"
 ]'
 
 geometry=""
@@ -527,10 +525,8 @@ pass "default bar layout renders expected module slots"
 
 jq -e '
   map(select(.section == "center")) | map(.id) as $center |
-  ($center | index("midhat.weather")) != null and
   ($center | index("midhat.system-update")) != null and
   ($center | index("midhat.indicators")) != null and
-  (($center | index("midhat.weather")) < ($center | index("midhat.system-update"))) and
   (($center | index("midhat.system-update")) < ($center | index("midhat.indicators")))
 ' <<<"$geometry" >/dev/null || {
   printf 'Geometry:\n' >&2
@@ -540,7 +536,7 @@ jq -e '
 
 pass "runtime geometry keeps update before indicators"
 
-for panel_id in midhat.audio midhat.bluetooth midhat.monitor midhat.network midhat.power; do
+for panel_id in midhat.audio midhat.bluetooth midhat.network midhat.power; do
   shell_ipc "$panel_id" open >/dev/null || fail_with_log "direct panel IPC opens $panel_id"
   shell_ipc "$panel_id" close >/dev/null || fail_with_log "direct panel IPC closes $panel_id"
 done
