@@ -80,7 +80,7 @@ BarWidget {
     active: root.inUse
     tooltipText: root.allOff ? "Mic and camera off" : (root.allOn ? (root.inUse ? "Mic in use, camera on" : "Mic and camera on") : (root.micOn ? "Mic on, camera off" : "Mic off, camera on"))
     onPressed: function(b) {
-      if (b === Qt.MiddleButton) root.bar.run("midhat-shell shell toggle midhat.audio")
+      if (b === Qt.MiddleButton) root.bar.run("midhat-shell midhat.audio toggle")
       else root.bar.run("midhat-toggle-mic-camera")
     }
     onWheelMoved: function(delta) {

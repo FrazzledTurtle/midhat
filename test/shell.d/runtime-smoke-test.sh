@@ -490,8 +490,7 @@ visible_default_ids='[
   "midhat.workspaces",
   "midhat.clock",
   "midhat.system-update",
-  "midhat.network",
-  "midhat.audio"
+  "midhat.status"
 ]'
 
 geometry=""

@@ -45,13 +45,7 @@
           "id": "midhat.agents"
         },
         {
-          "id": "midhat.bluetooth"
-        },
-        {
-          "id": "midhat.network"
-        },
-        {
-          "id": "midhat.audio"
+          "id": "midhat.status"
         },
         {
           "id": "midhat.power"

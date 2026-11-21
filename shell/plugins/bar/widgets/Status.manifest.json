@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "midhat.status",
+  "name": "Status",
+  "version": "1.0.0",
+  "author": "Mid’hat",
+  "description": "Wi-Fi, Bluetooth and Sound behind one icon and one card",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Status.qml"
+  },
+  "barWidget": {
+    "displayName": "Status",
+    "description": "Wi-Fi, Bluetooth and Sound behind one icon and one card",
+    "category": "Widgets",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

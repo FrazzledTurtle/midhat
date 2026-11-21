@@ -87,10 +87,10 @@ o.bind("SUPER + CTRL + ALT + W", "Toggle weather", "midhat-notification-weather"
 
 o.bind("SUPER + SHIFT + A", "Agent card", "midhat-agent-card")
 o.bind("SUPER + SHIFT + CTRL + A", "Agent", "midhat-agent --pick")
-o.bind("SUPER + CTRL + A", "Audio", "midhat-shell shell toggle midhat.audio")
-o.bind("SUPER + CTRL + B", "Bluetooth", "midhat-shell shell toggle midhat.bluetooth")
+o.bind("SUPER + CTRL + A", "Audio", "midhat-shell midhat.audio toggle")
+o.bind("SUPER + CTRL + B", "Bluetooth", "midhat-shell midhat.bluetooth toggle")
 o.bind("SUPER + CTRL + ALT + D", "Calendar", "midhat-shell shell toggle midhat.clock")
-o.bind("SUPER + CTRL + W", "Network", "midhat-shell shell toggle midhat.network")
+o.bind("SUPER + CTRL + W", "Network", "midhat-shell midhat.network toggle")
 o.bind("SUPER + CTRL + P", "Power", "midhat-shell shell toggle midhat.power")
 o.bind("SUPER + CTRL + T", "Activity", { tui = "btop" })
 
