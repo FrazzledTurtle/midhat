@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# midhat:summary=Print what the Slate Home page shows, as JSON
+# midhat:hidden=true
+
+# The book in progress is KOReader's newest book, with its progress from the
+# .sdr sidecar. Recent PDFs merge KOReader's history, zathura's database and
+# the GTK recent-files list. Today's page is the newest Xournal++ file in that
+# list until the Notebook exists.
+
+KOREADER="$HOME/.config/koreader"
+ZATHURA="$HOME/.local/share/zathura/bookmarks.sqlite"
+XBEL="$HOME/.local/share/recently-used.xbel"
+PDFS=4
+
+# Each source prints "epoch<TAB>path" lines.
+koreader_history() {
+  [[ -f $KOREADER/history.lua ]] || return 0
+  awk -F'"' '/\["file"\]/ { file = $4 } /\["time"\]/ { gsub(/[^0-9]/, ""); print $0 "\t" file }' "$KOREADER/history.lua"
+}
+
+zathura_history() {
+  [[ -f $ZATHURA ]] && midhat-cmd-present sqlite3 || return 0
+  sqlite3 -readonly -separator $'\t' "$ZATHURA" "select strftime('%s', time), file from fileinfo" 2>/dev/null
+}
+
+recent_files() {
+  local when url
+  [[ -f $XBEL ]] || return 0
+  grep -oE "<bookmark href=\"file://[^\"]*\\.($1)\"[^>]*modified=\"[^\"]*\"" "$XBEL" |
+    sed -E 's|.*href="file://([^"]*)".*modified="([^"]*)".*|\2\t\1|' |
+    while IFS=$'\t' read -r when url; do
+      printf '%s\t%b\n' "$(date -d "$when" +%s)" "${url//%/\\x}"
+    done
+}
+
+newest_first() {
+  awk -F'\t' '$1 ~ /^[0-9]+$/ && !seen[$2]++' < <(sort -t $'\t' -k1,1nr)
+}
+
+sidecar_field() {
+  sed -nE "s/^ *\[\"$1\"\] = \"?([^\"]*)\"?,\$/\1/p" "$2" 2>/dev/null | head -n1
+}
+
+book_file=""
+book=null
+while IFS=$'\t' read -r time file; do
+  [[ -f $file && ${file,,} =~ \.(epub|pdf|mobi|azw3|fb2|djvu|cbz|txt)$ ]] || continue
+  sidecar="${file%.*}.sdr/metadata.${file##*.}.lua"
+  author=$(sidecar_field authors "$sidecar")
+  [[ $author == "N/A" ]] && author=""
+  book=$(jq -n --arg file "$file" --arg title "$(sidecar_field title "$sidecar")" --arg author "$author" \
+    --arg page "$(sidecar_field last_page "$sidecar")" --arg pages "$(sidecar_field doc_pages "$sidecar")" \
+    --arg percent "$(sidecar_field percent_finished "$sidecar")" --argjson time "$time" '{
+      file: $file,
+      title: (if $title == "" then ($file | split("/") | last | sub("\\.[^.]+$"; "")) else $title end),
+      author: $author,
+      page: ($page | tonumber? // null),
+      pages: ($pages | tonumber? // null),
+      percent: ($percent | tonumber? // 0),
+      time: $time
+    }')
+  book_file=$file
+  break
+done < <(koreader_history | newest_first)
+
+today=$(recent_files xopp | newest_first | while IFS=$'\t' read -r time file; do
+  [[ -f $file ]] || continue
+  jq -n --arg file "$file" --argjson time "$time" '{file: $file, name: ($file | split("/") | last | sub("\\.xopp$"; "")), time: $time}'
+  break
+done)
+
+pdfs=$({ koreader_history; zathura_history; recent_files pdf; } | newest_first |
+  while IFS=$'\t' read -r time file; do
+    [[ ${file,,} == *.pdf && -f $file && $file != "$book_file" ]] && printf '%s\t%s\n' "$time" "$file"
+  done | head -n "$PDFS" |
+  jq -R -s '[split("\n")[] | select(. != "") | split("\t") | {time: (.[0] | tonumber), file: .[1], name: (.[1] | split("/") | last)}]')
+
+jq -n --argjson book "$book" --argjson today "${today:-null}" --argjson pdfs "$pdfs" \
+  '{book: $book, today: $today, pdfs: $pdfs}'
