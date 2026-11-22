@@ -1,0 +1,46 @@
+# Maintainer: FrazzledTurtle
+# Blloku, Mid'hat's notebook: handwriting, text and maths on one page.
+# Built from app/blloku at this repository's committed HEAD (git archive).
+# Set BLLOKU_SRC=/path/to/app/blloku to build a working tree instead.
+pkgname=blloku
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Mid'hat's notebook: handwriting, text and maths on one page"
+arch=('aarch64')
+url='https://github.com/FrazzledTurtle/midhat'
+license=('MIT')
+depends=('qt6-base' 'qt6-declarative' 'ttf-liberation')
+makedepends=('cmake' 'git')
+source=()
+sha256sums=()
+
+_root=$(cd "$startdir/../.." && pwd)
+
+prepare() {
+  rm -rf "$srcdir/blloku"
+  mkdir -p "$srcdir/blloku"
+  if [[ -n ${BLLOKU_SRC:-} ]]; then
+    cp -a "$BLLOKU_SRC/." "$srcdir/blloku/"
+  else
+    git -C "$_root" archive HEAD app/blloku | tar -x -C "$srcdir/blloku" --strip-components=2
+  fi
+  local version
+  version=$(sed -n 's/^project(blloku VERSION \([0-9.]*\).*/\1/p' "$srcdir/blloku/CMakeLists.txt")
+  if [[ $version != "$pkgver" ]]; then
+    echo "CMakeLists.txt says $version but pkgver is $pkgver" >&2
+    return 1
+  fi
+}
+
+build() {
+  cmake -S "$srcdir/blloku" -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
+}
+
+check() {
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

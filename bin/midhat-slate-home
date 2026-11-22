@@ -64,11 +64,29 @@ while IFS=$'\t' read -r time file; do
   break
 done < <(koreader_history | newest_first)
 
-today=$(recent_files xopp | newest_first | while IFS=$'\t' read -r time file; do
-  [[ -f $file ]] || continue
-  jq -n --arg file "$file" --argjson time "$time" '{file: $file, name: ($file | split("/") | last | sub("\\.xopp$"; "")), time: $time}'
-  break
-done)
+blloku_installed() {
+  local dir
+  local -a dirs
+  IFS=: read -ra dirs <<<"${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+  for dir in "${dirs[@]}"; do
+    [[ -f $dir/applications/org.midhat.Blloku.desktop ]] && return 0
+  done
+  return 1
+}
+
+if blloku_installed; then
+  file="$HOME/Blloku/Ditari/$(date +%F).md"
+  time=null
+  [[ -f $file ]] && time=$(stat -c %Y "$file")
+  today=$(jq -n --arg file "$file" --arg name "$(LC_ALL=C date '+%a %-d %b')" --argjson time "$time" \
+    '{file: $file, name: $name, time: $time, app: "blloku"}')
+else
+  today=$(recent_files xopp | newest_first | while IFS=$'\t' read -r time file; do
+    [[ -f $file ]] || continue
+    jq -n --arg file "$file" --argjson time "$time" '{file: $file, name: ($file | split("/") | last | sub("\\.xopp$"; "")), time: $time, app: "xournalpp"}'
+    break
+  done)
+fi
 
 pdfs=$({ koreader_history; zathura_history; recent_files pdf; } | newest_first |
   while IFS=$'\t' read -r time file; do

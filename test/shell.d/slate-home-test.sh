@@ -56,10 +56,15 @@ mkdir -p "$TMPDIR/bin"
 printf '#!/bin/bash\nexit 1\n' >"$TMPDIR/bin/midhat-cmd-present"
 chmod +x "$TMPDIR/bin/midhat-cmd-present"
 
-json=$(HOME=$H PATH="$TMPDIR/bin:$PATH" "$ROOT/bin/midhat-slate-home")
+json=$(HOME=$H XDG_DATA_DIRS="$TMPDIR/share" PATH="$TMPDIR/bin:$PATH" "$ROOT/bin/midhat-slate-home")
 
 check() {
-  jq -e "$1" <<<"$json" >/dev/null || fail "$2" "$json"
+  local -a args=()
+  while [[ $1 == --arg ]]; do
+    args+=("$1" "$2" "$3")
+    shift 3
+  done
+  jq -e "${args[@]}" "$1" <<<"$json" >/dev/null || fail "$2" "$json"
   pass "$2"
 }
 
@@ -67,3 +72,9 @@ check '.book.title == "Journals of a Landscape Painter in Albania" and .book.aut
 check '.book.page == 112 and .book.pages == 428 and .book.percent == 0.26' "home reads the book's progress"
 check '.today.name == "Berat sketch"' "home picks the newest Xournal++ file as today's page"
 check '[.pdfs[].name] == ["Map of Berat.pdf", "old.pdf"]' "home lists existing PDFs newest first, decoding file URLs and skipping missing files"
+
+mkdir -p "$TMPDIR/share/applications"
+touch "$TMPDIR/share/applications/org.midhat.Blloku.desktop"
+json=$(HOME=$H XDG_DATA_DIRS="$TMPDIR/share" PATH="$TMPDIR/bin:$PATH" "$ROOT/bin/midhat-slate-home")
+check --arg day "$(date +%F)" '.today.app == "blloku" and (.today.file | endswith("/Blloku/Ditari/" + $day + ".md")) and .today.time == null' \
+  "with Blloku installed, today's page is Blloku's daily page, not started yet"

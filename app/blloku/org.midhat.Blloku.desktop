@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Blloku
+GenericName=Notebook
+Comment=Handwriting, text and maths on one page
+Exec=blloku %f
+Icon=accessories-text-editor
+Terminal=false
+Categories=Office;
+StartupWMClass=org.midhat.Blloku

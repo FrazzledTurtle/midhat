@@ -70,6 +70,10 @@
           },
           {
             "id": "midhat.slate-button",
+            "action": "write"
+          },
+          {
+            "id": "midhat.slate-button",
             "action": "ask"
           }
         ],

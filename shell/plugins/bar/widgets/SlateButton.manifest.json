@@ -4,7 +4,7 @@
   "name": "Slate button",
   "version": "1.0.0",
   "author": "Mid’hat",
-  "description": "A big Slate rail button: Home, Read, Ask Claude, Keyboard or Settings",
+  "description": "A big Slate rail button: Home, Read, Write, Ask Claude, Keyboard or Settings",
   "kinds": [
     "bar-widget"
   ],
@@ -13,7 +13,7 @@
   },
   "barWidget": {
     "displayName": "Slate button",
-    "description": "A big Slate rail button: Home, Read, Ask Claude, Keyboard or Settings",
+    "description": "A big Slate rail button: Home, Read, Write, Ask Claude, Keyboard or Settings",
     "category": "Widgets",
     "allowMultiple": true,
     "defaultSection": "left",
@@ -22,7 +22,7 @@
         "key": "action",
         "type": "enum",
         "label": "Opens",
-        "options": ["home", "read", "ask", "keyboard", "settings"],
+        "options": ["home", "read", "write", "ask", "keyboard", "settings"],
         "defaultValue": "home"
       }
     ]

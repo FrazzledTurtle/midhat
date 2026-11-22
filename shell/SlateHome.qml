@@ -234,7 +234,11 @@ PanelWindow {
       }
 
       Card {
-        onTapped: home.launch(home.content.today ? ["xournalpp", home.content.today.file] : ["xournalpp"])
+        onTapped: {
+          const today = home.content.today
+          if (today && today.app === "blloku") Quickshell.execDetached(["midhat-launch-or-focus", "org.midhat.Blloku", "uwsm-app -- blloku"])
+          else home.launch(today ? ["xournalpp", today.file] : ["xournalpp"])
+        }
 
         ColumnLayout {
           width: parent.width
@@ -251,7 +255,12 @@ PanelWindow {
 
           Text {
             textFormat: Text.PlainText
-            text: home.content.today ? "Xournal++ · edited " + home.when(home.content.today.time) : "Opens Xournal++"
+            text: {
+              const today = home.content.today
+              if (!today) return "Opens Xournal++"
+              if (today.app === "blloku") return today.time ? "Blloku · edited " + home.when(today.time) : "Blloku · not started yet"
+              return "Xournal++ · edited " + home.when(today.time)
+            }
             font.family: home.family
             font.pixelSize: 14
             color: home.ink
