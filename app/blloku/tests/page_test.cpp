@@ -106,5 +106,38 @@ int main(int argc, char *argv[]) {
     check(!page.error().isEmpty(), "and the page says why");
   }
 
+  {
+    const QString path = dir.filePath(QStringLiteral("flat.md"));
+    write(path, QStringLiteral("rent\n```calc\nroom = 4500 lek / 3\n\n€ = 100 lek\n```\nnotes\n```calc\nroom in €\n```\n"));
+    Page page(path, QString(), QStringLiteral("flat"));
+    const QVariantList a = page.answers();
+    check(a.size() == 5, "one answer list per block");
+    check(a[1].toStringList() == QStringList({QStringLiteral("1500 lek"), QString(), QStringLiteral("€1 = 100 lek")}),
+          "a calc block answers line by line");
+    check(a[3].toStringList() == QStringList({QStringLiteral("15 €")}), "names and the rate carry on down the page");
+    check(page.pageRate() == 100, "the page's own rate is known");
+    page.setBlockText(1, QStringLiteral("```calc\nroom = 6000 lek / 3\n```"));
+    check(page.answers()[3].toStringList() == QStringList({QStringLiteral("? set a rate: € = … lek")}),
+          "editing a calc block reworks the page");
+    page.setRate(120);
+    check(page.answers()[3].toStringList() == QStringList({QStringLiteral("16.67 €")}),
+          "a remembered rate fills in when the page sets none");
+    check(page.pageRate() == 0, "and isn't the page's own");
+  }
+
+  {
+    const QString path = dir.filePath(QStringLiteral("split.md"));
+    write(path, QStringLiteral("one\ntwo\n"));
+    Page page(path, QString(), QStringLiteral("split"));
+    check(page.insertCalc(0, 1) == 1, "a calc block goes after the cursor's block");
+    page.setBlockText(1, QStringLiteral("```calc\n2 + 2\n```"));
+    page.saveNow();
+    check(read(path) == QLatin1String("one\n```calc\n2 + 2\n```\ntwo\n"), "it splits the text at the end of the cursor's line");
+    check(page.removeBlock(1) == 0, "removing it points at the block before");
+    page.saveNow();
+    check(read(path) == QLatin1String("one\ntwo\n"), "and the text joins back as it was");
+    check(page.insertCalc(-1, 0) == 1 && page.blocks().size() == 2, "with no text in focus it goes at the end");
+  }
+
   return failures ? 1 : 0;
 }

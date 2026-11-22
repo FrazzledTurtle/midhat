@@ -13,6 +13,7 @@ class MarkdownHighlighter : public QSyntaxHighlighter {
   Q_PROPERTY(QQuickTextDocument *document READ quickDocument WRITE setQuickDocument)
   Q_PROPERTY(QColor muted MEMBER m_muted)
   Q_PROPERTY(int baseSize MEMBER m_baseSize)
+  Q_PROPERTY(bool plain MEMBER m_plain)
   Q_PROPERTY(int lineHeight READ lineHeight WRITE setLineHeight)
 
 public:
@@ -36,4 +37,5 @@ private:
   int m_baseSize = 17;
   int m_lineHeight = 0;
   bool m_fixing = false;
+  bool m_plain = false;
 };

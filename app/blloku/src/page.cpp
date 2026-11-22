@@ -1,4 +1,5 @@
 #include "page.h"
+#include "calc.h"
 
 #include <QDir>
 #include <QFile>
@@ -16,6 +17,7 @@ Page::Page(const QString &path, const QString &fresh, const QString &title, QObj
   QFile file(path);
   if (!file.exists()) {
     m_blocks = splitBlocks(fresh);
+    recalc();
     return;
   }
   if (!file.open(QIODevice::ReadOnly)) {
@@ -27,6 +29,7 @@ Page::Page(const QString &path, const QString &fresh, const QString &title, QObj
   }
   m_blocks = splitBlocks(QString::fromUtf8(file.readAll()));
   m_diskTime = QFileInfo(path).lastModified();
+  recalc();
 }
 
 QString Page::bllok() const { return QFileInfo(m_path).dir().dirName(); }
@@ -44,6 +47,71 @@ void Page::setBlockText(int index, const QString &text) {
   m_blocks[index].text = text;
   m_dirty = true;
   m_timer.start();
+  if (m_blocks[index].kind == QLatin1String("calc"))
+    recalc();
+}
+
+void Page::setRate(double rate) {
+  if (m_rate == rate)
+    return;
+  m_rate = rate;
+  recalc();
+}
+
+// Answers per block (a list per calc block, one per inner line), worked out
+// fresh each time so the file never holds them.
+void Page::recalc() {
+  Calc calc(m_rate);
+  m_answers.clear();
+  for (const Block &b : m_blocks) {
+    QStringList lines;
+    if (b.kind == QLatin1String("calc")) {
+      const QStringList inner = b.text.split(QLatin1Char('\n')).mid(1);
+      for (qsizetype i = 0; i + 1 < inner.size(); ++i)
+        lines.append(calc.line(inner[i]));
+    }
+    m_answers.append(lines);
+  }
+  m_pageRate = calc.rateSet() ? calc.rate() : 0;
+  emit answersChanged();
+}
+
+// A new calc block below the cursor's line; a text block is split there.
+int Page::insertCalc(int index, int cursor) {
+  int at = int(m_blocks.size());
+  if (index >= 0 && index < m_blocks.size() && m_blocks[index].kind == QLatin1String("text")) {
+    const QString text = m_blocks[index].text;
+    const qsizetype nl = text.indexOf(QLatin1Char('\n'), qBound(0, cursor, int(text.size())));
+    if (nl >= 0) {
+      m_blocks[index].text = text.left(nl);
+      m_blocks.insert(index + 1, {QStringLiteral("text"), text.mid(nl + 1)});
+    }
+    at = index + 1;
+  }
+  m_blocks.insert(at, {QStringLiteral("calc"), QStringLiteral("```calc\n\n```")});
+  m_dirty = true;
+  m_timer.start();
+  recalc();
+  emit blocksChanged();
+  return at;
+}
+
+// Removes a block; text blocks that end up side by side become one again.
+// Returns the index of the block before it (-1 when it was first).
+int Page::removeBlock(int index) {
+  if (index < 0 || index >= m_blocks.size())
+    return -1;
+  m_blocks.removeAt(index);
+  const QLatin1String text("text");
+  if (index > 0 && index < m_blocks.size() && m_blocks[index - 1].kind == text && m_blocks[index].kind == text) {
+    m_blocks[index - 1].text += QLatin1Char('\n') + m_blocks[index].text;
+    m_blocks.removeAt(index);
+  }
+  m_dirty = true;
+  m_timer.start();
+  recalc();
+  emit blocksChanged();
+  return index - 1;
 }
 
 QString Page::inkFile(int index) const {

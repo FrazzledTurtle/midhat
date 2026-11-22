@@ -66,6 +66,8 @@ void MarkdownHighlighter::dim(qsizetype from, qsizetype length) {
 }
 
 void MarkdownHighlighter::highlightBlock(const QString &text) {
+  if (m_plain)
+    return;
   static const QRegularExpression fence(QStringLiteral(R"(^```)"));
   static const QRegularExpression heading(QStringLiteral(R"(^(#{1,3})\s)"));
   static const QRegularExpression task(QStringLiteral(R"(^(\s*[-*+] \[([ xX])\]\s))"));

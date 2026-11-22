@@ -19,11 +19,19 @@ Window {
     return false
   }
   property int focusIndex: lastText()
+  property int cursorBlock: -1
+  property int cursorPos: 0
 
   function lastText() {
     for (let i = blocks.length - 1; i >= 0; i--)
       if (blocks[i].kind === "text") return i
     return -1
+  }
+
+  function insertCalc() {
+    const at = page.insertCalc(cursorBlock, cursorPos)
+    focusIndex = -1
+    focusIndex = at
   }
 
   function openFile(file) {
@@ -45,6 +53,27 @@ Window {
   Settings {
     category: "page"
     property alias paper: win.paper
+  }
+
+  // The last € rate a page set; pages without their own use it.
+  Settings {
+    id: money
+    category: "calc"
+    property real rate: 0
+  }
+  Binding {
+    target: win.page
+    property: "rate"
+    value: money.rate
+  }
+  function keepRate() {
+    if (page.pageRate > 0) money.rate = page.pageRate
+  }
+  onPageChanged: keepRate()
+  Component.onCompleted: keepRate()
+  Connections {
+    target: win.page
+    function onPageRateChanged() { win.keepRate() }
   }
 
   FontMetrics {
@@ -140,11 +169,27 @@ Window {
             required property int index
             readonly property string kind: modelData.kind
             readonly property real natural: kind === "text" ? edit.implicitHeight
+                                          : kind === "calc" ? calcEdit.implicitHeight
                                           : kind === "ink" ? oldInk.contentHeight
                                           : kind === "layer" ? 0 : raw.implicitHeight
 
             width: column.width
             height: Math.ceil(natural / win.lineHeight) * win.lineHeight
+
+            readonly property bool wanted: win.focusIndex === index
+            onWantedChanged: if (wanted) grab()
+            Component.onCompleted: if (wanted) grab()
+            function grab() {
+              const target = kind === "text" ? edit : kind === "calc" ? calcEdit : null
+              if (!target) return
+              target.forceActiveFocus()
+              target.cursorPosition = target.length
+            }
+            function noteCursor(field) {
+              if (!field.activeFocus) return
+              win.cursorBlock = kind === "text" ? index : -1
+              win.cursorPos = field.cursorPosition
+            }
 
             TextEdit {
               id: edit
@@ -160,17 +205,14 @@ Window {
               selectByMouse: true
               persistentSelection: true
               onTextChanged: if (block.kind === "text") win.page.setBlockText(block.index, text)
+              onCursorPositionChanged: block.noteCursor(edit)
+              onActiveFocusChanged: block.noteCursor(edit)
               onCursorRectangleChanged: if (activeFocus) {
                 const y = block.y + column.y + cursorRectangle.y
                 if (y < flick.contentY) flick.contentY = y
                 else if (y + cursorRectangle.height > flick.contentY + flick.height)
                   flick.contentY = y + cursorRectangle.height - flick.height + 24
               }
-              Component.onCompleted: if (block.index === win.focusIndex) {
-                forceActiveFocus()
-                cursorPosition = length
-              }
-
               MarkdownHighlighter {
                 document: edit.textDocument
                 muted: win.theme.muted
@@ -189,9 +231,81 @@ Window {
               ink: win.theme.foreground
             }
 
+            // A calc block: the lines between the fences, answers in the margin.
+            Rectangle {
+              visible: block.kind === "calc"
+              x: -14
+              width: 2
+              height: parent.height
+              color: win.theme.selection
+            }
+            TextEdit {
+              id: calcEdit
+              visible: block.kind === "calc"
+              width: parent.width
+              textFormat: TextEdit.PlainText
+              wrapMode: TextEdit.NoWrap
+              clip: true
+              text: block.kind === "calc" ? block.modelData.text.split("\n").slice(1, -1).join("\n") : ""
+              color: win.theme.foreground
+              selectionColor: win.theme.selection
+              selectedTextColor: win.theme.foreground
+              font.family: "monospace"
+              font.pixelSize: win.textSize
+              selectByMouse: true
+              onTextChanged: if (block.kind === "calc") win.page.setBlockText(block.index, "```calc\n" + text + "\n```")
+              onActiveFocusChanged: block.noteCursor(calcEdit)
+              Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Backspace && length === 0) {
+                  event.accepted = true
+                  const before = win.page.removeBlock(block.index)
+                  win.focusIndex = -1
+                  win.focusIndex = before
+                }
+              }
+
+              MarkdownHighlighter {
+                document: calcEdit.textDocument
+                plain: true
+                lineHeight: win.lineHeight
+              }
+
+              Text {
+                visible: calcEdit.length === 0 && !calcEdit.activeFocus
+                textFormat: Text.PlainText
+                text: "room = 4500 lek / 3"
+                color: win.theme.muted
+                font: calcEdit.font
+              }
+            }
+            Column {
+              visible: block.kind === "calc"
+              x: parent.width + 28
+              width: Math.max(0, win.width - column.x - column.width - 28 - strip.width - 24)
+
+              Repeater {
+                model: block.kind === "calc" ? (win.page.answers[block.index] || []) : []
+                delegate: Text {
+                  required property string modelData
+                  readonly property bool failed: modelData.startsWith("? ")
+                  width: parent.width
+                  height: win.lineHeight
+                  verticalAlignment: Text.AlignBottom
+                  elide: Text.ElideRight
+                  textFormat: Text.PlainText
+                  text: failed ? modelData.slice(2) : modelData
+                  color: failed ? win.theme.muted : win.theme.foreground
+                  font.family: "monospace"
+                  font.pixelSize: win.textSize
+                  font.italic: failed
+                  font.bold: !failed
+                }
+              }
+            }
+
             Text {
               id: raw
-              visible: block.kind !== "text" && block.kind !== "ink" && block.kind !== "layer"
+              visible: block.kind !== "text" && block.kind !== "calc" && block.kind !== "ink" && block.kind !== "layer"
               width: parent.width
               wrapMode: Text.Wrap
               textFormat: Text.PlainText
@@ -212,6 +326,7 @@ Window {
           textFormat: TextEdit.PlainText
           color: win.theme.foreground
           font: body.font
+          onActiveFocusChanged: if (activeFocus) win.cursorBlock = -1
           onTextChanged: if (text.length > 0) {
             const t = text
             text = ""
@@ -308,6 +423,27 @@ Window {
         }
         TapHandler { onTapped: win.tool = parent.modelData.key }
       }
+    }
+
+    Rectangle {
+      width: 56
+      height: 56
+      radius: 12
+      color: "transparent"
+      border.width: 1.5
+      border.color: win.theme.foreground
+      Accessible.role: Accessible.Button
+      Accessible.name: "Calc"
+
+      Text {
+        anchors.centerIn: parent
+        textFormat: Text.PlainText
+        text: "\u{F00EC}"
+        font.family: "monospace"
+        font.pixelSize: 24
+        color: win.theme.foreground
+      }
+      TapHandler { onTapped: win.insertCalc() }
     }
 
     Rectangle {
