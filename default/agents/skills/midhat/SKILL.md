@@ -18,7 +18,7 @@ Manage [Mid’hat](https://github.com/FrazzledTurtle/midhat) systems: a calm pen
 ## This Device
 
 - **Hardware:** FydeTab Duo (RK3588S, ARM64). There are no x86, NVIDIA, Limine or Plymouth paths; boot is U-Boot.
-- **Input:** pen and touch first. Taking the keyboard cover off switches tablet mode (auto-rotate, rotation lock in the menu). Holding the pen tip still for 0.6 s right-clicks (a libinput Lua plugin linked in by `midhat-pen-hold-guard`). OSKar is the on-screen keyboard.
+- **Input:** pen and touch first. Taking the keyboard cover off switches tablet mode (auto-rotate, rotation lock in the menu). The pen sends pressure and tilt; its side buttons and eraser end never reach Linux (firmware). OSKar is the on-screen keyboard.
 - **Look:** only the E Ink and E Ink Mono themes, with Yaru-Mono icons built by `midhat-theme-icons-mono`. Reading mode (SUPER+CTRL+G) greys the screen, warms the light and silences notifications.
 - **Claude:** the only agent. `midhat-agent-card` (SUPER+SHIFT+A) opens, shrinks or closes the floating Claude card.
 - **Reading:** KOReader for books, zathura for PDFs, Xournal++ to write on PDFs.

@@ -55,16 +55,18 @@ Panel {
     bar: root.bar
     text: root.network ? root.network.icon : ""
     onPressed: root.toggle()
+    transform: Translate { x: btDot.visible ? -btDot.width / 2 : 0 }
 
     Rectangle {
+      id: btDot
       visible: !!root.bluetoothDevice
       width: Style.space(5)
       height: width
       radius: width / 2
       color: root.barForeground
-      anchors.right: parent.right
-      anchors.bottom: parent.bottom
-      anchors.margins: Style.space(3)
+      anchors.centerIn: parent
+      anchors.horizontalCenterOffset: button.opticalSize / 2
+      anchors.verticalCenterOffset: button.opticalSize / 2
     }
 
     Rectangle {
@@ -148,6 +150,7 @@ Panel {
             height: root.rowHeight
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            textFormat: Text.PlainText
             text: root.muted ? "󰝟" : "󰕾"
             color: root.barForeground
             font.pixelSize: Style.font.icon
@@ -199,6 +202,7 @@ Panel {
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
       width: Style.space(84)
+      textFormat: Text.PlainText
       text: row.title
       color: root.barForeground
       font.pixelSize: Style.font.body
@@ -210,6 +214,7 @@ Panel {
       anchors.right: rowSwitch.left
       anchors.rightMargin: Style.space(8)
       anchors.verticalCenter: parent.verticalCenter
+      textFormat: Text.PlainText
       text: row.detail
       elide: Text.ElideRight
       color: root.dimColor

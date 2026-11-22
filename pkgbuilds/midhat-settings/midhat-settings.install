@@ -18,9 +18,11 @@ _etc_overrides_apply() {
   chmod 0644 /etc/os-release /etc/security/faillock.conf /etc/nsswitch.conf /etc/skel/.bashrc
 }
 
-# The pen-hold plugin as installed by hand on 2026-11-16, before it was packaged.
-_pen_hold_remove_hand_install() {
-  rm -f /etc/libinput/plugins/pen-hold.lua /etc/libinput/pen-hold.lua.off \
+# The pen-hold plugin, hand-installed 2026-11-16 and packaged until 0.2.1. Removed:
+# it switched pen pressure off and Blloku needs pressure.
+_pen_hold_remove() {
+  rm -f /etc/libinput/plugins/midhat-pen-hold.lua \
+    /etc/libinput/plugins/pen-hold.lua /etc/libinput/pen-hold.lua.off \
     /usr/local/bin/pen-hold-guard /etc/pacman.d/hooks/pen-hold-guard.hook \
     /etc/systemd/system/sddm.service.d/pen-hold-guard.conf
   rmdir /etc/systemd/system/sddm.service.d 2>/dev/null || true
@@ -36,17 +38,15 @@ _camera_rule_apply() {
 post_install() {
   _etc_overrides_apply
   _camera_rule_apply
-  _pen_hold_remove_hand_install
-  /usr/bin/midhat-pen-hold-guard
+  _pen_hold_remove
 }
 
 post_upgrade() {
   _etc_overrides_apply
   _camera_rule_apply
-  _pen_hold_remove_hand_install
-  /usr/bin/midhat-pen-hold-guard
+  _pen_hold_remove
 }
 
 post_remove() {
-  rm -f /etc/libinput/plugins/midhat-pen-hold.lua
+  _pen_hold_remove
 }

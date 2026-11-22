@@ -4,12 +4,11 @@
 # Hyprland 0.57 links Lua 5.5 for its config and stock libinput links Lua 5.4.
 # Both export the same unversioned lua_* symbols, so once any libinput Lua
 # plugin is installed libinput's plugin code runs on Hyprland's Lua and
-# Hyprland crashes at login. midhat-pen-hold-guard enables the pen-hold plugin
-# only while Hyprland loads a single Lua, which this build gives it.
+# Hyprland crashes at login. Mid'hat ships no libinput plugin since 0.2.2 (the
+# pen-hold plugin is gone), so this build only matters if one comes back.
 #
 # Only the library is built: stock libinput-tools works with it. pkgrel 1.1
-# sorts above Arch's 1.32.0-1, and any newer Arch libinput replaces it, which
-# turns the pen-hold plugin off until this is rebuilt.
+# sorts above Arch's 1.32.0-1, and any newer Arch libinput replaces it.
 
 pkgname=libinput
 pkgver=1.32.0
