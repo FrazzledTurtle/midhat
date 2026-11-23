@@ -3,7 +3,7 @@
 # midhat:summary=Build and install a Mid’hat package from a local checkout
 # midhat:group=dev
 # midhat:args=[package-name] [path-to-checkout]
-# midhat:examples=midhat dev pkg-test | midhat dev pkg-test midhat-dev ~/Work/midhat/midhat-installer
+# midhat:examples=midhat dev pkg-test | midhat dev pkg-test oskar ~/Work/midhat-os
 
 set -euo pipefail
 
@@ -12,23 +12,25 @@ if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
 Usage: midhat dev pkg-test [package-name] [path-to-checkout]
 
 Builds and installs a Mid’hat package from a local Mid’hat source
-checkout. Use when changes need to land at fixed system paths (/etc/,
-/usr/lib/systemd/, udev rule bodies, plymouth) that midhat-dev-link
-can't shadow.
+checkout, working tree included. Use it to try changes before a release, or
+when they land at fixed system paths (/etc/, /usr/lib/systemd/, udev rule
+bodies) that midhat-dev-link can't shadow.
 
 Defaults:
-  packages          midhat-settings-dev midhat-dev
-  path-to-checkout  ~/Work/midhat/midhat-installer
+  packages          midhat-settings midhat
+  path-to-checkout  the git checkout you are in
 
 Examples:
   midhat dev pkg-test
-  midhat dev pkg-test midhat-settings-dev
-  midhat dev pkg-test midhat-dev ~/Work/midhat/midhat-installer
+  midhat dev pkg-test oskar
+  midhat dev pkg-test midhat ~/Work/midhat-os
 
-The pkgver of the built package is tagged 'dev.<short-sha>[.dirty]' so
-'pacman -Q' makes it obvious where the installed version came from.
+The package keeps its real pkgver (the PKGBUILDs check it against the
+version file); pkgrel becomes <pkgrel>.<yymmddHHMM> so each test build is
+newer than the last, and pkgdesc ends in [dev <short-sha>[.dirty]] so
+'pacman -Qi' shows where the installed build came from.
 
-PKGBUILDs are read from \${MIDHAT_PKGBUILDS_DIR:-~/Work/midhat/midhat-pkgs/pkgbuilds}/<package-name>/.
+PKGBUILDs are read from \${MIDHAT_PKGBUILDS_DIR:-<path-to-checkout>/pkgbuilds}/<package-name>/.
 USAGE
   exit 0
 fi
@@ -58,29 +60,14 @@ remove_pkgver_function() {
   mv "$tmp" "$pkgbuild"
 }
 
-dev_package_name() {
-  local pkg="$1"
-
-  case "$pkg" in
-    midhat | midhat-settings)
-      printf '%s-dev\n' "$pkg"
-      ;;
-    *)
-      printf '%s\n' "$pkg"
-      ;;
-  esac
-}
-
 if (( $# == 0 )); then
-  PKGS=(midhat-settings-dev midhat-dev)
-  CHECKOUT="$HOME/Work/midhat/midhat-installer"
-  MAKEPKG_ARGS=()
+  PKGS=(midhat-settings midhat)
 else
-  PKGS=("$(dev_package_name "$1")")
-  CHECKOUT="${2:-$HOME/Work/midhat/midhat-installer}"
-  MAKEPKG_ARGS=("${@:3}")
+  PKGS=("$1")
 fi
-PKGBUILDS_ROOT="${MIDHAT_PKGBUILDS_DIR:-$HOME/Work/midhat/midhat-pkgs/pkgbuilds}"
+CHECKOUT="${2:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+MAKEPKG_ARGS=("${@:3}")
+PKGBUILDS_ROOT="${MIDHAT_PKGBUILDS_DIR:-$CHECKOUT/pkgbuilds}"
 
 if [[ ! -d "$CHECKOUT" ]]; then
   echo "Error: checkout not found at $CHECKOUT" >&2
@@ -98,13 +85,14 @@ done
 build_dir=$(mktemp -d -t midhat-dev-pkg-test.XXXXXX)
 trap 'rm -rf "$build_dir"' EXIT
 
-# pkgver=dev.<sha>[.dirty] so pacman -Q makes the source obvious.
 short_sha=$(git -C "$CHECKOUT" rev-parse --short HEAD 2>/dev/null || echo "local")
 dirty=""
 if [[ -d "$CHECKOUT/.git" ]] && [[ -n "$(git -C "$CHECKOUT" status --porcelain)" ]]; then
   dirty=".dirty"
 fi
-new_pkgver="dev.${short_sha}${dirty}"
+dev_tag="dev ${short_sha}${dirty}"
+build_stamp=$(date +%y%m%d%H%M)
+built_pkgs=()
 
 for PKG in "${PKGS[@]}"; do
   PKGBUILD_DIR="$PKGBUILDS_ROOT/$PKG"
@@ -113,9 +101,10 @@ for PKG in "${PKGS[@]}"; do
   cp -a "$PKGBUILD_DIR/." "$package_build_dir/"
 
   remove_pkgver_function "$package_build_dir/PKGBUILD"
-  sed -i "s/^pkgver=.*/pkgver=${new_pkgver}/" "$package_build_dir/PKGBUILD"
+  sed -i -e "s/^pkgrel=\([0-9]*\).*/pkgrel=\1.${build_stamp}/" \
+    -e "s/^pkgdesc=\(['\"]\)\(.*\)\1\$/pkgdesc=\1\2 [${dev_tag}]\1/" "$package_build_dir/PKGBUILD"
 
-  echo "Building $PKG ${new_pkgver} from $CHECKOUT"
+  echo "Building $PKG ($dev_tag) from $CHECKOUT"
   echo "  build dir: $package_build_dir"
   echo "  PKGBUILD : $PKGBUILD_DIR/PKGBUILD"
   echo
@@ -125,13 +114,16 @@ for PKG in "${PKGS[@]}"; do
     MIDHAT_SRC="$CHECKOUT" makepkg -s --skipchecksums --noconfirm "${MAKEPKG_ARGS[@]}"
   )
 
-  # Install separately so we can pass --overwrite='*' (makepkg -i can't).
-  # Dev builds frequently conflict with files left behind by previous
-  # script-installed Mid’hat versions; the build is the authoritative state.
   built_pkg=$(ls -t "$package_build_dir"/*.pkg.tar.* 2>/dev/null | grep -v '\.sig$' | head -1)
   if [[ -z $built_pkg ]]; then
     echo "Error: no built package found in $package_build_dir" >&2
     exit 1
   fi
-  sudo pacman -U --noconfirm --overwrite='*' "$built_pkg"
+  built_pkgs+=("$built_pkg")
 done
+
+# One transaction for everything built. Installed separately from makepkg so we can pass
+# --overwrite='*' (makepkg -i can't): dev builds frequently conflict with files
+# left behind by previous script-installed Mid’hat versions; the build is the
+# authoritative state.
+sudo pacman -U --noconfirm --overwrite='*' "${built_pkgs[@]}"
