@@ -92,7 +92,7 @@ The repo is a GitHub release tagged `repo` holding the packages and
 ./test/shell
 ```
 
-Shell tests that render QML or run JavaScript need `node`. As of 0.2.2 the whole
+Shell tests that render QML or run JavaScript need `node`. As of 0.2.3 the whole
 suite passes; `runtime-smoke` can still miss one IPC handler when the whole
 suite runs at once.
 
