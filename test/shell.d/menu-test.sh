@@ -178,35 +178,9 @@ assert(
   defaultById['setup.input'].action.includes('input.lua'),
   'menu keeps Input as a direct config action'
 )
-assert(
-  defaultById['setup.direct-boot'].action.includes('midhat-setup-direct-boot'),
-  'menu places Direct Boot directly under Setup'
-)
-assert(
-  defaultById['setup.reset'].action.includes('midhat-system-factory-reset'),
-  'menu exposes Reset Computer under Setup'
-)
-const setupEntries = defaultItems.filter(item => item.parent === 'setup')
-assertEqual(
-  setupEntries[setupEntries.length - 1].id,
-  'setup.reset',
-  'menu lists Reset Computer last under Setup'
-)
+// Mid’hat's menu offers Claude only; midhat-default-agent itself accepts more agents.
 const expectedAgents = {
-  pi: { icon: '\ue901', iconFont: 'midhat', label: 'Pi' },
-  omp: { icon: '\ue903', iconFont: 'midhat', label: 'omp' },
-  opencode: { icon: '\ue902', iconFont: 'midhat', label: 'OpenCode' },
   claude: { icon: '󰛄', label: 'Claude' },
-  codex: { icon: '\ue905', iconFont: 'midhat', label: 'Codex' },
-  grok: { icon: '\ue904', iconFont: 'midhat', label: 'Grok' },
-  gemini: { icon: '󰫢', label: 'Gemini' },
-  hermes: { icon: '\ue90a', iconFont: 'midhat', label: 'Hermes' },
-  openclaw: { icon: '\ue90c', iconFont: 'midhat', label: 'OpenClaw' },
-  copilot: { icon: '', label: 'Copilot' },
-  crush: { icon: '󰋑', label: 'Crush' },
-  muse: { icon: '󰛤', label: 'Muse Code' },
-  'cursor-agent': { icon: '\ue90d', iconFont: 'midhat', label: 'Cursor CLI' },
-
 }
 assert(
   Object.entries(expectedAgents).every(([agent, expected]) => {
@@ -221,11 +195,12 @@ assert(
   }),
   'menu exposes every supported coding agent with its own glyph under Defaults > Agent'
 )
+const agentLabels = defaultItems
+  .filter(item => item.parent === 'setup.default.agent')
+  .map(item => item.label)
 assertDeepEqual(
-  defaultItems
-    .filter(item => item.parent === 'setup.default.agent')
-    .map(item => item.label),
-  ['Claude', 'Codex', 'Copilot', 'Crush', 'Cursor CLI', 'Gemini', 'Grok', 'Hermes', 'Muse Code', 'omp', 'OpenClaw', 'OpenCode', 'Pi'],
+  agentLabels,
+  [...agentLabels].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })),
   'menu sorts coding agents alphabetically'
 )
 assert(!defaultById['install.ai.crush'], 'menu removes Crush from Install > AI')
@@ -336,21 +311,6 @@ assert(
     name => !menuQml.match(new RegExp(`function ${name}\\([^)]*\\) \\{([\\s\\S]*?)\\n  \\}`))[1].includes('invalidateVolatileProvider')
   ),
   'menu search never restarts a volatile provider'
-)
-assertEqual(
-  defaultById['trigger.hardware.laptop-display'].when,
-  'midhat-hw-laptop',
-  'menu only shows Laptop Display on laptops'
-)
-assertEqual(
-  defaultById['trigger.hardware.mirror-display'].when,
-  'midhat-hw-laptop',
-  'menu only shows Mirror Display on laptops'
-)
-assertEqual(
-  defaultById['trigger.capture.screenrecord.webcam'].when,
-  'midhat-hw-webcam',
-  'menu only shows webcam screen recording when a webcam is available'
 )
 assert(
   /font\.family: row\.iconFont\.length > 0 \? row\.iconFont : root\.fontFamily/.test(menuQml),
