@@ -14,7 +14,7 @@ BarWidget {
     home: { glyph: "󰚡", label: "Home", command: "hyprctl dispatch 'hl.dsp.focus({ workspace = \"empty\" })'" },
     read: { glyph: "󱗖", label: "Read", command: "midhat-launch-or-focus rocks.koreader.KOReader koreader" },
     write: { glyph: "󰲶", label: "Write", command: "midhat-launch-or-focus org.midhat.Blloku 'uwsm-app -- blloku'" },
-    ask: { glyph: "󰍪", label: "Ask Claude", command: "midhat-agent-card" },
+    ask: { glyph: "󰍪", label: "Ask Agent", command: "midhat-agent-card" },
     keyboard: { glyph: "󰥻", label: "Keyboard", command: "midhat-shell shell toggle io.github.vladkarok.oskar" },
     settings: { glyph: "󰘮", label: "Settings", command: "midhat-menu toggle settings" }
   })

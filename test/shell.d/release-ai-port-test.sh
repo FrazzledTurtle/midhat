@@ -24,7 +24,7 @@ for (const [id, [pkg, glyph]] of Object.entries(selected)) {
   assert(fs.existsSync(path.join(root, `bin/midhat-remove-ai-${id}`)), `${id} remover exists`)
 }
 assertDeepEqual(Object.keys(rows).filter(k => k.startsWith('remove.ai.')).sort(), Object.keys(selected).map(k => `remove.ai.${k}`).sort(), 'removal prerequisite imports no unselected apps')
-assertDeepEqual(Object.keys(rows).filter(k => k.startsWith('setup.default.agent.')).map(k => k.split('.').pop()).sort(), ['claude'], 'baseline agent choices survive with only selected release agents added')
+assertDeepEqual(Object.keys(rows).filter(k => k.startsWith('setup.default.agent.')).map(k => k.split('.').pop()).sort(), ['claude', 'gemini'], 'baseline agent choices survive with only selected release agents added')
 for (const id of ['setup.default.editor.cursor']) {
   assertEqual(rows[id].icon, '\ue90d', `${id} uses the upstream Cursor glyph`)
   assertEqual(rows[id].iconFont, 'midhat', `${id} uses the packaged icon font`)

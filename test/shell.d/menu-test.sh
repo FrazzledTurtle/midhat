@@ -178,9 +178,10 @@ assert(
   defaultById['setup.input'].action.includes('input.lua'),
   'menu keeps Input as a direct config action'
 )
-// Mid’hat's menu offers Claude only; midhat-default-agent itself accepts more agents.
+// Mid’hat's menu offers Claude and Gemini; midhat-default-agent itself accepts more agents.
 const expectedAgents = {
   claude: { icon: '󰛄', label: 'Claude' },
+  gemini: { icon: '󰊭', label: 'Gemini' },
 }
 assert(
   Object.entries(expectedAgents).every(([agent, expected]) => {

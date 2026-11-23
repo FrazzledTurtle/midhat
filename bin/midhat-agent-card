@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# midhat:summary=Open, shrink or close the floating Claude card
+# midhat:summary=Open, shrink or close the floating agent card
 
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/midhat-agent-card.lock"
 flock -n 9 || exit 0
