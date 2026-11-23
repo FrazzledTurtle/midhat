@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import qs.Commons
 import qs.Commons as Commons
 
@@ -12,15 +13,17 @@ Item {
   property bool debugBounds: false
 
   readonly property int renderedFontSize: Math.max(1, Math.round(fontSize))
-  readonly property real tightWidth: Math.max(1, glyphMetrics.tightBoundingRect.width)
-  readonly property real horizontalCorrection: glyph.implicitWidth / 2 - (glyphMetrics.tightBoundingRect.x + tightWidth / 2)
-  readonly property real paintedCenterX: glyph.x + glyphMetrics.tightBoundingRect.x + tightWidth / 2
+  // TextMetrics reports whole pixels; measuring at 8x keeps the fraction the ink needs to centre.
+  readonly property int metricsScale: 8
+  readonly property real tightX: glyphMetrics.tightBoundingRect.x / metricsScale
+  readonly property real tightWidth: Math.max(1, glyphMetrics.tightBoundingRect.width / metricsScale)
+  readonly property real paintedCenterX: glyph.x + tightX + tightWidth / 2
   readonly property real baselineY: glyph.y + glyph.baselineOffset
 
   TextMetrics {
     id: glyphMetrics
     font.family: root.fontFamily
-    font.pixelSize: root.renderedFontSize
+    font.pixelSize: root.renderedFontSize * root.metricsScale
     text: root.text
   }
 
@@ -28,9 +31,12 @@ Item {
     id: glyph
     textFormat: Text.PlainText
     // Keep the shared line box and baseline intact. Correcting only the
-    // horizontal painted bounds avoids per-glyph vertical drift.
-    anchors.centerIn: parent
-    anchors.horizontalCenterOffset: root.horizontalCorrection
+    // horizontal painted bounds avoids per-glyph vertical drift. The ink is
+    // centred in one step, snapped to device pixels: anchoring the box centred
+    // and then offsetting it rounds twice to whole logical pixels, which on a
+    // 2x screen leaves the ink up to a few device pixels off.
+    anchors.verticalCenter: parent.verticalCenter
+    x: Math.round((root.width / 2 - (root.tightX + root.tightWidth / 2)) * Screen.devicePixelRatio) / Screen.devicePixelRatio
     text: root.text
     color: root.color
     font.family: root.fontFamily

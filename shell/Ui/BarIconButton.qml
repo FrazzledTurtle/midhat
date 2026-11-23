@@ -22,7 +22,10 @@ WidgetButton {
 
   Item {
     id: opticalCanvas
-    anchors.centerIn: parent
+    // Positioned, not anchored: centerIn puts an odd-width canvas half a pixel
+    // right of centre. Half logical pixels are real device pixels on 2x screens.
+    x: (parent.width - width) / 2
+    anchors.verticalCenter: parent.verticalCenter
     width: root.opticalSize
     height: root.opticalSize
 
