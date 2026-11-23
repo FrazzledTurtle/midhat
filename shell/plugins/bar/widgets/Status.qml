@@ -22,7 +22,9 @@ Panel {
   readonly property bool muted: !!audio && audio.outputMuted
 
   readonly property int rowHeight: Style.space(48)
-  readonly property color dimColor: Qt.darker(root.barForeground, 1.4)
+  // The card is a light popup, not the bar: its text uses the shell foreground, not the bar ink.
+  readonly property color cardInk: root.bar ? root.bar.foreground : Commons.Color.foreground
+  readonly property color dimColor: Qt.rgba(root.cardInk.r, root.cardInk.g, root.cardInk.b, 0.6)
 
   function openFull(panel) {
     root.close()
@@ -127,7 +129,7 @@ Panel {
             anchors.verticalCenter: parent.verticalCenter
             width: Style.space(84)
             text: "Sound"
-            color: root.barForeground
+            color: root.cardInk
             font.pixelSize: Style.font.body
             font.bold: true
           }
@@ -152,7 +154,7 @@ Panel {
             verticalAlignment: Text.AlignVCenter
             textFormat: Text.PlainText
             text: root.muted ? "󰝟" : "󰕾"
-            color: root.barForeground
+            color: root.cardInk
             font.pixelSize: Style.font.icon
 
             MouseArea {
@@ -204,7 +206,7 @@ Panel {
       width: Style.space(84)
       textFormat: Text.PlainText
       text: row.title
-      color: root.barForeground
+      color: root.cardInk
       font.pixelSize: Style.font.body
       font.bold: true
     }
@@ -233,7 +235,7 @@ Panel {
       anchors.right: rowMore.left
       anchors.verticalCenter: parent.verticalCenter
       checked: row.switchOn
-      foreground: root.barForeground
+      foreground: root.cardInk
       onToggled: row.switchToggled()
     }
 
