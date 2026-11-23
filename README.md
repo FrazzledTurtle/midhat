@@ -92,11 +92,9 @@ The repo is a GitHub release tagged `repo` holding the packages and
 ./test/shell
 ```
 
-Shell tests that render QML or run JavaScript need `node`. Known failures as of
-0.2.1: `menu`, `plymouth-set` and `release-ai-port` still check menu rows
-Mid’hat removed; `bar-icon-geometry` finds the bluetooth icon 0.9 px off
-centre; and `runtime-smoke` can miss one IPC handler when the whole suite runs
-at once.
+Shell tests that render QML or run JavaScript need `node`. As of 0.2.2 the whole
+suite passes; `runtime-smoke` can still miss one IPC handler when the whole
+suite runs at once.
 
 ## Name
 
