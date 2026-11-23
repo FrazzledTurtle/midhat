@@ -14,25 +14,22 @@ assert(rows['remove.ai'] && !rows['remove.ai'].action, 'selected AI removers hav
 assert(rows['remove.dictation'] && !rows['remove.ai.dictation'], 'Dictation retains its baseline location')
 const selected = {'t3-code': ['t3code-bin', '\ue908'], hermes: ['hermes-desktop', '\ue90a'], openclaw: ['openclaw', '\ue90c'], perplexity: ['perplexity', '\ue90b']}
 for (const [id, [pkg, glyph]] of Object.entries(selected)) {
+  // Mid’hat's menu has no Install > AI; only the removers stay, to clean up earlier installs.
   const install = rows[`install.ai.${id}`], remove = rows[`remove.ai.${id}`]
-  assert(install && remove, `${id} has install and remove entries`)
-  assertEqual(install.when, `! midhat-pkg-present ${pkg}`, `${id} preserves baseline install visibility`)
+  assert(remove, `${id} has a remove entry`)
   assertEqual(remove.when, `midhat-pkg-present ${pkg}`, `${id} removal follows package presence`)
-  assertEqual(install.icon, glyph, `${id} install uses selected glyph`)
   assertEqual(remove.icon, glyph, `${id} remove uses selected glyph`)
-  assertEqual(install.iconFont, 'midhat', `${id} uses the packaged icon font`)
+  assertEqual(remove.iconFont, 'midhat', `${id} uses the packaged icon font`)
+  if (install) assertEqual(install.when, `! midhat-pkg-present ${pkg}`, `${id} preserves baseline install visibility`)
   assert(fs.existsSync(path.join(root, `bin/midhat-remove-ai-${id}`)), `${id} remover exists`)
 }
 assertDeepEqual(Object.keys(rows).filter(k => k.startsWith('remove.ai.')).sort(), Object.keys(selected).map(k => `remove.ai.${k}`).sort(), 'removal prerequisite imports no unselected apps')
-assertDeepEqual(Object.keys(rows).filter(k => k.startsWith('setup.default.agent.')).map(k => k.split('.').pop()).sort(), ['claude', 'codex', 'copilot', 'crush', 'cursor-agent', 'gemini', 'grok', 'hermes', 'muse', 'omp', 'openclaw', 'opencode', 'pi'], 'baseline agent choices survive with only selected release agents added')
-for (const id of ['setup.default.agent.cursor-agent', 'setup.default.editor.cursor', 'install.editor.cursor']) {
+assertDeepEqual(Object.keys(rows).filter(k => k.startsWith('setup.default.agent.')).map(k => k.split('.').pop()).sort(), ['claude'], 'baseline agent choices survive with only selected release agents added')
+for (const id of ['setup.default.editor.cursor']) {
   assertEqual(rows[id].icon, '\ue90d', `${id} uses the upstream Cursor glyph`)
   assertEqual(rows[id].iconFont, 'midhat', `${id} uses the packaged icon font`)
 }
 assertEqual(rows['setup.default.editor.cursor'].when, 'midhat-cmd-present cursor', 'Cursor editor retains baseline default visibility')
-assertEqual(rows['install.editor.cursor'].when, '! midhat-pkg-present cursor-bin', 'Cursor editor retains baseline install visibility')
-assertEqual(rows['setup.default.agent.muse'].icon, '󰛤', 'Muse uses the Nerd infinity glyph')
-assert(!rows['setup.default.agent.muse'].iconFont, 'Muse needs no Mid’hat font addition')
 assert(!fs.existsSync(path.join(root, 'bin/midhat-theme-set-openclaw')), 'deferred OpenClaw theming is absent')
 JS
 
