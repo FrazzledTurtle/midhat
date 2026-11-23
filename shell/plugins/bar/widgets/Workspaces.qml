@@ -18,7 +18,9 @@ BarWidget {
   }
 
   function workspaceIds() {
-    var ids = [1, 2, 3, 4, 5]
+    // Workspaces 1..count always show; other occupied ones up to 10 join them.
+    var ids = []
+    for (var n = 1; n <= Number(setting("count", 5)); n++) ids.push(n)
     var values = Hyprland.workspaces.values
 
     for (var i = 0; i < values.length; i++) {
