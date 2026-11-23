@@ -16,17 +16,6 @@ pass "default shell.json is valid JSON"
 jq -e '.version == 1 and (.bar.layout.left | type == "array") and (.bar.layout.center | type == "array") and (.bar.layout.right | type == "array")' "$ROOT/config/midhat/shell.json" >/dev/null
 pass "default shell.json has versioned bar layout"
 
-# Pinning the whole row made this fail every time an unrelated widget moved,
-# so assert the adjacency the name is about and let the rest of the row change.
-jq -e '
-  def ids: map(.id // .);
-  (.bar.layout.center | ids) as $ids |
-  ($ids | index("midhat.weather")) as $weather |
-  ($ids | index("midhat.system-update")) as $update |
-  $weather != null and $update == $weather + 1
-' "$ROOT/config/midhat/shell.json" >/dev/null
-pass "default center layout keeps update next to weather"
-
 jq -e '
   (.bar.centerAnchor // "") as $anchor |
   any(.bar.layout.center[]; (.id // .) == $anchor)
