@@ -1,9 +1,11 @@
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.UPower
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
@@ -42,6 +44,8 @@ Item {
   // killing the entire shell. Hidden panels stay mapped but park off-screen
   // without an exclusion zone; updated by the FileView watcher further down.
   property bool barHidden: false
+  readonly property var batteryDevice: UPower.displayDevice
+  readonly property real charge: batteryDevice && batteryDevice.isPresent ? Math.max(0, Math.min(1, batteryDevice.percentage)) : 1
   property string home: Quickshell.env("HOME")
   property string stateHome: home + "/.local/state"
   property string midhatConfigDir: home + "/.config/midhat"
@@ -78,9 +82,14 @@ Item {
   property color themeContrastForeground: Commons.Color.background
   property color transparentForeground: Commons.Color.bar.text
   property color foreground: themeForeground
-  property color barForeground: useTransparentForeground ? transparentForeground : themeForeground
+  // `bar.style: "cover"` in shell.json: the bar is a notebook's book cover, a dark board with light
+  // ink whose stitching shows the battery charge. Only the bar itself; cards keep `foreground`.
+  property bool cover: false
+  readonly property bool coverShown: cover && !transparent
+  property color coverInk: "#e4e4e4"
+  property color barForeground: coverShown ? coverInk : useTransparentForeground ? transparentForeground : themeForeground
   property bool foregroundAnimationEnabled: true
-  property color background: Commons.Color.bar.background
+  property color background: cover ? "#262626" : Commons.Color.bar.background
   property color urgent: Commons.Color.bar.active
 
   Behavior on barForeground { enabled: root.foregroundAnimationEnabled; ColorAnimation { duration: 420; easing.type: Easing.InOutCubic } }
@@ -139,6 +148,7 @@ Item {
     api.vertical = Qt.binding(function() { return root.vertical })
     api.barSize = Qt.binding(function() { return root.barSize })
     api.transparent = Qt.binding(function() { return root.transparent })
+    api.coverShown = Qt.binding(function() { return root.coverShown })
     api.foregroundAnimationEnabled = Qt.binding(function() { return root.foregroundAnimationEnabled })
     api.centerSectionRevealHeld = Qt.binding(function() { return root.centerSectionRevealHeld })
     api._centerHoverRevealSuppressed = Qt.binding(function() { return root.centerHoverRevealSuppressed })
@@ -600,6 +610,7 @@ Item {
 
     position = normalizePosition(config.position)
     setRequestedTransparency(config.transparent === true)
+    cover = config.style === "cover"
     centerAnchor = Util.canonicalWidgetId(config.centerAnchor || "")
 
     // layoutEntries feeds plain JS arrays to the module Repeaters, and QML
@@ -1267,6 +1278,80 @@ Item {
     }
   }
 
+  Variants {
+    model: Quickshell.screens
+
+    delegate: Component {
+      CoverCornersPanel {
+        required property var modelData
+
+        screen: modelData
+      }
+    }
+  }
+
+  // The cover lies on the pages and casts a shadow that follows its rounded page-side corners.
+  // shortcut: drawn for a left bar only; mirror the shapes if the bar ever moves.
+  component CoverCornersPanel: PanelWindow {
+    id: cornersWindow
+    readonly property int r: Style.cornerRadius
+    readonly property int depth: 8
+
+    visible: root.coverShown && !root.barHidden && root.position === "left"
+    exclusionMode: ExclusionMode.Ignore
+    anchors { left: true; top: true; bottom: true }
+    margins.left: root.barSize - r
+    implicitWidth: r + depth * 2
+    color: "transparent"
+    surfaceFormat.opaque: false
+    mask: Region {}
+    WlrLayershell.namespace: "midhat-bar-corners"
+    WlrLayershell.layer: WlrLayer.Top
+
+    // Layer order against the bar is not guaranteed (re-mapping after a transparency toggle puts this
+    // layer on top), so the shadow is cut out where the cover is. The cut-out is inset half a pixel so
+    // the cover's antialiased edge still has shadow beneath it instead of a light fringe.
+    Item {
+      id: coverShadow
+      anchors.fill: parent
+      visible: false
+      layer.enabled: true
+
+      RectangularShadow {
+        x: -2 * cornersWindow.r
+        width: 3 * cornersWindow.r
+        height: parent.height
+        radius: cornersWindow.r
+        blur: cornersWindow.depth
+        color: Qt.rgba(0, 0, 0, 0.75)
+      }
+    }
+
+    Item {
+      id: coverShape
+      anchors.fill: parent
+      visible: false
+      layer.enabled: true
+
+      Rectangle {
+        x: -2 * cornersWindow.r
+        width: 3 * cornersWindow.r - 0.5
+        height: parent.height
+        radius: cornersWindow.r
+        antialiasing: true
+        color: "black"
+      }
+    }
+
+    MultiEffect {
+      anchors.fill: parent
+      source: coverShadow
+      maskEnabled: true
+      maskSource: coverShape
+      maskInverted: true
+    }
+  }
+
   component BarPanel: PanelWindow {
     id: barWindow
 
@@ -1277,6 +1362,8 @@ Item {
     // keeps the surface alive, so showing is only a margin change.
     visible: !remapGuard.remapping
     exclusionMode: root.barHidden ? ExclusionMode.Ignore : ExclusionMode.Auto
+    // As a (left) cover, pages slide under the rounded page-side corners so no wallpaper shows there.
+    exclusiveZone: root.barHidden ? 0 : root.coverShown && root.position === "left" ? root.barSize - Style.cornerRadius : root.barSize
 
     ScreenMoveRemap {
       id: remapGuard
@@ -1312,6 +1399,70 @@ Item {
       bottomLeftRadius: root.position === "right" || root.position === "top" ? Style.cornerRadius : 0
       bottomRightRadius: root.position === "left" || root.position === "top" ? Style.cornerRadius : 0
       color: root.transparent ? "transparent" : root.background
+      clip: root.coverShown
+
+      // Raised-thread stitching along the cover's outer edge, sewn from the bottom (or left) as far as
+      // the battery's charge; above it only the needle holes show.
+      Item {
+        id: stitching
+        readonly property int pitch: 7
+        readonly property real inset: 2.6
+        readonly property real along: root.vertical ? height : width
+        readonly property real sewn: along * root.charge
+        readonly property real across: root.position === "right" ? width - inset : root.position === "bottom" ? height - inset : inset
+        visible: root.coverShown
+        anchors.fill: parent
+
+        Repeater {
+          model: Math.floor(stitching.along / stitching.pitch)
+
+          Item {
+            id: stitchSlot
+            required property int index
+            // Distance from the bottom (vertical bar) or left end to this stitch's far end.
+            readonly property real reach: (index + 1) * stitching.pitch
+            readonly property bool sewn: reach <= stitching.sewn
+            readonly property real longSide: 2.8
+            readonly property real shortSide: 1.2
+            width: root.vertical ? shortSide : longSide
+            height: root.vertical ? longSide : shortSide
+            x: root.vertical ? stitching.across - width / 2 : reach - longSide - 0.8
+            y: root.vertical ? stitching.along - reach + 0.8 : stitching.across - height / 2
+
+            Rectangle {
+              visible: stitchSlot.sewn
+              x: 0.3; y: 0.4
+              width: parent.width; height: parent.height
+              radius: stitchSlot.shortSide / 2
+              color: Qt.rgba(0, 0, 0, 0.55)
+            }
+
+            Rectangle {
+              visible: stitchSlot.sewn
+              anchors.fill: parent
+              radius: stitchSlot.shortSide / 2
+              color: Qt.rgba(root.barForeground.r * 0.9, root.barForeground.g * 0.9, root.barForeground.b * 0.9, 0.7)
+            }
+
+            Rectangle {
+              visible: stitchSlot.sewn
+              anchors.centerIn: parent
+              width: root.vertical ? 0.4 : parent.width - 1
+              height: root.vertical ? parent.height - 1 : 0.4
+              radius: 0.2
+              color: Qt.rgba(1, 1, 1, 0.45)
+            }
+
+            Rectangle {
+              visible: !stitchSlot.sewn
+              width: 0.8; height: 0.8; radius: 0.4
+              x: root.vertical ? (parent.width - width) / 2 : parent.width - width
+              y: root.vertical ? 0 : (parent.height - height) / 2
+              color: Qt.rgba(0, 0, 0, 0.45)
+            }
+          }
+        }
+      }
     }
 
     Loader {

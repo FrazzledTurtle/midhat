@@ -150,6 +150,11 @@ Rules:
 6. `allowMultiple: true` in the manifest permits multiple instances.
 7. `idle.screensaver` and `idle.lock` are seconds since user idle began.
 8. `version: 1` is required.
+9. `bar.style: "cover"` turns the built-in bar into a notebook cover: a dark board with
+   light ink, stitching along the outer edge that fills with the battery charge (the
+   battery line is then hidden), and on a left bar a shadow over the windows and a
+   ribbon marking the current workspace. Any other value, or none, is the plain bar.
+10. `midhat.workspaces` takes `count` (default 5): workspaces 1 to `count` always show.
 
 `config/midhat/shell.json` describes the fresh-install state. When no
 user `shell.json` exists, defaults are used verbatim. Once the user

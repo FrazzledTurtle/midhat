@@ -90,6 +90,8 @@ Item {
   readonly property int strip: radius + Math.ceil(thickness)
   readonly property var device: UPower.displayDevice
   readonly property bool present: device && device.isPresent
+  // A cover bar (`bar.style: "cover"`) shows the charge as its stitching instead.
+  readonly property bool coverShown: !!shell && !!shell.barConfig && shell.barConfig.style === "cover" && shell.barConfig.transparent !== true
   readonly property real level: present ? Math.max(0, Math.min(1, device.percentage)) : 0
 
   // The line just outside the bar's edge, drawn for a left bar (W across, L along, starting
@@ -133,7 +135,7 @@ Item {
       readonly property var edge: root.edgePath(root.strip, root.vertical ? height : width)
 
       screen: modelData
-      visible: root.present
+      visible: root.present && !root.coverShown
       exclusionMode: ExclusionMode.Ignore
       // Starts where the bar's corner curve starts and reaches just past the bar's edge.
       anchors {
