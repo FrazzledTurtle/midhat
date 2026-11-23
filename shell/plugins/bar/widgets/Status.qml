@@ -55,20 +55,42 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.network ? root.network.icon : ""
+    text: "󰒓"
     onPressed: root.toggle()
-    transform: Translate { x: btDot.visible ? -btDot.width / 2 : 0 }
+    onWheelMoved: function(delta) {
+      var a = root.audio
+      if (!a || !a.hasOutput) return
+      var wheel = Util.wheelSteps(a.wheelAccumulator, delta)
+      a.wheelAccumulator = wheel.remainder
+      if (wheel.steps === 0) return
+      a.showVolumeOsd(a.setOutputVolume(a.outputVolume + wheel.steps * 0.05))
+    }
+    transform: Translate { x: btDot.visible || wifiDot.visible ? -btDot.width / 2 : 0 }
 
-    Rectangle {
+    Text {
+      id: wifiDot
+      visible: !!root.wifiNetwork
+      textFormat: Text.PlainText
+      text: "󰖩"
+      color: root.barForeground
+      font.family: button.fontFamily
+      font.pixelSize: Style.space(9)
+      anchors.centerIn: parent
+      anchors.horizontalCenterOffset: button.opticalSize * 0.4
+      anchors.verticalCenterOffset: -button.opticalSize * 0.4
+    }
+
+    Text {
       id: btDot
       visible: !!root.bluetoothDevice
-      width: Style.space(5)
-      height: width
-      radius: width / 2
+      textFormat: Text.PlainText
+      text: "󰂯"
       color: root.barForeground
+      font.family: button.fontFamily
+      font.pixelSize: Style.space(9)
       anchors.centerIn: parent
-      anchors.horizontalCenterOffset: button.opticalSize / 2
-      anchors.verticalCenterOffset: button.opticalSize / 2
+      anchors.horizontalCenterOffset: button.opticalSize * 0.4
+      anchors.verticalCenterOffset: button.opticalSize * 0.4
     }
 
     Rectangle {
