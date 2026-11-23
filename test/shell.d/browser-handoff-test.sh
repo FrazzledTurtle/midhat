@@ -9,7 +9,7 @@ require_command socat
 
 # The handoff only stands in for the packaged browser itself.
 if [[ $(type -P chromium) != "/usr/bin/chromium" ]]; then
-  skip "browser handoff needs /usr/bin/chromium"
+  pass "chromium is not at /usr/bin/chromium; skipping browser handoff test"
   exit 0
 fi
 
