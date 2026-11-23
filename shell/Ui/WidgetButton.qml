@@ -10,7 +10,8 @@ Item {
   property string fontFamily: bar ? bar.fontFamily : Style.font.family
   property real fontSize: Style.font.body
   property color foreground: bar ? bar.barForeground : Commons.Color.foreground
-  property color activeColor: bar ? bar.urgent : Commons.Color.urgent
+  // The cover is a fixed dark board, so the theme's urgent colour (made for a light bar) vanishes on it.
+  property color activeColor: bar ? (bar.coverShown ? "#f2b8b5" : bar.urgent) : Commons.Color.urgent
   property bool active: false
   property real horizontalMargin: 8.5
   property real verticalPadding: 6
